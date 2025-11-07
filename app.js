@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 
 
-const authRouter = require('./routes/authRouter');
+const authRouter = require('./routes/api/authApiRoutes');
 
 const app = express();
 
