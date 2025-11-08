@@ -83,3 +83,23 @@ exports.editPerfilValidation = () => {
     body('sexo', 'El sexo es obligatorio').not().isEmpty().trim(),
   ]
 };
+
+exports.editPasswordValidation = () => {
+  return[
+    body('passwordAnterior', 'La contraseña debe tener al menos 8 caracteres').isLength({ min: 8 })
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula y un número.'),
+
+    body('password', 'La contraseña debe tener al menos 8 caracteres').isLength({ min: 8 })
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula y un número.'),
+
+    body('passwordConfirmation', 'Las contraseñas no coinciden')
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error('La confirmación de la contraseña no coincide con la contraseña');
+        }
+        return true;
+      }),
+  ];
+};

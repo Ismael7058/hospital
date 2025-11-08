@@ -42,3 +42,28 @@ exports.editPerfil = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor.' }); 
     }
 };
+
+exports.editPassword = async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const usuarioId = req.usuario.id; 
+        const datosPasswords = req.body;
+
+    await usuarioServices.editPassword(usuarioId, datosPasswords);
+
+    res.status(200).json({ message: 'Contraseña actualizada exitosamente.' });
+  } catch (error) {
+    if (error.message === 'Usuario no encontrado') {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message === 'La contraseña anterior es incorrecta') {
+      return res.status(401).json({ message: error.message });
+    }
+    console.error('Error al cambiar la contraseña:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}

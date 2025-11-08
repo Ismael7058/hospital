@@ -46,3 +46,21 @@ exports.editPerfil = async (id, datosActualizados) => {
 
     return filasActualizadas;
 };
+
+exports.editPassword = async (id, datosActualizados) =>{
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    const passwordAnterior = await bcrypt.compare(datosActualizados.passwordAnterior, usuario.password_hash);
+    if (!passwordAnterior) {
+        throw new Error('Contraseña anterior incorrecta');
+    }
+
+    const password_hash = await bcrypt.hash(datosActualizados.password, saltRounds);
+    
+    const filaActualizada = await Usuario.update(password_hash, {where: { id: id }});
+    return filaActualizada;
+
+};
