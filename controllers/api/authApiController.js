@@ -1,38 +1,16 @@
-const bcrypt = require('bcrypt');
-const { Usuario, Rol } = require('../../db/models');
-const jwt = require('jsonwebtoken');
+const authService = require('../../services/authServices');
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const usuario = await Usuario.findOne({ where: { email } });
-        if (!usuario) {
-            return res.status(404).json({ message: 'Credenciales inválidas' });
-        }
+        const token = await authService.loginUser(email, password);
 
-        const esPasswordValida = await bcrypt.compare(password, usuario.password_hash);
-        if (!esPasswordValida) {
-            return res.status(401).json({ message: 'Credenciales inválidas' });
-        }
-
-        const payload = {
-            usuario: {
-                id: usuario.id,
-                rol_id: usuario.rol_id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: '8h' },
-            (err, token) => {
-                if (err) throw err;
-                res.status(200).json({ token });
-            }
-        );
+        res.status(200).json({ token });
     } catch (error) {
+        if (error.message === 'Credenciales inválidas') {
+            return res.status(401).json({ message: error.message });
+        }
         console.error('Error en el login:', error);
         res.status(500).json({ message: 'Error en el servidor' });
     }
