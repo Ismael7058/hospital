@@ -106,3 +106,18 @@ exports.editPassword = async (id, datosActualizados) =>{
     return filaActualizada;
 
 };
+
+exports.setEstado = async (id, estado) => {
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    if (usuario.estado === estado) {
+        throw new Error(`El usuario ya se encuentra ${estado ? 'activo' : 'inactivo'}.`);
+    }
+
+    usuario.estado = estado;
+    await usuario.save();
+    return usuario;
+};

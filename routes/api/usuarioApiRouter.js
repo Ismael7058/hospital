@@ -16,4 +16,11 @@ router.put('/editPassword', editPasswordValidation(), usuarioApiController.editP
 // PUT /api/usuarios/modify
 router.put('/modify', modifyUsuarioValidation(), usuarioApiController.modifyUsuario);
 
+// POST /api/usuarios/altaLogica
+router.post('/altaLogica', usuarioApiController.altaLogica);
+
+// POST /api/usuarios/bajaLogica
+router.post('/bajaLogica', usuarioApiController.bajaLogica);
+
+
 module.exports = router;

@@ -92,3 +92,32 @@ exports.editPassword = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor.' });
   }
 }
+
+exports.altaLogica = async (req, res) => {
+    try {
+        const usuarioId = req.body.id;
+        await usuarioServices.setEstado(usuarioId, true);
+
+        res.status(200).json({ message: 'Usuario dado de alta exitosamente.' });
+    } catch (error) {
+        if (error.message.includes('ya se encuentra activo')) {
+            return res.status(409).json({ message: error.message });
+        }
+        console.error('Error al darle la alta lógica al usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+}
+exports.bajaLogica = async (req, res) => {
+    try {
+        const usuarioId = req.body.id;
+        await usuarioServices.setEstado(usuarioId, false);
+
+        res.status(200).json({ message: 'Usuario dado de baja exitosamente.' });
+    } catch (error) {
+        if (error.message.includes('ya se encuentra inactivo')) {
+            return res.status(409).json({ message: error.message });
+        }
+        console.error('Error al darle la baja lógica al usuario:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
