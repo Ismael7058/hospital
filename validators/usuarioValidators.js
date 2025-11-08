@@ -49,3 +49,37 @@ exports.registerUsuarioValidation = () => {
     body('sexo', 'El sexo es obligatorio').not().isEmpty().trim(),
   ];
 };
+
+exports.editPerfilValidation = () => {
+  return [
+    body('email', 'Por favor, ingrese un email válido').isEmail().normalizeEmail()
+      .custom(async (value, { req }) => {
+        const usuarioId = req.usuario.id; 
+        const usuario = await Usuario.findOne({ where: { email: value } });
+
+        if (usuario && usuario.id !== usuarioId) {
+          return Promise.reject('El correo electrónico ya está en uso por otro usuario.');
+        }
+      }),
+
+    body('nombre', 'El nombre es obligatorio')
+      .not().isEmpty().withMessage('El nombre es obligatorio')
+      .trim()
+      .isAlpha('es-ES', { ignore: ' ' }).withMessage('El nombre solo debe contener letras y espacios'),
+
+    body('apellido', 'El apellido es obligatorio')
+      .not().isEmpty().withMessage('El apellido es obligatorio')
+      .trim()
+      .isAlpha('es-ES', { ignore: ' ' }).withMessage('El apellido solo debe contener letras y espacios'),
+
+    body('fecha_nacimiento', 'La fecha de nacimiento no es válida').isISO8601().toDate(),
+
+    body('direccion', 'La dirección es obligatoria')
+      .not().isEmpty().withMessage('La dirección es obligatoria')
+      .trim(),
+
+    body('telefono', 'El teléfono es obligatorio').not().isEmpty().trim(),
+
+    body('sexo', 'El sexo es obligatorio').not().isEmpty().trim(),
+  ]
+};

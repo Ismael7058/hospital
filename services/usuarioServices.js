@@ -23,3 +23,26 @@ exports.registerUsuario = async (usuarioData) => {
 
     return nuevoUsuario;
 }
+
+exports.editPerfil = async (id, datosActualizados) => {
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    const atributosEditables = {
+        nombre: datosActualizados.nombre,
+        apellido: datosActualizados.apellido,
+        telefono: datosActualizados.telefono,
+        direccion: datosActualizados.direccion,
+        fecha_nacimiento: datosActualizados.fecha_nacimiento,
+        sexo: datosActualizados.sexo,
+        email: datosActualizados.email
+    };
+
+    const [filasActualizadas] = await Usuario.update(atributosEditables, {
+        where: { id: id }
+    });
+
+    return filasActualizadas;
+};
