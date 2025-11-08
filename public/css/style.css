@@ -1,0 +1,54 @@
+/* public/css/style.css */
+
+/* --- Estilos para la barra lateral colapsable --- */
+
+/* Transiciones suaves para la barra y el contenido principal */
+#sidebarMenu, #main-content {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Cuando la barra está colapsada */
+body.sidebar-collapsed #sidebarMenu {
+  width: 80px !important; /* Ancho reducido para mostrar solo íconos */
+}
+
+body.sidebar-collapsed #main-content {
+  margin-left: 80px !important; /* Empuja el contenido principal */
+}
+
+/* Prepara los spans para la animación y evita saltos de línea */
+#sidebarMenu .nav-link span,
+#sidebarMenu .sidebar-heading span {
+  min-width: 0; /* Permite que el span se encoja correctamente */
+  transition: opacity 0.2s ease-in-out, width 0.2s ease-in-out;
+  opacity: 1;
+  width: auto;
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+}
+
+/* Oculta el texto de los enlaces cuando la barra está colapsada */
+body.sidebar-collapsed #sidebarMenu .nav-link span,
+body.sidebar-collapsed #sidebarMenu .sidebar-heading span,
+body.sidebar-collapsed #sidebarMenu .btn span { /* Se mantiene por si se añade otro botón */
+  opacity: 0;
+  width: 0;
+  overflow: hidden; /* Importante para que no ocupe espacio */
+}
+
+/* Mantiene los íconos fijos a la izquierda durante el colapso */
+body.sidebar-collapsed #sidebarMenu .nav-link {
+  justify-content: flex-start; /* Mantiene el contenido alineado a la izquierda */
+  /* El padding-left de px-3 (1rem) se mantiene, así que el ícono no se mueve */
+}
+
+/* Asegura que los íconos no tengan margen extra cuando está colapsado */
+body.sidebar-collapsed #sidebarMenu .nav-link i {
+  margin-right: 0 !important;
+}
+
+/* Oculta el botón de colapso en pantallas grandes si no lo quieres */
+@media (min-width: 768px) {
+  .navbar-toggler {
+    display: block; /* Asegúrate de que siempre sea visible si lo deseas */
+  }
+}

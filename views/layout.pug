@@ -1,0 +1,21 @@
+doctype html
+html(lang="es").h-100
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Hospital Horizon
+    link(rel="stylesheet", href="/bootstrap/css/bootstrap.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css")
+    link(rel="stylesheet", href="/css/style.css")
+  body.d-flex.flex-column.h-100
+    include Shared/Header.pug 
+    .container-fluid.flex-grow-1
+      .row.h-100
+        include Shared/Siderbar.pug
+        main.col-md-9.ms-sm-auto.col-lg-10.px-md-4.content.h-100
+          block content
+
+    include Shared/ModalLogin.pug
+
+    script(src="/bootstrap/js/bootstrap.bundle.min.js")
+    script(src="/js/main.js")

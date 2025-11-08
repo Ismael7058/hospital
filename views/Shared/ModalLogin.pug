@@ -1,0 +1,19 @@
+//- Modal de Inicio de Sesión
+#loginModal.modal.fade(tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true")
+  .modal-dialog.modal-dialog-centered
+    .modal-content
+      .modal-header
+        h5#loginModalLabel.modal-title Iniciar Sesión
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+      .modal-body
+        //- Formulario de Login
+        form#loginForm
+          .mb-3
+            label.form-label(for="emailInput") Correo Electrónico
+            input#emailInput.form-control(type="email" placeholder="nombre@ejemplo.com" required)
+          .mb-3
+            label.form-label(for="passwordInput") Contraseña
+            input#passwordInput.form-control(type="password" placeholder="Contraseña" required)
+          .d-flex.justify-content-end
+            button.btn.btn-secondary.me-2(type="button" data-bs-dismiss="modal") Cerrar
+            button.btn.btn-primary(type="submit") Iniciar Sesión
