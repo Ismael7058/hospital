@@ -1,4 +1,4 @@
-const sequelize = require('../config/database');
+const sequelize = require('../../config/database');
 const { DataTypes } = require('sequelize');
 
 const RolModel = require('./rol');
@@ -10,8 +10,7 @@ const Usuario = UsuarioModel(sequelize, DataTypes);
 const db = {
     sequelize,
     Rol,
-    Usuario,
-    Matricula
+    Usuario
 };
 
 // Un Rol tiene muchos Usuarios
