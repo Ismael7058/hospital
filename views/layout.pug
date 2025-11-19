@@ -9,11 +9,10 @@ html(lang="es").h-100
     link(rel="stylesheet", href="/css/style.css")
   body.d-flex.flex-column.h-100
     include Shared/Header.pug 
-    .container-fluid.flex-grow-1
-      .row.h-100
-        include Shared/Siderbar.pug
-        main.col-md-9.ms-sm-auto.col-lg-10.px-md-4.content.h-100
-          block content
+    .app-container.flex-grow-1
+      include Shared/Siderbar.pug
+      main#main-content.h-100
+        block content
 
     include Shared/ModalLogin.pug
 

@@ -1,0 +1,112 @@
+extends ../layout   
+
+block content
+  // 1. El contenedor principal tiene el padding y una ALTURA MÍNIMA del 100%.
+  //    Al usar min-h-100, el contenedor puede crecer si su contenido es más alto,
+  //    haciendo que el padding-bottom sea parte del contenido desplazable.
+  .container-fluid.d-flex.flex-column.min-h-100.p-4
+    // 2. El formulario ahora es el contenedor visual y el elemento que crece.
+    form#registroForm.row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1(action="/usuarios/registrar" method="POST" autocomplete="off" novalidate)
+      //- Contenedor para mostrar errores generales de la API
+      #general-error.alert.alert-danger.d-none
+      //- Bloque para mostrar errores generales (como "Email ya en uso")
+      if errors && errors.some(e => !e.path)
+        .alert.alert-danger
+          each error in errors.filter(e => !e.path)
+            p.mb-0= error.msg
+      h3.text-center.my-4 Crear Nuevo Usuario
+      // 3. El contenido del formulario se envuelve en un div que puede crecer.
+      //- Sección de Información Personal
+      .col-12.px-4.px-4
+        h5.mb-3 Información Personal
+        .row.gy-4
+          .col-md-4
+            label.form-label(for="dni") DNI
+            //- Mantiene el valor anterior si existe (del backend)
+            input.form-control(type="text" id="dni" name="dni" placeholder="ej. 12345478" required value=(old ? old.dni : ''))
+            //- Muestra el error del backend si existe para este campo
+            if errors && errors.find(e => e.path === 'dni')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'dni').msg
+          .col-md-4
+            label.form-label(for="nombre") Nombre(s)
+            input.form-control(type="text" id="nombre" name="nombre" required value=(old ? old.nombre : ''))
+            if errors && errors.find(e => e.path === 'nombre')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'nombre').msg
+          .col-md-4
+            label.form-label(for="apellido") Apellido(s)
+            input.form-control(type="text" id="apellido" name="apellido" required value=(old ? old.apellido : ''))
+            if errors && errors.find(e => e.path === 'apellido')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'apellido').msg
+          .col-md-6
+            label.form-label(for="fecha_nacimiento") Fecha de Nacimiento
+            input.form-control(type="date" id="fecha_nacimiento" name="fecha_nacimiento" required value=(old ? old.fecha_nacimiento : ''))
+            if errors && errors.find(e => e.path === 'fecha_nacimiento')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'fecha_nacimiento').msg
+          .col-md-6
+            label.form-label(for="sexo") Sexo
+            select.form-select(id="sexo" name="sexo" required)
+              option(value="" selected disabled) Seleccione un sexo...
+              option(value="Masculino" selected=(old && old.sexo === 'Masculino')) Masculino
+              option(value="Femenino" selected=(old && old.sexo === 'Femenino')) Femenino
+            if errors && errors.find(e => e.path === 'sexo')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'sexo').msg
+
+      hr.my-5
+
+      //- Sección de Datos de Contacto
+      .col-12.px-4
+        h5.mb-3 Datos de Contacto
+        .row.gy-4
+          .col-12
+            label.form-label(for="direccion") Dirección
+            input.form-control(type="text" id="direccion" name="direccion" placeholder="ej. Calle Falsa 123" required value=(old ? old.direccion : ''))
+            if errors && errors.find(e => e.path === 'direccion')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'direccion').msg
+          .col-md-6
+            label.form-label(for="telefono") Teléfono
+            input.form-control(type="tel" id="telefono" name="telefono" placeholder="ej. 123-654-7890" required value=(old ? old.telefono : ''))
+            if errors && errors.find(e => e.path === 'telefono')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'telefono').msg
+          .col-md-6
+            label.form-label(for="email") Correo Electrónico
+            input.form-control(type="email" id="email" name="email" placeholder="ejemplo@dominio.com" required value=(old ? old.email : ''))
+            if errors && errors.find(e => e.path === 'email')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'email').msg
+
+      hr.my-5
+
+      //- Sección de Seguridad
+      .col-12.px-4.mb-4
+        h5.mb-3 Seguridad de la Cuenta
+        .row.gy-4
+          .col-md-4
+            label.form-label(for="password") Contraseña
+            input.form-control(type="password" id="password" name="password" required)
+            if errors && errors.find(e => e.path === 'password')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'password').msg
+          .col-md-4
+            label.form-label(for="passwordConfirmation") Confirmar Contraseña
+            input.form-control(type="password" id="passwordConfirmation" name="passwordConfirmation" required)
+            if errors && errors.find(e => e.path === 'passwordConfirmation')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'passwordConfirmation').msg
+          .col-md-4
+            label.form-label(for="rol_id") Rol del Usuario
+            select.form-select(id="rol_id" name="rol_id" required)
+              option(value="" selected disabled) Seleccione un rol...
+              //- Asumimos que la variable 'roles' es pasada desde el controlador
+              if roles
+                each rol in roles
+                  option(value=rol.id selected=(old && old.rol_id == rol.id)) #{rol.nombre}
+            if errors && errors.find(e => e.path === 'rol_id')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'rol_id').msg
+      //- Botones de acción (mt-auto los empuja hacia abajo)
+      .col-12.px-4.mt-auto.py-4.d-flex.justify-content-end
+        a.btn.btn-secondary.me-2(href="/usuarios")
+          i.bi.bi-arrow-left.me-2
+          | Volver
+        button.btn.btn-success(type="submit")
+          i.bi.bi-person-plus-fill.me-2
+          | Registrar Usuario
+
+    //- Incluimos el script de validación específico para esta página
+    script(src="/js/formUsuarioRegister.js")

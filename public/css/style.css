@@ -1,19 +1,55 @@
 /* public/css/style.css */
 
+/* --- Reseteo y Box Sizing --- */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+/* --- Estilos para la estructura de layout principal --- */
+body, html {
+  margin: 0;
+  height: 100%;
+  overflow: hidden; /* El scroll se manejará en los hijos */
+}
+
+.header {
+  /* El header ya no es fijo, es parte del flujo flex-column del body */
+  flex-shrink: 0; /* Evita que el header se encoja */
+}
+
+.app-container {
+  display: flex;
+  overflow: hidden; /* Los hijos manejarán su propio scroll */
+}
+
+#sidebarMenu {
+  flex-shrink: 0; /* Evita que el sidebar se encoja */
+  width: 250px; /* Ancho por defecto del sidebar. Ajusta si es necesario. */
+  overflow-y: auto; /* ¡La clave! Permite el scroll vertical si el contenido excede la altura */
+  transition: width 0.3s ease-in-out;
+  /* El resto de tus estilos de sidebar (color, etc.) se mantienen */
+}
+
+#main-content {
+  flex-grow: 1; /* Ocupa todo el espacio horizontal restante */
+  overflow-y: auto; /* ¡La clave! Permite el scroll vertical para el contenido principal */
+  background-color: #f8f9fa; /* Un color de fondo para el área de contenido */
+}
+
+/* Contenido dentro del main para darle padding.
+   Se usa una clase específica (.content-padding) para evitar conflictos con layouts de altura completa. */
+#main-content > .content-padding {
+  padding: 1.5rem;
+}
+
 /* --- Estilos para la barra lateral colapsable --- */
 
-/* Transiciones suaves para la barra y el contenido principal */
-#sidebarMenu, #main-content {
-  transition: all 0.3s ease-in-out;
-}
-
 /* Cuando la barra está colapsada */
-body.sidebar-collapsed #sidebarMenu {
+body.sidebar-collapsed #sidebarMenu,
+nav#sidebarMenu.sidebar.collapse:not(.show) { /* Compatibilidad con Bootstrap si se usa */
   width: 80px !important; /* Ancho reducido para mostrar solo íconos */
-}
-
-body.sidebar-collapsed #main-content {
-  margin-left: 80px !important; /* Empuja el contenido principal */
 }
 
 /* Prepara los spans para la animación y evita saltos de línea */
@@ -27,7 +63,8 @@ body.sidebar-collapsed #main-content {
 }
 
 /* Oculta el texto de los enlaces cuando la barra está colapsada */
-body.sidebar-collapsed #sidebarMenu .nav-link span,
+body.sidebar-collapsed #sidebarMenu .nav-link span, 
+nav#sidebarMenu.sidebar.collapse:not(.show) .nav-link span,
 body.sidebar-collapsed #sidebarMenu .sidebar-heading span,
 body.sidebar-collapsed #sidebarMenu .btn span { /* Se mantiene por si se añade otro botón */
   opacity: 0;
@@ -36,7 +73,8 @@ body.sidebar-collapsed #sidebarMenu .btn span { /* Se mantiene por si se añade 
 }
 
 /* Mantiene los íconos fijos a la izquierda durante el colapso */
-body.sidebar-collapsed #sidebarMenu .nav-link {
+body.sidebar-collapsed #sidebarMenu .nav-link,
+nav#sidebarMenu.sidebar.collapse:not(.show) .nav-link {
   justify-content: flex-start; /* Mantiene el contenido alineado a la izquierda */
   /* El padding-left de px-3 (1rem) se mantiene, así que el ícono no se mueve */
 }
@@ -46,9 +84,14 @@ body.sidebar-collapsed #sidebarMenu .nav-link i {
   margin-right: 0 !important;
 }
 
-/* Oculta el botón de colapso en pantallas grandes si no lo quieres */
-@media (min-width: 768px) {
-  .navbar-toggler {
-    display: block; /* Asegúrate de que siempre sea visible si lo deseas */
-  }
+/* Solución para que un elemento con .row no se coma el padding de su padre
+   cuando también es el contenedor principal con padding. */
+form.row.p-4 {
+  margin: 0;
+}
+
+/* Solución para que un elemento con .row no se coma el padding de su padre
+   cuando también es el contenedor principal con padding. */
+form.row.p-4 {
+  margin: 0;
 }

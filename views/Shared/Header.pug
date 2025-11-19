@@ -3,14 +3,14 @@ header.navbar.navbar-dark.sticky-top.bg-dark.p-0.shadow.p-2
   // Toggle y Logo
   .d-flex.align-items-center
     //- Habilitar cuando el usuario este logueado
-    //- button.navbar-toggler.p-2.border-0(type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation")
-      //- i.bi.bi-list.fs-4
+    button#sidebarToggle.navbar-toggler.p-2.border-0(type="button" aria-label="Toggle navigation")
+      i.bi.bi-list.fs-4
     a.navbar-brand.ps-2(href="#") Hospital Horizon
 
 
   // Widgets de Usuario
   //- Habilitar cuando el usuario este logueado
-  //- .d-flex.align-items-center.ms-auto
+  .d-flex.align-items-center.ms-auto
     // Nombre del usuario logueado (Visible en pantallas grandes)
     span.navbar-text.me-3.d-none.d-lg-inline.text-white-50 Dr. {Usuario}
     
