@@ -39,8 +39,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (response.ok) { // Esto cubre estados 2xx, incluyendo 201
         // --- Manejo de Éxito (201 Created) ---
-        // Redirigir a la página de gestión de usuarios
-        window.location.href = '/usuarios';
+        // Redirigir a la página de gestión del usuario recién creado.
+        // Asumimos que la ruta es /usuarios/:id
+        if (result.usuarioId) {
+          window.location.href = `/usuarios/${result.usuarioId}`;
+        } else {
+          window.location.href = '/usuarios/register'; // Fallback por si el ID no viene
+        }
       } else {
         // --- Manejo de Errores (4xx, 5xx) ---
         if (response.status === 400) {

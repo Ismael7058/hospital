@@ -1,4 +1,4 @@
-const { Rol } = require('../../db/models');
+const { Rol, Usuario } = require('../../db/models');
 
 exports.getRegistrar = async (req, res) => {
     try {
@@ -19,10 +19,23 @@ exports.getRegistrar = async (req, res) => {
     }
 };
 
-exports.getUsuario = (req, res) => {
+exports.getUsuario = async (req, res) => {
     try {
+        const usuarioId = req.params.id;
+        // Usamos Promise.all para cargar el usuario y los roles en paralelo
+        const [usuario, roles] = await Promise.all([
+            Usuario.findByPk(usuarioId),
+            Rol.findAll({ attributes: ['id', 'nombre'], order: [['nombre', 'ASC']] })
+        ]);
+
+        if (!usuario) {
+            return res.redirect('/usuarios');
+        }
+
         res.render('./Usuario/Gestion.pug', {
-            title: 'Ver Usuario'
+            title: `Gestión de ${usuario.nombre} ${usuario.apellido}`,
+            usuario: usuario,
+            roles: roles
         });
     } catch (error) {
         console.error('Error al renderizar la vista de usuario:', error);

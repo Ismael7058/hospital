@@ -2,7 +2,7 @@ exports.getHome = (req, res) => {
     try {
         // Para ver el panel de ejemplo un usuario logueado
         // res.remnder('dashboard', {
-        res.render('index', {
+        res.render('./shared/dashboard', {
             title: 'Horizon'
         });
     } catch (error) {

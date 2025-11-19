@@ -10,7 +10,10 @@ exports.registerUsuario = async (req, res) => {
     try {
         const nuevoUsuario = await usuarioServices.registerUsuario(req.body);
 
-        res.status(201).json({ message: 'Usuario registrado exitosamente.' });
+        res.status(201).json({
+            message: 'Usuario registrado exitosamente.',
+            usuarioId: nuevoUsuario.id
+        });
 
     } catch (error) {
         if (error.message === 'El email ya está en uso' || error.message === 'El DNI ya está en uso') {

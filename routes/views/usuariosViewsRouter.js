@@ -5,7 +5,7 @@ const usuarioController = require('../../controllers/views/usuariosViewsControll
 
 router.get('/Registrar', usuarioController.getRegistrar);
 
-router.get('/Ver', usuarioController.getUsuario);
+router.get('/:id', usuarioController.getUsuario);
 
 
 module.exports = router;

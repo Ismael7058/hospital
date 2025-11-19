@@ -1,0 +1,86 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.min-h-100.p-4
+    //- El formulario ocupa todo el espacio disponible y permite scroll interno si es necesario
+    form#gestionForm.row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1(autocomplete="off" novalidate)
+      //- Campo oculto con el ID del usuario, esencial para la actualización
+      input(type="hidden" name="id" value=usuario.id)
+
+      //- Contenedor para mostrar errores generales de la API
+      #general-error.alert.alert-danger.d-none
+
+      //- Título dinámico
+      h3.text-center.my-4= title
+
+      //- Sección de Información Personal
+      .col-12.px-4
+        h5.mb-3 Información Personal
+        .row.gy-4
+          .col-md-4
+            label.form-label(for="dni") DNI
+            input.form-control(type="text" id="dni" name="dni" required value=usuario.dni)
+          .col-md-4
+            label.form-label(for="nombre") Nombre(s)
+            input.form-control(type="text" id="nombre" name="nombre" required value=usuario.nombre)
+          .col-md-4
+            label.form-label(for="apellido") Apellido(s)
+            input.form-control(type="text" id="apellido" name="apellido" required value=usuario.apellido)
+          .col-md-6
+            label.form-label(for="fecha_nacimiento") Fecha de Nacimiento
+            //- El formato de fecha de la BD (DATEONLY) es compatible con el input type="date"
+            input.form-control(type="date" id="fecha_nacimiento" name="fecha_nacimiento" required value=usuario.fecha_nacimiento)
+          .col-md-6
+            label.form-label(for="sexo") Sexo
+            select.form-select(id="sexo" name="sexo" required)
+              option(value="Masculino" selected=(usuario.sexo === 'Masculino')) Masculino
+              option(value="Femenino" selected=(usuario.sexo === 'Femenino')) Femenino
+
+      hr.my-5
+
+      //- Sección de Datos de Contacto
+      .col-12.px-4
+        h5.mb-3 Datos de Contacto
+        .row.gy-4
+          .col-12
+            label.form-label(for="direccion") Dirección
+            input.form-control(type="text" id="direccion" name="direccion" required value=usuario.direccion)
+          .col-md-6
+            label.form-label(for="telefono") Teléfono
+            input.form-control(type="tel" id="telefono" name="telefono" required value=usuario.telefono)
+          .col-md-6
+            label.form-label(for="email") Correo Electrónico
+            input.form-control(type="email" id="email" name="email" required value=usuario.email)
+
+      hr.my-5
+
+      //- Sección de Administración
+      .col-12.px-4.mb-4
+        h5.mb-3 Administración de la Cuenta
+        .row.gy-4
+          .col-md-6
+            label.form-label(for="rol_id") Rol del Usuario
+            select.form-select(id="rol_id" name="rol_id" required)
+              option(value="" disabled) Seleccione un rol...
+              //- Asumimos que la variable 'roles' es pasada desde el controlador
+              if roles
+                each rol in roles
+                  //- Comparamos con usuario.rol_id para seleccionar el rol actual
+                  option(value=rol.id selected=(usuario.rol_id == rol.id)) #{rol.nombre}
+          .col-md-6
+            label.form-label(for="activo") Estado de la Cuenta
+            select.form-select(id="activo" name="activo" required)
+              option(value="true" selected=usuario.activo) Activo
+              option(value="false" selected=!usuario.activo) Inactivo
+
+      //- Botones de acción (mt-auto los empuja hacia abajo)
+      .col-12.px-4.mt-auto.py-4.d-flex.justify-content-end
+        a.btn.btn-secondary.me-2(href="/usuarios")
+          i.bi.bi-arrow-left.me-2
+          | Volver
+        button.btn.btn-primary(type="submit")
+          i.bi.bi-save-fill.me-2
+          | Guardar Cambios
+
+    //- Incluimos un script de validación específico para esta página
+    script(src="/js/formUsuarioGestion.js")
