@@ -9,6 +9,26 @@ html(lang="es").h-100
     link(rel="stylesheet", href="/css/style.css")
   body.d-flex.flex-column.h-100
     include Shared/Header.pug 
+
+    //- Contenedor para las alertas (Flash y JS)
+    #alert-container.position-fixed.top-0.start-50.translate-middle-x(style="z-index: 2001; width: 90%; max-width: 600px;")
+      //- Mensajes Flash del Servidor
+      if success_messages && success_messages.length > 0
+        each msg in success_messages
+          .alert.alert-success.alert-dismissible.fade.show.shadow-sm.mt-3(role="alert")
+            = msg
+            button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
+      if error_messages && error_messages.length > 0
+        each msg in error_messages
+          .alert.alert-danger.alert-dismissible.fade.show.shadow-sm.mt-3(role="alert")
+            = msg
+            button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
+      if warning_messages && warning_messages.length > 0
+        each msg in warning_messages
+          .alert.alert-warning.alert-dismissible.fade.show.shadow-sm.mt-3(role="alert")
+            = msg
+            button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
+
     .app-container.flex-grow-1
       include Shared/Siderbar.pug
       main#main-content.h-100

@@ -1,11 +1,7 @@
 extends ../layout   
 
 block content
-  // 1. El contenedor principal tiene el padding y una ALTURA MÍNIMA del 100%.
-  //    Al usar min-h-100, el contenedor puede crecer si su contenido es más alto,
-  //    haciendo que el padding-bottom sea parte del contenido desplazable.
   .container-fluid.d-flex.flex-column.min-h-100.p-4
-    // 2. El formulario ahora es el contenedor visual y el elemento que crece.
     form#registroForm.row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1(action="/usuarios/registrar" method="POST" autocomplete="off" novalidate)
       //- Contenedor para mostrar errores generales de la API
       #general-error.alert.alert-danger.d-none
@@ -15,7 +11,6 @@ block content
           each error in errors.filter(e => !e.path)
             p.mb-0= error.msg
       h3.text-center.my-4 Crear Nuevo Usuario
-      // 3. El contenido del formulario se envuelve en un div que puede crecer.
       //- Sección de Información Personal
       .col-12.px-4.px-4
         h5.mb-3 Información Personal

@@ -1,0 +1,133 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4
+    .card.shadow-lg.border-0
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Listado de Usuarios
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          a.btn.btn-success(href="/usuarios/Registrar")
+            i.bi.bi-person-plus-fill.me-2
+            | Nuevo Usuario
+
+      //- Formulario de Filtros Colapsable
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom(method="GET" action="/usuarios/Listar")
+          .row.g-3.align-items-end
+            .col-md-3
+              label.form-label(for="dni") DNI
+              input.form-control(type="text" id="dni" name="dni" value=filtros.dni)
+            .col-md-3
+              label.form-label(for="nombre") Nombre o Apellido
+              input.form-control(type="text" id="nombre" name="nombre" value=filtros.nombre)
+            .col-md-3
+              label.form-label(for="email") Email
+              input.form-control(type="email" id="email" name="email" value=filtros.email)
+            .col-md-3
+              label.form-label(for="rol_id") Rol
+              select.form-select(id="rol_id" name="rol_id")
+                option(value="") Todos
+                if roles
+                  each rol in roles
+                    option(value=rol.id selected=(filtros.rol_id == rol.id)) #{rol.nombre}
+            .col-md-3
+              label.form-label(for="activo") Estado
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-12.text-end
+              a.btn.btn-secondary(href="/usuarios/Listar") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body
+        //- Contenedor para hacer la tabla responsiva en pantallas pequeñas
+        .table-responsive
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th DNI
+                th Nombre Completo
+                th Email
+                th Rol
+                th Estado
+                th.text-center Acciones
+
+            tbody
+              //- Verificamos si hay usuarios para mostrar
+              if usuarios && usuarios.length > 0
+                //- Iteramos sobre cada usuario para crear una fila en la tabla
+                each usuario in usuarios
+                  tr
+                    td= usuario.dni
+                    td= `${usuario.nombre} ${usuario.apellido}`
+                    td= usuario.email
+                    //- Mostramos el nombre del rol, no su ID
+                    td= usuario.Rol ? usuario.Rol.nombre : 'No asignado'
+                    td
+                      if usuario.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center
+                      a.btn.btn-primary.btn-sm(href=`/usuarios/${usuario.id}` title="Ver/Gestionar Usuario")
+                        i.bi.bi-pencil-square.me-1
+                        | Gestionar
+              else
+                //- Mensaje por si no hay usuarios registrados
+                tr
+                  td(colspan="6").text-center.py-4 No hay usuarios registrados.
+
+      //- Paginación
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          -
+            //- Lógica de paginación avanzada
+            const paginaActual = paginacion.paginaActual;
+            const totalPaginas = paginacion.totalPaginas;
+            const rango = 2; // Cuántos botones mostrar a cada lado de la página actual
+            let paginas = [];
+
+            // 1. Añadir la primera página y "..." si es necesario
+            if (paginaActual > rango + 1) {
+              paginas.push(1);
+              if (paginaActual > rango + 2) {
+                paginas.push('...');
+              }
+            }
+
+            // 2. Añadir las páginas del rango central
+            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
+              if (!paginas.includes(i)) {
+                paginas.push(i);
+              }
+            }
+
+            // 3. Añadir "..." y la última página si es necesario
+            if (paginaActual < totalPaginas - rango - 1) {
+              paginas.push('...');
+            }
+            if (paginaActual < totalPaginas - rango) {
+              if (!paginas.includes(totalPaginas)) {
+                paginas.push(totalPaginas);
+              }
+            }
+
+          nav(aria-label="Paginación de usuarios")
+            ul.pagination.justify-content-end.mb-0
+              li.page-item(class={disabled: paginaActual === 1})
+                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
+              each pagina in paginas
+                if pagina === '...'
+                  li.page-item.disabled: span.page-link ...
+                else
+                  li.page-item(class={active: pagina === paginaActual})
+                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
+              li.page-item(class={disabled: paginaActual === totalPaginas})
+                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente

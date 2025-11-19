@@ -5,6 +5,8 @@ const usuarioController = require('../../controllers/views/usuariosViewsControll
 
 router.get('/Registrar', usuarioController.getRegistrar);
 
+router.get('/Listar', usuarioController.getListar);
+
 router.get('/:id', usuarioController.getUsuario);
 
 
