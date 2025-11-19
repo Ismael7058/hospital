@@ -31,20 +31,19 @@ exports.registerUsuarioValidation = () => {
       .not().isEmpty().withMessage('El DNI es obligatorio')
       .trim().isInt().withMessage('El DNI debe contener solo números')
       .isLength({ min: 8, max: 8 }).withMessage('El DNI debe tener 8 dígitos'),
-
     body('fecha_nacimiento', 'La fecha de nacimiento no es válida').isISO8601().toDate(),
 
     body('direccion', 'La dirección es obligatoria')
       .not().isEmpty().withMessage('La dirección es obligatoria')
       .trim(),
 
-    body('rol_id', 'El rol no es válido').isInt().custom(async (value) => {
-      const rol = await Rol.findByPk(value);
-      if (!rol) {
-        return Promise.reject('El rol seleccionado no existe.');
-      }
-    }),
-
+    body('rol_id', 'El rol no es válido')
+      .not().isEmpty().withMessage('El rol es obligatorio.')
+      .isInt().withMessage('El rol debe ser un número entero.')
+      .custom(async (value) => {
+        const rol = await Rol.findByPk(value);
+        if (!rol) return Promise.reject('El rol seleccionado no existe.');
+      }),
     body('telefono', 'El teléfono es obligatorio').not().isEmpty().trim(),
     body('sexo', 'El sexo es obligatorio').not().isEmpty().trim(),
   ];

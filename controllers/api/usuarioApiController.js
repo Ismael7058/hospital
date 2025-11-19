@@ -1,7 +1,7 @@
 const usuarioServices = require('../../services/usuarioServices');
 const { validationResult } = require('express-validator');
 
-exports.registerUsario = async (req, res) => {
+exports.registerUsuario = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });

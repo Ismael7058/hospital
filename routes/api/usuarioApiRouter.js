@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const usuarioApiController = require('../controllers/api/usuarioApiController');
+const usuarioApiController = require('../../controllers/api/usuarioApiController');
 const { registerUsuarioValidation, editPerfilValidation, editPasswordValidation, modifyUsuarioValidation } = require('../../validators/usuarioValidators');
 
 // POST /api/usuarios/register
-router.post('/register', registerUsuarioValidation(), usuarioApiController.registerUsario);
+router.post('/register', registerUsuarioValidation(), usuarioApiController.registerUsuario);
 
 // PUT /api/usuarios/editPerfil
 router.put('/editPerfil', editPerfilValidation(), usuarioApiController.editPerfil);

@@ -3,9 +3,11 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 
 
-const authRouter = require('./routes/api/authApiRoutes');
-const authViewsRouter = require('./routes/views/authViewsRoutes');
- 
+const authApiRouter = require('./routes/api/authApiRouter');
+const usuarioApiRouter = require('./routes/api/usuarioApiRouter');
+const authViewsRouter = require('./routes/views/authViewsRouter');
+const userViewsRouter = require('./routes/views/usuariosViewsRouter');
+
 const app = express();
 
 app.set('view engine', 'pug');
@@ -17,9 +19,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas de api
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authApiRouter);
+app.use('/api/usuarios', usuarioApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
+app.use('/usuarios', userViewsRouter);
+
 
 module.exports = app;

@@ -19,7 +19,11 @@ exports.registerUsuario = async (usuarioData) => {
     const password_hash = await bcrypt.hash(password, saltRounds);
     usuarioData.password_hash = password_hash;
 
-    const nuevoUsuario = await Usuario.create({ usuarioData });
+    // Eliminamos las contraseñas en texto plano para que no se intenten guardar en la BD
+    delete usuarioData.password;
+    delete usuarioData.passwordConfirmation;
+
+    const nuevoUsuario = await Usuario.create(usuarioData);
 
     return nuevoUsuario;
 }
