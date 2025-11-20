@@ -1,8 +1,8 @@
 extends ../layout
 
 block content
-  .container-fluid.p-4
-    .card.shadow-lg.border-0
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
       .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
         div
           h4.mb-0 Listado de Usuarios
@@ -14,9 +14,8 @@ block content
             i.bi.bi-person-plus-fill.me-2
             | Nuevo Usuario
 
-      //- Formulario de Filtros Colapsable
       .collapse#filtrosCollapse
-        form.card-body.border-bottom(method="GET" action="/usuarios/Listar")
+        form.card-body.border-bottom.px-4(method="GET" action="/usuarios/Listar")
           .row.g-3.align-items-end
             .col-md-3
               label.form-label(for="dni") DNI
@@ -44,9 +43,9 @@ block content
               a.btn.btn-secondary(href="/usuarios/Listar") Limpiar
               button.btn.btn-primary.ms-2(type="submit") Filtrar
 
-      .card-body
-        //- Contenedor para hacer la tabla responsiva en pantallas pequeñas
-        .table-responsive
+      // Hacemos que el cuerpo de la tarjeta crezca y contenga a la tabla
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
           table.table.table-striped.table-hover.align-middle
             thead.table-dark
               tr
@@ -58,15 +57,12 @@ block content
                 th.text-center Acciones
 
             tbody
-              //- Verificamos si hay usuarios para mostrar
               if usuarios && usuarios.length > 0
-                //- Iteramos sobre cada usuario para crear una fila en la tabla
                 each usuario in usuarios
                   tr
                     td= usuario.dni
                     td= `${usuario.nombre} ${usuario.apellido}`
                     td= usuario.email
-                    //- Mostramos el nombre del rol, no su ID
                     td= usuario.Rol ? usuario.Rol.nombre : 'No asignado'
                     td
                       if usuario.activo
@@ -77,10 +73,14 @@ block content
                       a.btn.btn-primary.btn-sm(href=`/usuarios/${usuario.id}` title="Ver/Gestionar Usuario")
                         i.bi.bi-pencil-square.me-1
                         | Gestionar
-              else
-                //- Mensaje por si no hay usuarios registrados
-                tr
-                  td(colspan="6").text-center.py-4 No hay usuarios registrados.
+                - const filasVacias = (paginacion.registrosPorPagina || 13) - usuarios.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td(colspan="6") &nbsp;
+          if !usuarios || usuarios.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No hay usuarios registrados
 
       //- Paginación
       if paginacion && paginacion.totalPaginas > 1

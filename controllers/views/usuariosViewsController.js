@@ -49,7 +49,7 @@ exports.getListar = async (req, res) => {
     try {
         // 1. OBTENER PARÁMETROS DE FILTRO Y PAGINACIÓN DE LA URL (req.query)
         const { dni, nombre, email, rol_id, activo, pagina = 1 } = req.query;
-        const registrosPorPagina = 10;
+        const registrosPorPagina = 13;
         const offset = (pagina - 1) * registrosPorPagina;
 
         // 2. CONSTRUIR LA CLÁUSULA 'WHERE' DINÁMICAMENTE
@@ -103,7 +103,8 @@ exports.getListar = async (req, res) => {
             paginacion: {
                 totalRegistros: count,
                 totalPaginas: totalPaginas,
-                paginaActual: parseInt(pagina)
+                paginaActual: parseInt(pagina),
+                registrosPorPagina: registrosPorPagina
             },
             filtros: filtros,
             filtrosQuery: filtrosQuery

@@ -95,3 +95,23 @@ form.row.p-4 {
 form.row.p-4 {
   margin: 0;
 }
+
+/* --- Estilos para tablas con altura fija y scroll --- */
+/* Ahora esta clase se encarga de que la tabla llene el espacio de su contenedor flex */
+.table-fixed-height {
+  width: 100%; /* Ocupa todo el ancho */
+  height: 100%; /* Ocupa toda la altura del .card-body */
+  overflow-y: auto; /* Muestra el scroll vertical solo si es necesario */
+}
+
+.table-fixed-height thead th {
+  position: sticky; /* Fija la cabecera de la tabla */
+  top: 0; /* La pega en la parte superior del contenedor con scroll */
+  z-index: 1; /* Asegura que la cabecera esté por encima de las filas */
+}
+
+/* Asegura que todas las filas de la tabla tengan una altura consistente */
+.table-fixed-height > .table > tbody > tr {
+  /* Ajusta este valor para que coincida con la altura de tus filas con contenido */
+  height: 3rem; 
+}
