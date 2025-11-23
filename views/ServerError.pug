@@ -1,0 +1,33 @@
+html(lang="es").h-100
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Hospital Horizon
+    link(rel="stylesheet", href="/bootstrap/css/bootstrap.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css")
+    link(rel="stylesheet", href="/css/style.css")
+  body.d-flex.flex-column.h-100
+    main.flex-grow-1.d-flex.align-items-center.justify-content-center.bg-dark
+      .container.mt-5
+        .row.justify-content-center
+          .col-md-8.text-center
+            .card.shadow-lg.border-secondary(data-bs-theme="dark")
+              .card-body.p-4.p-md-5.bg-dark.text-light
+                if statusCode
+                  h1.display-1.fw-bold.text-danger= statusCode
+                h2.mb-4= title || 'Ha ocurrido un error'
+                p.lead.text-white-50= message || 'Lo sentimos, algo salió mal en nuestros servidores.'
+                
+                //- En modo de desarrollo, mostramos el stack de error
+                if process.env.NODE_ENV === 'development' && errorStack
+                  pre.bg-black.p-3.text-start.mt-4.rounded.text-white-50(style="font-size: 0.8rem; max-height: 300px; overflow-y: auto;")
+                    code= errorStack
+                hr.border-secondary
+                a.btn.btn-outline-primary(href="/") Volver al Inicio
+
+
+
+
+
+    script(src="/bootstrap/js/bootstrap.bundle.min.js")
+    script(src="/js/main.js")

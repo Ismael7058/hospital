@@ -1,0 +1,25 @@
+html(lang="es").h-100
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Hospital Horizon
+    link(rel="stylesheet", href="/bootstrap/css/bootstrap.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css")
+    link(rel="stylesheet", href="/css/style.css")
+  body.d-flex.flex-column.h-100
+    main.flex-grow-1.d-flex.align-items-center.justify-content-center.bg-dark
+      .container
+        .row.justify-content-center
+          .col-md-8.text-center
+            .card.shadow-lg.border-secondary(data-bs-theme="dark")
+              .card-body.p-4.p-md-5.bg-dark.text-light
+                h1.display-1.fw-bold.text-primary 404
+                h2.mb-4 Página No Encontrada
+                p.lead.text-white-50 Lo sentimos, la página que estás buscando no existe o ha sido movida.
+                hr.border-secondary
+                a.btn.btn-outline-primary(href="/")
+                  i.bi.bi-house-door.me-2
+                  | Volver al Inicio
+
+    script(src="/bootstrap/js/bootstrap.bundle.min.js")
+    script(src="/js/main.js")

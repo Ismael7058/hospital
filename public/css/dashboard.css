@@ -1,0 +1,9 @@
+.dashboard-card {
+  transition: all 0.25s ease-in-out;
+  border-top: 4px solid var(--bs-primary);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}

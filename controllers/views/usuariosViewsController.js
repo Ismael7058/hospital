@@ -112,5 +112,6 @@ exports.getListar = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener la lista de usuarios:', error);
         res.status(500).send('Error interno del servidor al cargar la página.');
+        next(error);
     }
 };

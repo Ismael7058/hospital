@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   const sidebarToggler = document.getElementById('sidebarToggle');
   const body = document.body;
 
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
             bsAlert.close();
         }, 5000); // 5 segundos
     });
+
 
 });
 
@@ -39,3 +40,15 @@ function mostrarAlerta(message, type = 'info') {
         bsAlert.close();
     }, 5000); // 5 segundos
 }
+document.querySelectorAll('.counter').forEach(counter => {
+  const target = +counter.getAttribute('data-target');
+  const update = () => {
+    const value = +counter.innerText;
+    const increment = target / 60;
+    if (value < target) {
+      counter.innerText = Math.ceil(value + increment);
+      requestAnimationFrame(update);
+    }
+  };
+  update();
+});
