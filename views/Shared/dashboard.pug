@@ -1,30 +1,48 @@
-extends ../layout
+extends ../layout.pug
+
+block styles
+  link(rel="stylesheet", href="/css/dashboard.css")
 
 block content
-  h1.mb-4= title
+  // Contenedor principal para añadir padding
+  .container-fluid.px-4
+    //- Encabezado de la página
+    .d-flex.justify-content-center.pt-3.pb-2.mb-3.border-bottom
+      h1.display-6.fw-semibold Panel de administración
 
-  p.lead Bienvenido al panel de administración del Hospital Horizon.
+    //- Fila de tarjetas con el estilo solicitado
+    .row
+      //- Tarjeta 1: Total de Usuarios
+      .col-xl-4.col-md-6.mb-4
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-primary.text-uppercase.fw-bold.mb-1
+                  small Total de Usuarios
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalUsuarios) 0
 
-  //- Fila de tarjetas de ejemplo
-  div(class="row")
-    //- Tarjeta 1: Citas Pendientes
-    div(class="col-xl-3 col-md-6 mb-4")
-      div(class="card border-left-primary shadow h-100 py-2")
-        div(class="card-body")
-          div(class="row no-gutters align-items-center")
-            div(class="col mr-2")
-              div(class="text-xs font-weight-bold text-primary text-uppercase mb-1") Citas Pendientes
-              div(class="h5 mb-0 font-weight-bold text-gray-800") 15
-            div(class="col-auto")
-              i(class="fas fa-calendar fa-2x text-gray-300") // Necesitarías FontAwesome para esto
+              .col-auto
+                i.bi.bi-people-fill.fs-2.text-body-tertiary
 
-    //- Tarjeta 2: Pacientes Registrados
-    div(class="col-xl-3 col-md-6 mb-4")
-      div(class="card border-left-success shadow h-100 py-2")
-        div(class="card-body")
-          div(class="row no-gutters align-items-center")
-            div(class="col mr-2")
-              div(class="text-xs font-weight-bold text-success text-uppercase mb-1") Pacientes Registrados
-              div(class="h5 mb-0 font-weight-bold text-gray-800") 250
-            div(class="col-auto")
-              i(class="fas fa-users fa-2x text-gray-300")
+      .col-xl-4.col-md-6.mb-4
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-success.text-uppercase.fw-bold.mb-1
+                  small Usuarios Activos
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.usuariosActivos)
+              .col-auto
+                i.bi.bi-person-check-fill.fs-2.text-body-tertiary
+
+      .col-xl-4.col-md-6.mb-4
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-info.text-uppercase.fw-bold.mb-1
+                  small Roles Definidos
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalRoles) 0
+              .col-auto
+                i.bi.bi-shield-lock-fill.fs-2.text-body-tertiary
