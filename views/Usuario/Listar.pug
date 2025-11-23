@@ -49,27 +49,27 @@ block content
           table.table.table-striped.table-hover.align-middle
             thead.table-dark
               tr
-                th DNI
-                th Nombre Completo
-                th Email
-                th Rol
-                th Estado
+                th.text-center DNI
+                th.text-center Nombre Completo
+                th.text-center Email
+                th.text-center Rol
+                th.text-center Estado
                 th.text-center Acciones
 
             tbody
               if usuarios && usuarios.length > 0
                 each usuario in usuarios
                   tr
-                    td= usuario.dni
-                    td= `${usuario.nombre} ${usuario.apellido}`
-                    td= usuario.email
-                    td= usuario.Rol ? usuario.Rol.nombre : 'No asignado'
-                    td
+                    td.text-center= usuario.dni
+                    td.text-center= `${usuario.nombre} ${usuario.apellido}`
+                    td.text-center= usuario.email
+                    td.text-center= usuario.Rol ? usuario.Rol.nombre : 'No asignado'
+                    td.text-center
                       if usuario.activo
                         span.badge.bg-success Activo
                       else
                         span.badge.bg-danger Inactivo
-                    td.text-center
+                    td.text-center.text-center
                       a.btn.btn-primary.btn-sm(href=`/usuarios/${usuario.id}` title="Ver/Gestionar Usuario")
                         i.bi.bi-pencil-square.me-1
                         | Gestionar
@@ -77,7 +77,7 @@ block content
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
                     tr
-                      td(colspan="6") &nbsp;
+                      td.text-center(colspan="6") &nbsp;
           if !usuarios || usuarios.length === 0
             .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
               h4.fw-light No hay usuarios registrados
