@@ -12,7 +12,7 @@ block content
             p.mb-0= error.msg
       h3.text-center.my-4 Crear Nuevo Usuario
       //- Sección de Información Personal
-      .col-12.px-4.px-4
+      .col-12.px-4.py-4.border.rounded
         h5.mb-3 Información Personal
         .row.gy-4
           .col-md-4
@@ -32,12 +32,12 @@ block content
             input.form-control(type="text" id="apellido" name="apellido" required value=(old ? old.apellido : ''))
             if errors && errors.find(e => e.path === 'apellido')
               .text-danger.mt-1.small= errors.find(e => e.path === 'apellido').msg
-          .col-md-6
+          .col-md-4
             label.form-label(for="fecha_nacimiento") Fecha de Nacimiento
             input.form-control(type="date" id="fecha_nacimiento" name="fecha_nacimiento" required value=(old ? old.fecha_nacimiento : ''))
             if errors && errors.find(e => e.path === 'fecha_nacimiento')
               .text-danger.mt-1.small= errors.find(e => e.path === 'fecha_nacimiento').msg
-          .col-md-6
+          .col-md-4
             label.form-label(for="sexo") Sexo
             select.form-select(id="sexo" name="sexo" required)
               option(value="" selected disabled) Seleccione un sexo...
@@ -45,46 +45,28 @@ block content
               option(value="Femenino" selected=(old && old.sexo === 'Femenino')) Femenino
             if errors && errors.find(e => e.path === 'sexo')
               .text-danger.mt-1.small= errors.find(e => e.path === 'sexo').msg
-
-      hr.my-5
-
-      //- Sección de Datos de Contacto
-      .col-12.px-4
-        h5.mb-3 Datos de Contacto
-        .row.gy-4
+          .col-md-4
+            label.form-label(for="telefono") Teléfono
+            input.form-control(type="tel" id="telefono" name="telefono" placeholder="ej. 123-654-7890" required value=(old ? old.telefono : ''))
+            if errors && errors.find(e => e.path === 'telefono')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'telefono').msg
           .col-12
             label.form-label(for="direccion") Dirección
             input.form-control(type="text" id="direccion" name="direccion" placeholder="ej. Calle Falsa 123" required value=(old ? old.direccion : ''))
             if errors && errors.find(e => e.path === 'direccion')
               .text-danger.mt-1.small= errors.find(e => e.path === 'direccion').msg
-          .col-md-6
-            label.form-label(for="telefono") Teléfono
-            input.form-control(type="tel" id="telefono" name="telefono" placeholder="ej. 123-654-7890" required value=(old ? old.telefono : ''))
-            if errors && errors.find(e => e.path === 'telefono')
-              .text-danger.mt-1.small= errors.find(e => e.path === 'telefono').msg
+
+      //- Sección de Datos de Contacto
+      .col-12.p-4.border.mt-4.rounded
+        h5.mb-3 Informacion de la cuenta
+        .row.gy-4
+
           .col-md-6
             label.form-label(for="email") Correo Electrónico
             input.form-control(type="email" id="email" name="email" placeholder="ejemplo@dominio.com" required value=(old ? old.email : ''))
             if errors && errors.find(e => e.path === 'email')
               .text-danger.mt-1.small= errors.find(e => e.path === 'email').msg
-
-      hr.my-5
-
-      //- Sección de Seguridad
-      .col-12.px-4.mb-4
-        h5.mb-3 Seguridad de la Cuenta
-        .row.gy-4
-          .col-md-4
-            label.form-label(for="password") Contraseña
-            input.form-control(type="password" id="password" name="password" required)
-            if errors && errors.find(e => e.path === 'password')
-              .text-danger.mt-1.small= errors.find(e => e.path === 'password').msg
-          .col-md-4
-            label.form-label(for="passwordConfirmation") Confirmar Contraseña
-            input.form-control(type="password" id="passwordConfirmation" name="passwordConfirmation" required)
-            if errors && errors.find(e => e.path === 'passwordConfirmation')
-              .text-danger.mt-1.small= errors.find(e => e.path === 'passwordConfirmation').msg
-          .col-md-4
+          .col-md-6
             label.form-label(for="rol_id") Rol del Usuario
             select.form-select(id="rol_id" name="rol_id" required)
               option(value="" selected disabled) Seleccione un rol...
@@ -94,9 +76,20 @@ block content
                   option(value=rol.id selected=(old && old.rol_id == rol.id)) #{rol.nombre}
             if errors && errors.find(e => e.path === 'rol_id')
               .text-danger.mt-1.small= errors.find(e => e.path === 'rol_id').msg
+          .col-md-6
+            label.form-label(for="password") Contraseña
+            input.form-control(type="password" id="password" name="password" required)
+            if errors && errors.find(e => e.path === 'password')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'password').msg
+          .col-md-6
+            label.form-label(for="passwordConfirmation") Confirmar Contraseña
+            input.form-control(type="password" id="passwordConfirmation" name="passwordConfirmation" required)
+            if errors && errors.find(e => e.path === 'passwordConfirmation')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'passwordConfirmation').msg
+
       //- Botones de acción (mt-auto los empuja hacia abajo)
-      .col-12.px-4.mt-auto.py-4.d-flex.justify-content-end
-        a.btn.btn-secondary.me-2(href="/usuarios")
+      .col-12.px-4.mt-auto.pt-4.d-flex.justify-content-end.pb-4
+        a.btn.btn-secondary.me-2(href="/usuarios/Listar")
           i.bi.bi-arrow-left.me-2
           | Volver
         button.btn.btn-success(type="submit")
