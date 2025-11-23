@@ -1,10 +1,13 @@
 const bcrypt = require('bcrypt');
-const { Usuario } = require('../db/models');
+const { Usuario, Rol } = require('../db/models');
 const jwt = require('jsonwebtoken');
 
 
 exports.loginUser = async (email, password) => {
-    const usuario = await Usuario.findOne({ where: { email } });
+    const usuario = await Usuario.findOne({ 
+        where: { email },
+        include: [{ model: Rol, attributes: ['nombre'] }]
+    });
 
     if (!usuario) {
         throw new Error('Credenciales inválidas');
@@ -15,13 +18,16 @@ exports.loginUser = async (email, password) => {
         throw new Error('Credenciales inválidas');
     }
 
+    if (!usuario.activo) {
+        throw new Error('Esta cuenta de usuario ha sido desactivada.');
+    }
+
     const payload = {
-        usuario: {
-            id: usuario.id,
-            rol_id: usuario.rol_id
-        }
+        id: usuario.id,
+        rol: usuario.Rol.nombre
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
-    return token;
+    
+    return { token, usuario };
 };

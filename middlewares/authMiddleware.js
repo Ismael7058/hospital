@@ -1,29 +1,38 @@
 const jwt = require('jsonwebtoken');
-const { Usuario } = require('../models');
+const { Usuario, Rol } = require('../db/models');
 
-module.exports = async function(req, res, next) {
-    const authHeader = req.header('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'No hay token, autorización denegada' });
-    }
+exports.verificarAutenticacion = async (req, res, next) => {
+    const token = req.cookies.jwt;
 
-    try {
-        const token = authHeader.split(' ')[1];
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            
+            // Buscamos al usuario en la BD sin su contraseña
+            const usuario = await Usuario.findByPk(decoded.id, {
+                attributes: { exclude: ['password_hash'] },
+                include: [{ model: Rol, attributes: ['nombre'] }]
+            });
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const usuario = await Usuario.findOne({
-            where: { id: decoded.usuario.id, activo: true },
-            attributes: ['id', 'nombre', 'apellido', 'email', 'rol_id']
-        });
-
-        if (!usuario) {
-            return res.status(401).json({ message: 'Token no es válido (usuario no encontrado o inactivo)' });
+            if (usuario) {
+                // Adjuntamos el usuario al objeto 'req' para rutas de API
+                req.usuario = usuario;
+                // Adjuntamos el usuario a 'res.locals' para que esté disponible en todas las vistas Pug
+                res.locals.usuarioAutenticado = usuario;
+            }
+        } catch (error) {
+            console.error('Error de autenticación:', error.message);
+            // Si el token es inválido, no hacemos nada y el usuario no estará autenticado
         }
-
-        req.usuario = usuario;
-        next();
-    } catch (err) {
-        res.status(401).json({ message: 'El token no es válido' });
     }
+    next();
 };
+
+exports.protegerRuta = (req, res, next) => {
+    if (req.usuario) {
+        return next(); // Si el usuario está autenticado, continuar
+    }
+    // Si no está autenticado, redirigir al login
+    res.redirect('/login');
+};
+
