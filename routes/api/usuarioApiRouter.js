@@ -8,6 +8,7 @@ const {
     editPasswordAdminValidation, 
     modifyUsuarioValidation, 
     editInfoPersonalValidation,
+    editCuentaValidation
 } = require('../../validators/usuarioValidators');
 
 // POST /api/usuarios/register
@@ -22,20 +23,16 @@ router.patch('/editCuenta/:idUsuario', editCuentaValidation(), usuarioApiControl
 // PATCH /api/usuarios/editPassword/:idUsuario
 router.patch('/editPassword/:idUsuario', editPasswordAdminValidation(), usuarioApiController.editPasswordAdmin);
 
+// PATCH /api/usuarios/estado/:idUsuario
+router.patch('/estado/:idUsuario', usuarioApiController.setEstado);
+
 // PUT /api/usuarios/editPerfil
-router.put('/editPerfil', editPerfilValidation(), usuarioApiController.editPerfil);
+router.put('/editPerfil',  usuarioApiController.editPerfil);
 
 // PUT /api/usuarios/editPassword
-router.put('/editPassword', editPasswordValidation(), usuarioApiController.editPassword);
+router.put('/editPassword', usuarioApiController.editPassword);
 
 // PUT /api/usuarios/modify
-router.put('/modify', modifyUsuarioValidation(), usuarioApiController.modifyUsuario);
-
-// POST /api/usuarios/altaLogica
-router.post('/altaLogica', usuarioApiController.altaLogica);
-
-// POST /api/usuarios/bajaLogica
-router.post('/bajaLogica', usuarioApiController.bajaLogica);
-
+router.put('/modify', usuarioApiController.modifyUsuario);
 
 module.exports = router;

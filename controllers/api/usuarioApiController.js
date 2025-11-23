@@ -168,31 +168,21 @@ exports.editPassword = async (req, res) => {
   }
 }
 
-exports.altaLogica = async (req, res) => {
+exports.setEstado = async (req, res) => {
     try {
-        const usuarioId = req.body.id;
-        await usuarioServices.setEstado(usuarioId, true);
+        const { idUsuario } = req.params;
+        const { activo } = req.body;
 
-        res.status(200).json({ message: 'Usuario dado de alta exitosamente.' });
-    } catch (error) {
-        if (error.message.includes('ya se encuentra activo')) {
-            return res.status(409).json({ message: error.message });
+        if (typeof activo !== 'boolean') {
+            return res.status(400).json({ message: 'El estado debe ser un valor booleano (true o false).' });
         }
-        console.error('Error al darle la alta lógica al usuario:', error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
-    }
-}
-exports.bajaLogica = async (req, res) => {
-    try {
-        const usuarioId = req.body.id;
-        await usuarioServices.setEstado(usuarioId, false);
 
-        res.status(200).json({ message: 'Usuario dado de baja exitosamente.' });
+        await usuarioServices.setEstado(idUsuario, activo);
+
+        const message = `Usuario ${activo ? 'dado de alta' : 'dado de baja'} exitosamente.`;
+        res.status(200).json({ message });
     } catch (error) {
-        if (error.message.includes('ya se encuentra inactivo')) {
-            return res.status(409).json({ message: error.message });
-        }
-        console.error('Error al darle la baja lógica al usuario:', error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
+        console.error('Error al cambiar el estado del usuario:', error);
+        res.status(500).json({ message: error.message || 'Error interno del servidor.' });
     }
 };

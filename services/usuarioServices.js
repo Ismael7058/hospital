@@ -187,11 +187,11 @@ exports.setEstado = async (id, estado) => {
         throw new Error('Usuario no encontrado');
     }
 
-    if (usuario.estado === estado) {
+    if (usuario.activo === estado) {
         throw new Error(`El usuario ya se encuentra ${estado ? 'activo' : 'inactivo'}.`);
     }
 
-    usuario.estado = estado;
+    usuario.activo = estado;
     await usuario.save();
     return usuario;
 };

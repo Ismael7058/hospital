@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const usuarioId = data.id;
     
     try {
-      const response = await fetch(`/api/usuarios/editCuenta/${usuarioId}`, {
+      const response = await fetch(`/api/usuarios/editPassword/${usuarioId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +38,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const result = await response.json();
 
       if (response.ok) { // Estado 200 OK
-        mostrarAlerta('Información personal actualizada exitosamente.', 'success');
+        mostrarAlerta('Contraseña actualizada exitosamente.', 'success');
+        // Limpiamos los campos de contraseña después del éxito
+        form.reset();
       } else {
         if (response.status === 400) {
           result.errors.forEach(error => {
@@ -61,9 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
       generalErrorDiv.classList.remove('d-none');
       console.error('Error de red al enviar el formulario:', error);
     } finally {
-      // Restaurar el botón
-      submitButton.disabled = false;
-      submitButton.innerHTML = originalButtonText;
+      // Restaurar el botón después de un breve retraso para evitar clics múltiples
+      setTimeout(() => {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+      }, 1500);
     }
   }
 

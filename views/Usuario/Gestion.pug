@@ -68,11 +68,25 @@ block content
                   .d-flex.justify-content-end.align-items-center.mt-4
                     //- Botón de Alta/Baja
                     if usuario.activo
-                      button.btn.btn-outline-danger.me-auto(type="button" data-bs-toggle="modal" data-bs-target="#confirmarBajaModal")
+                      button.btn.btn-outline-danger.me-auto(type="button" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#confirmarEstadoModal"
+                        data-usuario-id=usuario.id
+                        data-nuevo-estado="false"
+                        data-accion-texto="dar de baja"
+                        data-btn-clase="btn-danger"
+                        data-titulo="Confirmar Baja de Usuario")
                         i.bi.bi-person-x-fill.me-2
                         | Dar de Baja
                     else
-                      button.btn.btn-outline-success.me-auto(type="button" data-bs-toggle="modal" data-bs-target="#confirmarAltaModal")
+                      button.btn.btn-outline-success.me-auto(type="button" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#confirmarEstadoModal"
+                        data-usuario-id=usuario.id
+                        data-nuevo-estado="true"
+                        data-accion-texto="dar de alta"
+                        data-btn-clase="btn-success"
+                        data-titulo="Confirmar Alta de Usuario")
                         i.bi.bi-person-check-fill.me-2
                         | Dar de Alta
                     //- Botón de Guardar
@@ -103,35 +117,21 @@ block content
           i.bi.bi-arrow-left.me-2
           | Volver
 
-    //- Modal para confirmar la Baja
-    #confirmarBajaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarBajaModalLabel" aria-hidden="true")
+    //- Modal genérico para confirmar cambio de estado (Alta/Baja)
+    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoModalLabel" aria-hidden="true")
       .modal-dialog
         .modal-content
           .modal-header
-            h5#confirmarBajaModalLabel.modal-title Confirmar Baja de Usuario
+            h5#confirmarEstadoModalLabel.modal-title
             button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
           .modal-body
-            p ¿Estás seguro de que deseas dar de baja a este usuario? Perderá el acceso al sistema.
+            p#confirmarEstadoModalBody
           .modal-footer
             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            form(action=`/usuarios/estado/${usuario.id}?_method=PATCH` method="POST")
-              input(type="hidden" name="activo" value="false")
-              button.btn.btn-danger(type="submit") Sí, dar de baja
+            //- Este botón no tiene un formulario, será manejado por JS
+            button#confirmarEstadoBtn.btn(type="button")
 
-    //- Modal para confirmar el Alta
-    #confirmarAltaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarAltaModalLabel" aria-hidden="true")
-      .modal-dialog
-        .modal-content
-          .modal-header
-            h5#confirmarAltaModalLabel.modal-title Confirmar Alta de Usuario
-            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-          .modal-body
-            p ¿Estás seguro de que deseas dar de alta a este usuario? Recuperará el acceso al sistema.
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            form(action=`/usuarios/estado/${usuario.id}?_method=PATCH` method="POST")
-              input(type="hidden" name="activo" value="true")
-              button.btn.btn-success(type="submit") Sí, dar de alta
-
-    //- Incluimos un script de validación específico para esta página
-    script(src="/js/formUsuarioGestion.js")
+    script(src="/js/formEditPass.js")
+    script(src="/js/formEditInfoPersonalUser.js")
+    script(src="/js/formAdministrarCuenta.js")   
+    script(src="/js/gestionEstadoUsuario.js")

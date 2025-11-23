@@ -61,9 +61,10 @@ document.addEventListener('DOMContentLoaded', function () {
       generalErrorDiv.classList.remove('d-none');
       console.error('Error de red al enviar el formulario:', error);
     } finally {
-      // Restaurar el botón
-      submitButton.disabled = false;
-      submitButton.innerHTML = originalButtonText;
+      setTimeout(() => {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+      }, 1500);
     }
   }
 
