@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { Usuario } = require('../db/models');
+const rol = require('../db/models/rol');
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
@@ -27,6 +28,75 @@ exports.registerUsuario = async (usuarioData) => {
 
     return nuevoUsuario;
 }
+
+exports.infoPersonal = async (id, datosActualizados) => {
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    const emailUsuado = await Usuario.findOne({ where: { dni: datosActualizados.dni } });
+    if (emailUsuado && emailUsuado.id !== id) {
+        throw new Error('El dni ya está en uso');
+    }
+
+    const atributosEditables = {
+        dni: datosActualizados.dni,
+        nombre: datosActualizados.nombre,
+        apellido: datosActualizados.apellido,
+        telefono: datosActualizados.telefono,
+        direccion: datosActualizados.direccion,
+        fecha_nacimiento: datosActualizados.fecha_nacimiento,
+        sexo: datosActualizados.sexo,
+        email: datosActualizados.email
+    };
+
+    const [filasActualizadas] = await Usuario.update(atributosEditables, {
+        where: { id: id }
+    });
+
+    return filasActualizadas;
+};
+
+exports.editCuenta = async (id, datosActualizados) => {
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    const emailUsuado = await Usuario.findOne({ where: { email: datosActualizados.email } });
+    if (emailUsuado && emailUsuado.id !== id) {
+        throw new Error('El email ya está en uso');
+    }
+
+    const atributosEditables = {
+        email: datosActualizados.email,
+        rol_id: datosActualizados.rol_id,
+    };
+
+    const [filasActualizadas] = await Usuario.update(atributosEditables, {
+        where: { id: id }
+    });
+
+    return filasActualizadas;
+};
+
+exports.editPasswordAdmin = async (id, datosActualizados) => {
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    const atributosEditables = {
+        password_hash: datosActualizados.email,
+    };
+
+    const [filasActualizadas] = await Usuario.update(atributosEditables, {
+        where: { id: id }
+    });
+
+    return filasActualizadas;
+};
 
 exports.modifyUsuario = async (datosActualizados) => {
     const usuario = await Usuario.findByPk(datosActualizados.id);
@@ -125,3 +195,4 @@ exports.setEstado = async (id, estado) => {
     await usuario.save();
     return usuario;
 };
+
