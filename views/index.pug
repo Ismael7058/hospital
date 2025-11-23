@@ -8,25 +8,33 @@ html(lang="es").h-100
     link(rel="stylesheet", href="/css/style.css")
   body.d-flex.flex-column.h-100
     include Shared/Header.pug 
-    // Hero Section
-    main.flex-grow-1.d-flex.align-items-center.bg-dark.text-white
-      .container.text-center
+    main.flex-grow-1.d-flex.align-items-center.justify-content-center.bg-dark
+      .container
         .row.justify-content-center
-          .col-md-10.col-lg-8
-            h1.display-4.fw-bold Bienvenidos al Portal Médico
-            h2.fw-light.mb-4 Hospital Horizon
-            p.lead.mb-4
-              | Una plataforma moderna, segura y eficiente diseñada para facilitar su labor diaria, 
-              | optimizar la gestión de pacientes y fomentar la colaboración interdisciplinaria.
-            
-            p.text-white-50.mb-5
-              | Ingrese para acceder a historiales clínicos, gestionar turnos y más.
-            
-            button.btn.btn-primary.btn-lg.px-4(type="button" data-bs-toggle="modal" data-bs-target="#loginModal")
-              i.bi.bi-box-arrow-in-right.me-2
-              | Iniciar Sesión
+          .col-md-6.col-lg-5.col-xl-4
+            .card.shadow-lg.border-secondary(data-bs-theme="dark")
+              .card-body.p-4.p-md-5.bg-dark.text-light
+                .text-center.mb-4
+                  i.bi.bi-hospital.fs-1.text-primary
+                  h3.fw-bold.mt-2 Hospital Horizon
+                  p.text-white-50 Inicia sesión para continuar
 
-    include Shared/ModalLogin.pug
+                form#loginForm(novalidate)
+                  //- Div para mostrar errores generales del login (ej. "Credenciales incorrectas")
+                  #loginError.alert.alert-danger.d-none
+
+                  .form-floating.mb-3
+                    input#emailInput.form-control(type="email" name="email" placeholder="nombre@ejemplo.com" required)
+                    label(for="emailInput") Correo Electrónico
+                  .form-floating.mb-4
+                    input#passwordInput.form-control(type="password" name="password" placeholder="Contraseña" required)
+                    label(for="passwordInput") Contraseña
+                  .d-grid
+                    button.btn.btn-primary.btn-lg(type="submit") Iniciar Sesión
+
+
+
+
 
     script(src="/bootstrap/js/bootstrap.bundle.min.js")
     script(src="/js/main.js")

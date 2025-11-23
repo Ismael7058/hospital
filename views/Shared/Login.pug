@@ -1,0 +1,22 @@
+extends ../layout   
+
+block content
+  .flex-grow-1.d-flex.align-items-center.bg-dark.text-white.h-100
+    .container.text-center
+        .row.justify-content-center
+            .col-md-10.col-lg-8
+                h1.display-4.fw-bold Bienvenidos al Portal Médico
+                h2.fw-light.mb-4 Hospital Horizon
+                p.lead.mb-4
+                    | Una plataforma moderna, segura y eficiente diseñada para facilitar su labor diaria, 
+                    | optimizar la gestión de pacientes y fomentar la colaboración interdisciplinaria.
+                
+                p.text-white-50.mb-5
+                    | Ingrese para acceder a historiales clínicos, gestionar turnos y más.
+                
+                button.btn.btn-primary.btn-lg.px-4(type="button" data-bs-toggle="modal" data-bs-target="#loginModal")
+                    i.bi.bi-box-arrow-in-right.me-2
+                    | Iniciar Sesión
+
+    include ../Shared/ModalLogin.pug
+        

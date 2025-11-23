@@ -18,7 +18,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000); // 5 segundos
     });
 
+    // --- LÓGICA PARA CERRAR SESIÓN ---
+    const logoutButton = document.getElementById('logoutButton');
 
+    if (logoutButton) {
+        logoutButton.addEventListener('click', async (event) => {
+            event.preventDefault(); // Evita que el enlace navegue
+
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                });
+
+                if (response.ok) {
+                    // Si el logout fue exitoso, redirigir al inicio/login
+                    window.location.href = '/';
+                } else {
+                    const data = await response.json();
+                    console.error('Error al cerrar sesión:', data.message || 'Error desconocido');
+                    alert('No se pudo cerrar la sesión. Por favor, inténtalo de nuevo.');
+                }
+            } catch (error) {
+                console.error('Error de red al intentar cerrar sesión:', error);
+                alert('Error de conexión. No se pudo cerrar la sesión.');
+            }
+        });
+    }
 });
 
 function mostrarAlerta(message, type = 'info') {
