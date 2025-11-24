@@ -90,11 +90,6 @@ form.row.p-4 {
   margin: 0;
 }
 
-/* Solución para que un elemento con .row no se coma el padding de su padre
-   cuando también es el contenedor principal con padding. */
-form.row.p-4 {
-  margin: 0;
-}
 
 /* --- Estilos para tablas con altura fija y scroll --- */
 /* Ahora esta clase se encarga de que la tabla llene el espacio de su contenedor flex */
