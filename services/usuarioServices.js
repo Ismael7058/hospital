@@ -87,8 +87,10 @@ exports.editPasswordAdmin = async (id, datosActualizados) => {
         throw new Error('Usuario no encontrado');
     }
 
+    const password_hash = await bcrypt.hash(datosActualizados.password, saltRounds);
+
     const atributosEditables = {
-        password_hash: datosActualizados.email,
+        password_hash: password_hash,
     };
 
     const [filasActualizadas] = await Usuario.update(atributosEditables, {
@@ -98,52 +100,11 @@ exports.editPasswordAdmin = async (id, datosActualizados) => {
     return filasActualizadas;
 };
 
-exports.modifyUsuario = async (datosActualizados) => {
-    const usuario = await Usuario.findByPk(datosActualizados.id);
-    if (!usuario) {
-        throw new Error('Usuario no encontrado');
-    }
-    
-    const emailUsuado = await Usuario.findOne({ where: { email: datosActualizados.email } });
-    if (emailUsuado && emailUsuado.id !== datosActualizados.id) {
-        throw new Error('El email ya está en uso');
-    }
-
-    const dniUsado = await Usuario.findOne({ where: { dni: datosActualizados.dni } });
-    if (dniUsado && dniUsado.id !== datosActualizados.id) {
-        throw new Error('El DNI ya está en uso');
-    }
-
-
-    const camposEditables = {
-        dni: datosActualizados.dni,
-        nombre: datosActualizados.nombre,
-        apellido: datosActualizados.apellido,
-        telefono: datosActualizados.telefono,
-        direccion: datosActualizados.direccion,
-        fecha_nacimiento: datosActualizados.fecha_nacimiento,
-        sexo: datosActualizados.sexo,
-        email: datosActualizados.email,
-        rol_id: datosActualizados.rol_id,
-        estado: datosActualizados.estado
-    };
-
-    const [filasActualizadas] = await Usuario.update(camposEditables, {
-        where: { id: id }
-    });
-
-    return filasActualizadas;
-}
 
 exports.editPerfil = async (id, datosActualizados) => {
     const usuario = await Usuario.findByPk(id);
     if (!usuario) {
         throw new Error('Usuario no encontrado');
-    }
-
-    const emailUsuado = await Usuario.findOne({ where: { email: datosActualizados.email } });
-    if (emailUsuado && emailUsuado.id !== id) {
-        throw new Error('El email ya está en uso');
     }
 
     const atributosEditables = {
@@ -152,8 +113,7 @@ exports.editPerfil = async (id, datosActualizados) => {
         telefono: datosActualizados.telefono,
         direccion: datosActualizados.direccion,
         fecha_nacimiento: datosActualizados.fecha_nacimiento,
-        sexo: datosActualizados.sexo,
-        email: datosActualizados.email
+        sexo: datosActualizados.sexo
     };
 
     const [filasActualizadas] = await Usuario.update(atributosEditables, {
@@ -176,8 +136,11 @@ exports.editPassword = async (id, datosActualizados) =>{
 
     const password_hash = await bcrypt.hash(datosActualizados.password, saltRounds);
     
-    const filaActualizada = await Usuario.update(password_hash, {where: { id: id }});
-    return filaActualizada;
+    const [filasActualizadas] = await Usuario.update(
+        { password_hash: password_hash },
+        { where: { id: id } }
+    );
+    return filasActualizadas;
 
 };
 
@@ -195,4 +158,3 @@ exports.setEstado = async (id, estado) => {
     await usuario.save();
     return usuario;
 };
-

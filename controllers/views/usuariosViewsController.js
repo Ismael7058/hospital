@@ -23,7 +23,6 @@ exports.getRegistrar = async (req, res) => {
 exports.getUsuario = async (req, res) => {
     try {
         const usuarioId = req.params.id;
-        // Usamos Promise.all para cargar el usuario y los roles en paralelo
         const [usuario, roles] = await Promise.all([
             Usuario.findByPk(usuarioId),
             Rol.findAll({ attributes: ['id', 'nombre'], order: [['nombre', 'ASC']] })

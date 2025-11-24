@@ -21,7 +21,7 @@ exports.getHome = async (req, res, next) => {
                 estadisticas: estadisticas // Pasamos las estadísticas a la vista
             });
         } else {
-            res.render('index', { title: 'Bienvenido a Horizon' });
+            res.render('./Shared/Login', { title: 'Bienvenido a Horizon' });
         }
     } catch (error) {
         next(error); // Pasamos el error al manejador de errores 500

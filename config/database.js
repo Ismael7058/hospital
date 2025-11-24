@@ -1,4 +1,4 @@
-require('dotenv').config();
+// No es necesario cargar dotenv aquí, ya que se hace en el punto de entrada (server.js)
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(

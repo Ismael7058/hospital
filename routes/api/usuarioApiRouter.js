@@ -4,11 +4,12 @@ const router = express.Router();
 const usuarioApiController = require('../../controllers/api/usuarioApiController');
 const { 
     registerUsuarioValidation, 
-    editPerfilValidation, 
-    editPasswordAdminValidation, 
-    modifyUsuarioValidation, 
     editInfoPersonalValidation,
-    editCuentaValidation
+    editCuentaValidation,
+    editPasswordAdminValidation, 
+    editPasswordUserValidation,
+    editInfoPersonalPerfilValidation
+
 } = require('../../validators/usuarioValidators');
 
 // POST /api/usuarios/register
@@ -26,13 +27,10 @@ router.patch('/editPassword/:idUsuario', editPasswordAdminValidation(), usuarioA
 // PATCH /api/usuarios/estado/:idUsuario
 router.patch('/estado/:idUsuario', usuarioApiController.setEstado);
 
-// PUT /api/usuarios/editPerfil
-router.put('/editPerfil',  usuarioApiController.editPerfil);
+// PATCH /api/usuarios/editPerfil
+router.patch('/editPerfil', editInfoPersonalPerfilValidation(), usuarioApiController.editPerfil);
 
-// PUT /api/usuarios/editPassword
-router.put('/editPassword', usuarioApiController.editPassword);
-
-// PUT /api/usuarios/modify
-router.put('/modify', usuarioApiController.modifyUsuario);
+// PATCH /api/usuarios/editPassword
+router.patch('/editPassword', editPasswordUserValidation(), usuarioApiController.editPassword);
 
 module.exports = router;
