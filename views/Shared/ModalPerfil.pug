@@ -1,0 +1,95 @@
+//- Modal principal para el perfil del usuario
+#perfilUsuarioModal.modal.fade(tabindex="-1" aria-labelledby="perfilUsuarioModalLabel" aria-hidden="true")
+  //- Usamos modal-lg para más espacio y modal-dialog-centered para que aparezca centrado
+  .modal-dialog.modal-lg.modal-dialog-centered
+    .modal-content.shadow-lg.border-0
+      .modal-header.border-0.pb-0
+        h5#perfilUsuarioModalLabel.modal-title.fw-bold Gestión de Perfil
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+      .modal-body.p-0
+        .row.g-0
+          //- Columna de Navegación (Sidebar)
+          .col-md-4.border-end
+            .p-4
+              //- Información del usuario en la cabecera del sidebar
+              .text-center.mb-4
+                //- Placeholder para una imagen de perfil
+                i.bi.bi-person-circle.fs-1.text-primary
+                if usuarioAutenticado
+                  h6.mt-2.mb-0= `${usuarioAutenticado.nombre} ${usuarioAutenticado.apellido}`
+                  small.text-muted= usuarioAutenticado.Rol ? usuarioAutenticado.Rol.nombre : 'Usuario'
+
+              //- Navegación con Píldoras Verticales
+              .nav.flex-column.nav-pills(id="v-pills-tab" role="tablist" aria-orientation="vertical")
+                a.nav-link.active(id="v-pills-info-tab" data-bs-toggle="pill" href="#v-pills-info" role="tab" aria-controls="v-pills-info" aria-selected="true")
+                  i.bi.bi-person-lines-fill.me-2
+                  | Información Personal
+                a.nav-link(id="v-pills-seguridad-tab" data-bs-toggle="pill" href="#v-pills-seguridad" role="tab" aria-controls="v-pills-seguridad" aria-selected="false")
+                  i.bi.bi-shield-lock-fill.me-2
+                  | Seguridad
+
+          //- Columna de Contenido
+          .col-md-8
+            .tab-content#v-pills-tabContent.p-4(style="min-height: 520px;")
+              //- Panel de Información Personal
+              #v-pills-info.tab-pane.fade.show.active(role="tabpanel" aria-labelledby="v-pills-info-tab")
+                h5.mb-4 Información Personal
+                //- Reutilizamos el formulario de Gestion.pug, adaptado para el perfil
+                if usuarioAutenticado
+                  form#formPerfilInformacion.p-0(autocomplete="off" novalidate)
+                    input(type="hidden" name="id" value=usuarioAutenticado.id)
+                    .row.g-3
+                      .col-md-6
+                        label.form-label(for="perfil_dni") DNI
+                        input.form-control(type="text" id="perfil_dni" name="dni" required value=usuarioAutenticado.dni)
+                      .col-md-6
+                        label.form-label(for="perfil_nombre") Nombre(s)
+                        input.form-control(type="text" id="perfil_nombre" name="nombre" required value=usuarioAutenticado.nombre)
+                      .col-md-6
+                        label.form-label(for="perfil_apellido") Apellido(s)
+                        input.form-control(type="text" id="perfil_apellido" name="apellido" required value=usuarioAutenticado.apellido)
+                      .col-md-6
+                        label.form-label(for="perfil_fecha_nacimiento") Fecha de Nacimiento
+                        input.form-control(type="date" id="perfil_fecha_nacimiento" name="fecha_nacimiento" required value=usuarioAutenticado.fecha_nacimiento)
+                      .col-md-6
+                        label.form-label(for="perfil_sexo") Sexo
+                        select.form-select(id="perfil_sexo" name="sexo" required)
+                          option(value="Masculino" selected=(usuarioAutenticado.sexo === 'Masculino')) Masculino
+                          option(value="Femenino" selected=(usuarioAutenticado.sexo === 'Femenino')) Femenino
+                      .col-md-6
+                        label.form-label(for="perfil_telefono") Teléfono
+                        input.form-control(type="tel" id="perfil_telefono" name="telefono" required value=usuarioAutenticado.telefono)
+                      .col-12
+                        label.form-label(for="perfil_direccion") Dirección
+                        input.form-control(type="text" id="perfil_direccion" name="direccion" required value=usuarioAutenticado.direccion)
+                    .d-flex.justify-content-end.mt-4
+                      button.btn.btn-primary(type="submit")
+                        i.bi.bi-save-fill.me-2
+                        | Guardar Cambios
+
+              //- Panel de Seguridad
+              #v-pills-seguridad.tab-pane.fade(role="tabpanel" aria-labelledby="v-pills-seguridad-tab")
+                h5.mb-4 Cambiar Contraseña
+                if usuarioAutenticado
+                  form#formPerfilPassword.p-0(autocomplete="off" novalidate)
+                    input(type="hidden" name="id" value=usuarioAutenticado.id)
+                    .row.g-3
+                      .col-12
+                        label.form-label(for="perfil_passwordAnterior") Contraseña Actual
+                        input.form-control(type="password" id="perfil_passwordAnterior" name="passwordAnterior" required)
+                      .col-12
+                        label.form-label(for="perfil_password") Nueva Contraseña
+                        input.form-control(type="password" id="perfil_password" name="password" required)
+                      .col-12
+                        label.form-label(for="perfil_passwordConfirmation") Confirmar Nueva Contraseña
+                        input.form-control(type="password" id="perfil_passwordConfirmation" name="passwordConfirmation" required)
+                    .d-flex.justify-content-end.mt-4
+                      button.btn.btn-warning(type="submit")
+                        i.bi.bi-key-fill.me-2
+                        | Cambiar Contraseña
+
+//- Scripts específicos para el modal. Se cargan como módulos para usar import/export.
+script(src="/js/modalPerfil.js" type="module")
+script(src="/js/formPerfilInfo.js" type="module")
+script(src="/js/formPerfilPass.js" type="module")

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   if (!loginForm) return;
 
+  const loginModal = document.getElementById('loginModal');
   const emailInput = document.getElementById('emailInput');
   const passwordInput = document.getElementById('passwordInput');
   const errorDiv = document.getElementById('loginError');
@@ -51,6 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
       submitButton.disabled = false;
       submitButton.innerHTML = originalButtonText;
     }
+  });
+
+  // Limpiar errores cuando el modal se cierra
+  loginModal.addEventListener('hidden.bs.modal', () => {
+    clearErrors();
+    loginForm.reset();
   });
 
   function validateInputs() {
