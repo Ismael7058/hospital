@@ -2,11 +2,25 @@ document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('formCambiarPassword');
   if (!form) return;
 
+  // --- Funciones de ayuda ---
+  // Se mueven aquí para que estén disponibles para todas las funciones de este script.
+  const showError = (input, message) => {
+    input.classList.add('is-invalid');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback d-block';
+    errorDiv.textContent = message;
+    input.parentNode.appendChild(errorDiv);
+  };
+
+  const clearErrors = () => {
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+  };
+
   form.addEventListener('submit', function (event) {
     event.preventDefault();
-
+    clearErrors();
     if (validateFormCambiarPassword()) {
-
       submitFormToApi();
     }
   });
@@ -22,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
     submitButton.disabled = true;
-    submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrando...`;
+    submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cambiando...`;
     
     const usuarioId = data.id;
     
@@ -63,38 +77,13 @@ document.addEventListener('DOMContentLoaded', function () {
       generalErrorDiv.classList.remove('d-none');
       console.error('Error de red al enviar el formulario:', error);
     } finally {
-      // Restaurar el botón después de un breve retraso para evitar clics múltiples
-      setTimeout(() => {
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalButtonText;
-      }, 1500);
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonText;
     }
   }
 
   function validateFormCambiarPassword() {
     let isValid = true;
-
-    // --- Funciones de ayuda ---
-    const clearErrors = () => {
-      document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-      document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-
-      document.querySelectorAll('.text-danger.mt-1.small').forEach(el => el.remove());
-
-      const generalErrorDiv = document.getElementById('general-error');
-      if(generalErrorDiv) generalErrorDiv.classList.add('d-none');
-    };
-
-    const showError = (input, message) => {
-      input.classList.add('is-invalid');
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'invalid-feedback d-block';
-      errorDiv.textContent = message;
-      input.parentNode.appendChild(errorDiv);
-      isValid = false;
-    };
-
-    clearErrors();
 
     // --- Obtener todos los campos ---
     const password = document.getElementById('password');
@@ -104,17 +93,20 @@ document.addEventListener('DOMContentLoaded', function () {
     // Password: mínimo 8 caracteres, con mayúscula, minúscula y número
     if (password.value.length < 8) {
       showError(password, 'La contraseña debe tener al menos 8 caracteres.');
+      isValid = false;
     } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/.test(password.value)) {
       showError(password, 'La contraseña debe contener al menos una mayúscula, una minúscula y un número.');
+      isValid = false;
     }
 
     // Confirmar Password: debe coincidir con la contraseña
     if (passwordConfirmation.value === '') {
         showError(passwordConfirmation, 'Por favor, confirme la contraseña.');
+        isValid = false;
     } else if (passwordConfirmation.value !== password.value) {
       showError(passwordConfirmation, 'Las contraseñas no coinciden.');
+      isValid = false;
     }
 
     return isValid;
-  }
-});
+  }});

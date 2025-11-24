@@ -2,11 +2,27 @@ document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('formAdministracion');
   if (!form) return;
 
+  // --- Funciones de ayuda ---
+  // Se mueven aquí para que estén disponibles para todas las funciones de este script.
+  const showError = (input, message) => {
+    input.classList.add('is-invalid');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback d-block';
+    errorDiv.textContent = message;
+    input.parentNode.appendChild(errorDiv);
+  };
+
+  const clearErrors = () => {
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    const generalErrorDiv = document.getElementById('general-error');
+    if (generalErrorDiv) generalErrorDiv.classList.add('d-none');
+  };
+
   form.addEventListener('submit', function (event) {
     event.preventDefault();
-
+    clearErrors();
     if (validateFormAdministracion()) {
-
       submitFormToApi();
     }
   });
@@ -22,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
     submitButton.disabled = true;
-    submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registrando...`;
+    submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
     
     const usuarioId = data.id;
     
@@ -61,37 +77,13 @@ document.addEventListener('DOMContentLoaded', function () {
       generalErrorDiv.classList.remove('d-none');
       console.error('Error de red al enviar el formulario:', error);
     } finally {
-      setTimeout(() => {
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalButtonText;
-      }, 1500);
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonText;
     }
   }
 
   function validateFormAdministracion() {
     let isValid = true;
-
-    // --- Funciones de ayuda ---
-    const clearErrors = () => {
-      document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-      document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-
-      document.querySelectorAll('.text-danger.mt-1.small').forEach(el => el.remove());
-
-      const generalErrorDiv = document.getElementById('general-error');
-      if(generalErrorDiv) generalErrorDiv.classList.add('d-none');
-    };
-
-    const showError = (input, message) => {
-      input.classList.add('is-invalid');
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'invalid-feedback d-block';
-      errorDiv.textContent = message;
-      input.parentNode.appendChild(errorDiv);
-      isValid = false;
-    };
-
-    clearErrors();
 
     // --- Obtener todos los campos ---
     const email = document.getElementById('email');
@@ -101,13 +93,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Email: no vacío y formato válido
     if (email.value.trim() === '') {
       showError(email, 'El correo electrónico es obligatorio.');
+      isValid = false;
     } else if (!/^\S+@\S+\.\S+$/.test(email.value)) {
       showError(email, 'Por favor, ingrese un email válido.');
+      isValid = false;
     }
 
     // Rol: no vacío
     if (rolId.value === '') {
       showError(rolId, 'Debe seleccionar un rol para el usuario.');
+      isValid = false;
     }
 
     return isValid;
