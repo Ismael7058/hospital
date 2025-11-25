@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const { Usuario } = require('../db/models');
-const rol = require('../db/models/rol');
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
