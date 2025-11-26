@@ -1,0 +1,113 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1.justify-content-between
+      //- Contenedor para mostrar errores generales de la API
+      #general-error.alert.alert-danger.d-none
+
+      //- Título dinámico
+      h3.text-center.my-4= title
+
+      //- Fila principal que contiene la información
+      .row.g-4
+        //- Columna Izquierda: Información de la Matrícula
+        .col-lg-8.d-flex.flex-column
+          .p-4.border.rounded.h-100.d-flex.flex-column.bg-white
+            //- Sección de Información del Titular (No editable)
+            h5.mb-4 Información del Titular
+            .row.g-3.mb-4
+              .col-md-6
+                label.form-label DNI
+                p.form-control-plaintext= matricula.Usuario.dni
+              .col-md-6
+                label.form-label Nombre Completo
+                p.form-control-plaintext #{matricula.Usuario.nombre} #{matricula.Usuario.apellido}
+            
+            hr
+            
+            //- Sección de Detalles de la Matrícula (No editable)
+            h5.my-4 Detalles de la Matrícula
+            .row.g-3.flex-grow-1
+              .col-md-6
+                label.form-label Número de Matrícula
+                p.form-control-plaintext= matricula.numero
+              .col-md-6
+                label.form-label Tipo
+                p.form-control-plaintext= matricula.tipo
+              .col-md-12
+                label.form-label Entidad Emisora
+                p.form-control-plaintext= matricula.entidad_emisora
+              .col-md-6
+                label.form-label Fecha de Emisión
+                p.form-control-plaintext= new Date(matricula.fecha_emision).toLocaleDateString()
+              .col-md-6
+                label.form-label Fecha de Vencimiento Actual
+                p.form-control-plaintext= new Date(matricula.fecha_vencimiento).toLocaleDateString()
+        
+        //- Columna Derecha: Administración
+        .col-lg-4.d-flex.flex-column.justify-content-between
+          //- Formulario para Renovación
+          form#formRenovarMatricula.p-4.border.rounded.bg-white(autocomplete="off" novalidate)
+            input(type="hidden" name="id" value=matricula.id)
+            h5.mb-4 Renovar Matrícula
+            .row.g-3
+              .col-12
+                label.form-label(for="fecha_vencimiento") Nueva Fecha de Vencimiento
+                input.form-control(type="date" id="fecha_vencimiento" name="fecha_vencimiento" required value=new Date(matricula.fecha_vencimiento).toISOString().split('T')[0])
+                .invalid-feedback#error-fecha_vencimiento La fecha de vencimiento es obligatoria.
+            .d-flex.justify-content-end.mt-4
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-save-fill.me-2
+                | Renovar
+          
+          //- Div para empujar el siguiente elemento hacia abajo
+          .flex-grow-1
+
+          //- Sección para Administración de Estado
+          .p-4.border.rounded.bg-white
+            div
+              h5.mb-4 Estado de la Matrícula
+              p Estado actual: 
+                if matricula.activo
+                  span.badge.bg-success Activa
+                else
+                  span.badge.bg-danger Inactiva                
+            .d-flex.justify-content-end.mt-4
+              if matricula.activo
+                button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-matricula-id=matricula.id data-nuevo-estado="false" data-accion-texto="dar de baja" data-btn-clase="btn-danger" data-titulo="Confirmar Baja de Matrícula")
+                  i.bi.bi-x-circle-fill.me-2
+                  | Dar de Baja
+              else
+                button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-matricula-id=matricula.id data-nuevo-estado="true" data-accion-texto="dar de alta" data-btn-clase="btn-success" data-titulo="Confirmar Alta de Matrícula")
+                  i.bi.bi-check-circle-fill.me-2
+                  | Dar de Alta
+
+      //- Botón para volver, fuera de los formularios
+      .d-flex.justify-content-end.pt-3
+        a.btn.btn-secondary.me-2(href="/matriculas/Listar")
+          i.bi.bi-arrow-left.me-2
+          | Volver
+
+    //- Modal genérico para confirmar cambio de estado (Alta/Baja)
+    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5#confirmarEstadoModalLabel.modal-title
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            p#confirmarEstadoModalBody
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button#confirmarEstadoBtn.btn(type="button")
+
+block scripts
+  script(src="/js/matricula/formRenovarMatricula.js")
+  script(src="/js/matricula/gestionEstadoMatricula.js")
+
+
+
+
+
+  

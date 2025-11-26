@@ -43,7 +43,7 @@ exports.actualizarMatricula = async (id, datosActualizados) => {
     const [filasActualizadas] = await Matricula.update (atributosEditables, {
         where: { id:id }
     });
-
+ 
     return filasActualizadas;
 }
 
@@ -53,7 +53,7 @@ exports.setEstado = async (id, estado) =>{
         throw new Error('Matricula no encontrada');
     }
 
-    if(matricula.activo === estado){
+    if (matricula.activo === estado) {
         throw new Error(`La meticula ya se encuentra ${estado ? 'activo' : 'inactivo'}.`);
     }
 

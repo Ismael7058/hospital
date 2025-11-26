@@ -6,8 +6,11 @@ const { get404, get500 } = require('./controllers/views/authViewsController');
 
 const authApiRouter = require('./routes/api/authApiRouter');
 const usuarioApiRouter = require('./routes/api/usuarioApiRouter');
+const MatriculaApiRouter = require('./routes/api/matriculaApiRouter')
+
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
+const matriculaViewsRouter = require('./routes/views/matriculaViewsRouter')
 
 const app = express();
 
@@ -25,10 +28,12 @@ app.use(verificarAutenticacion);
 // Rutas de api
 app.use('/api/auth', authApiRouter);
 app.use('/api/usuarios', protegerRuta, usuarioApiRouter);
+app.use('/api/matriculas', protegerRuta, MatriculaApiRouter)
 
 // Rutas de views
 app.use('/', authViewsRouter);
 app.use('/usuarios', protegerRuta, userViewsRouter);
+app.use('/matriculas', protegerRuta, matriculaViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---

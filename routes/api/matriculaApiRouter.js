@@ -7,10 +7,13 @@ const {
     updateMatriculaValidation
 } = require('../../validators/matriculaValidators');
 
-// POST /api/matricula/register
+// POST /api/matriculas/register
 router.post('/register', registerMatriculaValidation(), matriculaApiController.registerMatricula);
 
-// PATCH /api/matricula/renovar/:idUsuario
-router.patch('/renovar/:idUsuario', updateMatriculaValidation(), matriculaApiController.updateMatricula);
+// PATCH /api/matriculas/update/:id
+router.patch('/update/:id', updateMatriculaValidation(), matriculaApiController.updateMatricula);
+
+// PATCH /api/matriculas/estado/:idMatricula
+router.patch('/estado/:idMatricula', matriculaApiController.setEstado);
 
 module.exports = router;

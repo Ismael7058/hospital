@@ -35,14 +35,5 @@ exports.updateMatriculaValidation = () => {
     body('fecha_vencimiento')
       .not().isEmpty().withMessage('La fecha de vencimiento es obligatoria.')
       .isISO8601().withMessage('La fecha de vencimiento debe tener un formato de fecha válido (YYYY-MM-DD).').toDate(),
-    body('usuario_id')
-      .not().isEmpty().withMessage('El usuario es obligatorio.')
-      .isInt().withMessage('El ID de usuario debe ser un número entero.')
-      .custom(async (value) => {
-        const usuario = await Usuario.findByPk(value);
-        if (!usuario) {
-          return Promise.reject('El usuario seleccionado no existe.');
-        }
-      }),
   ];
 };
