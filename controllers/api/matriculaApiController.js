@@ -14,9 +14,12 @@ exports.registerMatricula = async (req, res) => {
             matricula: nuevaMatricula
         });
     } catch (error) {
-        // Manejo de errores específico para matrículas
+        if (error.message === 'Usuario no encontrado') {
+            return res.status(404).json({ message: error.message });
+        }
+        // Para cualquier otro error, se devuelve un 500
         console.error('Error al registrar matrícula:', error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
+        res.status(500).json({ message: 'Error interno del servidor al registrar la matrícula.' });
     }
 };
 
@@ -42,4 +45,3 @@ exports.updateMatricula = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 };
-

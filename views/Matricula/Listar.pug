@@ -1,0 +1,126 @@
+extends ../layout
+
+block content
+  -
+    const formatDate = (dateString) => {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      // Ajustar por la zona horaria para evitar problemas de un día menos
+      const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+      const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+      return adjustedDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Listado de Matrículas
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          a.btn.btn-success(href="/matriculas/Registrar")
+            i.bi.bi-journal-plus.me-2
+            | Nueva Matrícula
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET" action="/matriculas/Listar")
+          .row.g-3.align-items-end
+            .col-md-3
+              label.form-label(for="numero") Número Matrícula
+              input.form-control(type="text" id="numero" name="numero" value=filtros.numero)
+            .col-md-3
+              label.form-label(for="tipo") Tipo
+              input.form-control(type="text" id="tipo" name="tipo" value=filtros.tipo)
+            .col-md-3
+              label.form-label(for="entidad_emisora") Entidad Emisora
+              input.form-control(type="text" id="entidad_emisora" name="entidad_emisora" value=filtros.entidad_emisora)
+            .col-md-3
+              label.form-label(for="usuario") Titular (DNI/Nombre/Apellido)
+              input.form-control(type="text" id="usuario" name="usuario" value=filtros.usuario)
+            .col-md-3
+              label.form-label(for="activo") Estado
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-12.text-end
+              a.btn.btn-secondary(href="/matriculas/Listar") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Número
+                th.text-center Titular
+                th.text-center Tipo
+                th.text-center Entidad Emisora
+                th.text-center Fecha Emisión
+                th.text-center Fecha Vencimiento
+                th.text-center Estado
+                th.text-center Acciones
+
+            tbody
+              if matriculas && matriculas.length > 0
+                each matricula in matriculas
+                  tr
+                    td.text-center= matricula.numero
+                    td.text-center= matricula.Usuario ? `${matricula.Usuario.nombre} ${matricula.Usuario.apellido}` : 'N/A'
+                    td.text-center= matricula.tipo
+                    td.text-center= matricula.entidad_emisora
+                    td.text-center= formatDate(matricula.fecha_emision)
+                    td.text-center= formatDate(matricula.fecha_vencimiento)
+                    td.text-center
+                      if matricula.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center
+                      a.btn.btn-primary.btn-sm(href=`/matriculas/${matricula.id}` title="Ver/Gestionar Matrícula")
+                        i.bi.bi-pencil-square.me-1
+                        | Gestionar
+                - const filasVacias = 13 - matriculas.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="8") &nbsp;
+          if !matriculas || matriculas.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No se encontraron matrículas
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          -
+            const paginaActual = paginacion.paginaActual;
+            const totalPaginas = paginacion.totalPaginas;
+            const rango = 2;
+            let paginas = [];
+            if (paginaActual > rango + 1) {
+              paginas.push(1);
+              if (paginaActual > rango + 2) paginas.push('...');
+            }
+            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
+              if (!paginas.includes(i)) paginas.push(i);
+            }
+            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
+            if (paginaActual < totalPaginas - rango) {
+              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
+            }
+
+          nav(aria-label="Paginación de matrículas")
+            ul.pagination.justify-content-end.mb-0
+              li.page-item(class={disabled: paginaActual === 1})
+                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
+              each pagina in paginas
+                if pagina === '...'
+                  li.page-item.disabled: span.page-link ...
+                else
+                  li.page-item(class={active: pagina === paginaActual})
+                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
+              li.page-item(class={disabled: paginaActual === totalPaginas})
+                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente

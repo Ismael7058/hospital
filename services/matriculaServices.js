@@ -1,20 +1,32 @@
 const { Matricula, Usuario } = require('../db/models');
-const matricula = require('../db/models/matricula');
 
 exports.registerMatricula = async (matriculaData) => {
-    const { usurio_id } = matriculaData;
+    const { usuario_id } = matriculaData;
+    const usuario = await Usuario.findByPk(usuario_id);
 
-    const usuario = await Usuario.findByPk(usurio_id);
-
-    if (!usuario){
-        throw new Error('Usuario no encontrado');        
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
     }
 
+    const matriculaPrincipalExistente = await Matricula.findOne({
+        where: {
+            usuario_id: usuario_id,
+            es_principal: true,
+            activo: true
+        }
+    });
+
+    const datosParaCrear = {
+        ...matriculaData,
+        activo: true,
+        es_principal: !matriculaPrincipalExistente
+    };
+
     try {
-        const matricula = await Matricula.create(matriculaData);
+        const matricula = await Matricula.create(datosParaCrear);
         return matricula;
     } catch (error) {
-        return error;
+        throw error
     }
 }
 
