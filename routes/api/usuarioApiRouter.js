@@ -33,4 +33,7 @@ router.patch('/editPerfil', editInfoPersonalPerfilValidation(), usuarioApiContro
 // PATCH /api/usuarios/editPassword
 router.patch('/editPassword', editPasswordUserValidation(), usuarioApiController.editPassword);
 
+// GET /api/usuarios/buscar
+router.get('/buscar', usuarioApiController.buscar);
+
 module.exports = router;

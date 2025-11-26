@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const { Usuario } = require('../db/models');
+const { Op } = require('sequelize');
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
@@ -156,4 +157,31 @@ exports.setEstado = async (id, estado) => {
     usuario.activo = estado;
     await usuario.save();
     return usuario;
+};
+
+exports.buscarUsuarios = async (searchTerm) => {
+    if (!searchTerm || searchTerm.length < 3) {
+        return [];
+    }
+
+    try {
+        const usuarios = await Usuario.findAll({
+            where: {
+                [Op.or]: [
+                    { nombre: { [Op.like]: `%${searchTerm}%` } },
+                    { apellido: { [Op.like]: `%${searchTerm}%` } },
+                    { dni: { [Op.like]: `%${searchTerm}%` } }
+                ],
+                activo: true
+            },
+            limit: 10,
+            attributes: ['id', 'nombre', 'apellido', 'dni']
+        });
+
+        return usuarios;
+    } catch (error) {
+        console.error("Error en el servicio al buscar usuarios:", error);
+        // Re-lanzar el error para que el controlador lo maneje
+        throw new Error('Error al realizar la búsqueda de usuarios.');
+    }
 };

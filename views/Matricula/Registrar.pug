@@ -1,0 +1,57 @@
+extends ../layout
+
+block styles
+  //- Select2 CSS para Bootstrap 5
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css")
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css")
+
+block content
+  .container.p-4
+    .card.shadow-lg.border-0
+      .card-header.bg-light.py-3
+        h4.mb-0 Registrar Nueva Matrícula
+
+      form#form-registrar-matricula.card-body.p-4(novalidate)
+        .row.g-3
+          //- Selector de Usuario con Select2
+          .col-md-12
+            label.form-label(for="select-usuario") Titular de la Matrícula
+            select#select-usuario.form-select(name="usuario_id" required)
+            .invalid-feedback#error-usuario_id
+
+          .col-md-6
+            label.form-label(for="numero") Número de Matrícula
+            input.form-control(type="text" id="numero" name="numero" required)
+            .invalid-feedback#error-numero
+
+          .col-md-6
+            label.form-label(for="tipo") Tipo de Matrícula
+            input.form-control(type="text" id="tipo" name="tipo" required)
+            .invalid-feedback#error-tipo
+
+          .col-md-12
+            label.form-label(for="entidad_emisora") Entidad Emisora
+            input.form-control(type="text" id="entidad_emisora" name="entidad_emisora" required)
+            .invalid-feedback#error-entidad_emisora
+
+          .col-md-6
+            label.form-label(for="fecha_emision") Fecha de Emisión
+            input.form-control(type="date" id="fecha_emision" name="fecha_emision" required)
+            .invalid-feedback#error-fecha_emision
+
+          .col-md-6
+            label.form-label(for="fecha_vencimiento") Fecha de Vencimiento
+            input.form-control(type="date" id="fecha_vencimiento" name="fecha_vencimiento" required)
+            .invalid-feedback#error-fecha_vencimiento
+
+        .d-flex.justify-content-end.mt-4
+          a.btn.btn-secondary(href="/matriculas/Listar") Cancelar
+          button.btn.btn-primary.ms-2(type="submit") Registrar Matrícula
+
+block scripts
+  //- jQuery y Select2 JS
+  script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+
+  //- Script de validación y envío del formulario de registro de matrícula
+  script(src="/js/matricula/formMatriculaRegister.js")
