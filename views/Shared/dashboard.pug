@@ -32,7 +32,7 @@ block content
               .col.me-2
                 .text-success.text-uppercase.fw-bold.mb-1
                   small Usuarios Activos
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.usuariosActivos)
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.usuariosActivos) 0
               .col-auto
                 i.bi.bi-person-check-fill.fs-2.text-body-tertiary
 
@@ -46,3 +46,39 @@ block content
                 span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalRoles) 0
               .col-auto
                 i.bi.bi-shield-lock-fill.fs-2.text-body-tertiary
+
+      //- Tarjeta 4: Total de Matrículas
+      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-secondary.text-uppercase.fw-bold.mb-1
+                  small Total de Matrículas
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalMatriculas) 0
+              .col-auto
+                i.bi.bi-card-checklist.fs-2.text-body-tertiary
+
+      //- Tarjeta 5: Matrículas Activas
+      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar?activo=true")
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-success.text-uppercase.fw-bold.mb-1
+                  small Matrículas Activas
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasActivas) 0
+              .col-auto
+                i.bi.bi-patch-check-fill.fs-2.text-body-tertiary
+
+      //- Tarjeta 6: Matrículas Próximas a Vencer (con color de advertencia)
+      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-warning.text-uppercase.fw-bold.mb-1
+                  small Próximas a Vencer (30d)
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasPorVencer) 0
+              .col-auto
+                i.bi.bi-alarm-fill.fs-2.text-body-tertiary
