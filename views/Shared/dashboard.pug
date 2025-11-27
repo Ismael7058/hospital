@@ -82,3 +82,30 @@ block content
                 span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasPorVencer) 0
               .col-auto
                 i.bi.bi-alarm-fill.fs-2.text-body-tertiary
+
+      //- Tarjeta 7: Total de Especialidades
+      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades")
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-primary.text-uppercase.fw-bold.mb-1
+                  small Total de Especialidades
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalEspecialidades) 0
+              .col-auto
+                i.bi.bi-heart-pulse-fill.fs-2.text-body-tertiary
+
+      //- Tarjeta 8: Especialidades Activas
+      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades?activo=true")
+        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+          .card-body
+            .row.g-0.align-items-center
+              .col.me-2
+                .text-success.text-uppercase.fw-bold.mb-1
+                  small Especialidades Activas
+                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.especialidadesActivas) 0
+              .col-auto
+                i.bi.bi-clipboard2-pulse-fill.fs-2.text-body-tertiary
+
+      //- Puedes dejar un espacio en blanco o añadir otra tarjeta para completar la fila
+      .col-xl-4.col-md-6.mb-4

@@ -37,7 +37,7 @@ app.use('/api/especialidades', protegerRuta, especialidadApiRouter)
 app.use('/', authViewsRouter);
 app.use('/usuarios', protegerRuta, userViewsRouter);
 app.use('/matriculas', protegerRuta, matriculaViewsRouter);
-app.use('/especialidad', protegerRuta, especialidadViewsRouter);
+app.use('/especialidades', protegerRuta, especialidadViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---

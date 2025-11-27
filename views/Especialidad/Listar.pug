@@ -16,7 +16,7 @@ block content
             | Nueva Especialidad
 
       .collapse#filtrosCollapse
-        form.card-body.border-bottom.px-4(method="GET" action="/especialidades/Listar")
+        form.card-body.border-bottom.px-4(method="GET" action="/especialidades")
           .row.g-3.align-items-end
             .col-md-4
               label.form-label(for="nombre") Nombre de Especialidad
@@ -28,7 +28,7 @@ block content
                 option(value="true" selected=(filtros.activo === 'true')) Activo
                 option(value="false" selected=(filtros.activo === 'false')) Inactivo
             .col-md-4.text-end
-              a.btn.btn-secondary(href="/especialidades/Listar") Limpiar
+              a.btn.btn-secondary(href="/especialidades") Limpiar
               button.btn.btn-primary.ms-2(type="submit") Filtrar
 
       .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4

@@ -1,32 +1,10 @@
-const { Usuario, Rol, Matricula } = require('../../db/models');
-const { Op } = require('sequelize');
+const authService = require('../../services/authServices');
 
 exports.getHome = async (req, res, next) => {
     try {
         if (req.usuario) {
-            // Definir el rango de fechas para matrículas próximas a vencer (próximos 30 días)
-            const hoy = new Date();
-            const proximoMes = new Date();
-            proximoMes.setDate(hoy.getDate() + 30);
-
-            // Si el usuario está logueado, obtenemos las estadísticas para el dashboard
-            const [totalUsuarios, usuariosActivos, totalRoles, totalMatriculas, matriculasActivas, matriculasPorVencer] = await Promise.all([
-                Usuario.count(),
-                Usuario.count({ where: { activo: true } }),
-                Rol.count(),
-                Matricula.count(),
-                Matricula.count({ where: { activo: true } }),
-                Matricula.count({ where: { activo: true, fecha_vencimiento: { [Op.between]: [hoy, proximoMes] } } })
-            ]);
-
-            const estadisticas = {
-                totalUsuarios,
-                usuariosActivos,
-                totalRoles,
-                totalMatriculas,
-                matriculasActivas,
-                matriculasPorVencer
-            };
+            // La lógica de consulta ahora está encapsulada en el servicio
+            const estadisticas = await authService.getEstadisticasDashboard();
 
             res.render('./shared/dashboard', {
                 title: 'Horizon - Dashboard',

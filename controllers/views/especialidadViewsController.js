@@ -8,7 +8,7 @@ exports.getListar = async (req, res, next) => {
         const offset = (pagina - 1) * registrosPorPagina;
 
         const whereClause = {};
-        if (nombre) whereClause.nombre = { [Op.like]: `%${nombre}` };
+        if (nombre) whereClause.nombre = { [Op.iLike]: `%${nombre}%` };
         if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
 
         const { count, rows: especialidades } = await Especialidad.findAndCountAll({

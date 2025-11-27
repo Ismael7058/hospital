@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bootstrapModal.hide();
       mostrarAlerta('Especialidad registrada con éxito', 'success');
 
-      window.location.href = '/especialidad';
+      window.location.href = '/especialidades';
     } catch (error) {
       errorContainer.textContent = 'Error de conexión. Por favor, inténtalo de nuevo.';
       errorContainer.classList.remove('d-none');
