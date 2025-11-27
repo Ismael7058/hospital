@@ -6,7 +6,8 @@ const { get404, get500 } = require('./controllers/views/authViewsController');
 
 const authApiRouter = require('./routes/api/authApiRouter');
 const usuarioApiRouter = require('./routes/api/usuarioApiRouter');
-const MatriculaApiRouter = require('./routes/api/matriculaApiRouter')
+const MatriculaApiRouter = require('./routes/api/matriculaApiRouter');
+const especialidadApiRouter = require('./routes/api/especialidadApiRouter')
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -29,7 +30,8 @@ app.use(verificarAutenticacion);
 // Rutas de api
 app.use('/api/auth', authApiRouter);
 app.use('/api/usuarios', protegerRuta, usuarioApiRouter);
-app.use('/api/matriculas', protegerRuta, MatriculaApiRouter)
+app.use('/api/matriculas', protegerRuta, MatriculaApiRouter);
+app.use('/api/especialidades', protegerRuta, especialidadApiRouter)
 
 // Rutas de views
 app.use('/', authViewsRouter);

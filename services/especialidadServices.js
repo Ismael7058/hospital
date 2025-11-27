@@ -7,8 +7,8 @@ exports.registrarEspecialidad = async (datosEspecialidad) => {
     if (especialidadExistente) {
         throw new Error('La especialidad ya existe.');
     }
-
-    const nuevaEspecialidad = await Especialidad.create({ nombre });
+    
+    const nuevaEspecialidad = await Especialidad.create({ nombre, activo: true });
     return nuevaEspecialidad;
 };
 
@@ -17,6 +17,11 @@ exports.editEspecialidad = async (id, datosActualizados) => {
     const especialidad = await Especialidad.findByPk(id);
     if (!especialidad) {
         throw new Error('Especialidad no encontrada.');
+    }
+
+    // Comprobar si el nombre que se quiere guardar es diferente al actual.
+    if (especialidad.nombre === nombre) {
+        throw new Error('No se han realizado cambios en la especialidad.');
     }
 
     const especialidadExistente = await Especialidad.findOne({ where: { nombre } });
@@ -29,17 +34,26 @@ exports.editEspecialidad = async (id, datosActualizados) => {
     return especialidad;
 };
 
-exports.setEstado = async (id, estado) => {
+exports.setEstado = async (id, activo) => {
     const especialidad = await Especialidad.findByPk(id);
     if (!especialidad) {
         throw new Error('Especialida no encontrado');
     }
 
-    if (especialidad.activo === estado) {
-        throw new Error(`La especialidad ya se encuentra ${estado ? 'activo' : 'inactivo'}.`);
+    if (especialidad.activo === activo) {
+        throw new Error(`La especialidad ya se encuentra ${activo ? 'activa' : 'inactiva'}.`);
     }
 
-    especialidad.activo = estado;
+    especialidad.activo = activo;
     await especialidad.save();
     return especialidad;
 };
+
+exports.getEspecialidad = async (id) =>{
+    const especialidad = await Especialidad.findByPk(id);
+    if (!especialidad) {
+        throw new Error('Especialidad no encontrada');
+    }
+
+    return especialidad;
+}
