@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Usuario } = require('../db/models');
+const { Usuario, Especialidad } = require('../db/models');
 const { Op } = require('sequelize');
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
@@ -168,9 +168,9 @@ exports.buscarUsuarios = async (searchTerm) => {
         const usuarios = await Usuario.findAll({
             where: {
                 [Op.or]: [
-                    { nombre: { [Op.like]: `%${searchTerm}%` } },
-                    { apellido: { [Op.like]: `%${searchTerm}%` } },
-                    { dni: { [Op.like]: `%${searchTerm}%` } }
+                    { nombre: { [Op.like]: `%${searchTerm}` } },
+                    { apellido: { [Op.like]: `%${searchTerm}` } },
+                    { dni: { [Op.like]: `%${searchTerm}` } }
                 ],
                 activo: true
             },
@@ -184,4 +184,21 @@ exports.buscarUsuarios = async (searchTerm) => {
         // Re-lanzar el error para que el controlador lo maneje
         throw new Error('Error al realizar la búsqueda de usuarios.');
     }
+};
+
+exports.asignarEspecialidad = async (usuarioId, especialidadId) => {
+    const usuario = await Usuario.findByPk(usuarioId);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    const especialidad = await Especialidad.findByPk(especialidadId);
+    if (!especialidad) {
+        throw new Error('Especialidad no encontrada');
+    }
+
+    // Sequelize provee este método 'addEspecialidad' gracias a la asociación belongsToMany
+    await usuario.addEspecialidad(especialidad);
+
+    return { message: 'Especialidad asignada correctamente.' };
 };

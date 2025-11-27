@@ -4,17 +4,23 @@ const { DataTypes } = require('sequelize');
 const RolModel = require('./rol');
 const UsuarioModel = require('./usuario');
 const MatriculaModel = require('./matricula');
+const EspecialidadModel = require('./especialidad');
+const MedicoEspecialidadModel = require('./medico_especilidad');
 
 
 const Rol = RolModel(sequelize, DataTypes);
 const Usuario = UsuarioModel(sequelize, DataTypes);
 const Matricula = MatriculaModel(sequelize, DataTypes);
+const Especialidad = EspecialidadModel(sequelize, DataTypes);
+const MedicoEspecialidad = MedicoEspecialidadModel(sequelize, DataTypes);
 
 const db = {
     sequelize,
     Rol,
     Usuario,
-    Matricula
+    Matricula,
+    Especialidad,
+    MedicoEspecialidad
 };
 
 // Un Rol tiene muchos Usuarios
@@ -48,5 +54,21 @@ db.Matricula.belongsTo(db.Usuario, {
         allowNull: false
     }
 })
+
+// Un Usuario puede tener muchas Especialidades
+db.Usuario.belongsToMany(db.Especialidad, {
+    through: db.MedicoEspecialidad,
+    foreignKey: 'usuario_id',
+    otherKey: 'especialidad_id',
+    timestamps: false
+});
+
+// Una Especialidad puede pertenecer a muchos Usuarios
+db.Especialidad.belongsToMany(db.Usuario, {
+    through: db.MedicoEspecialidad,
+    foreignKey: 'especialidad_id',
+    otherKey: 'usuario_id',
+    timestamps: false
+});
 
 module.exports = db;
