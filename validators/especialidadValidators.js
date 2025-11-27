@@ -29,6 +29,6 @@ exports.editEspecialidadValidation = () => {
 exports.setEstadoEspecialidadValidation = () => {
   return [
     param('id').isInt().withMessage('El ID debe ser un número entero.'),
-    body('estado').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
+    body('activo').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
   ];
 };

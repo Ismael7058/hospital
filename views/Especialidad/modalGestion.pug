@@ -20,21 +20,15 @@
             input.form-control(type="text" id="gestion_nombre_especialidad" name="nombre" required minlength="3")
             .invalid-feedback
 
-        .modal-footer.d-flex.justify-content-between
-          //- Botones para cambiar el estado. Se mostrará uno u otro según el estado actual.
-          div
-            button.btn.btn-danger#btn-desactivar-especialidad(type="button")
-              i.bi.bi-trash-fill.me-2
-              | Desactivar
-            button.btn.btn-success.d-none#btn-activar-especialidad(type="button")
-              i.bi.bi-check-circle-fill.me-2
-              | Activar
-
-          //- Botones para cerrar el modal y guardar los cambios del nombre
-          div
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-            button.btn.btn-primary(type="submit")
-              i.bi.bi-save-fill.me-2
-              | Guardar Cambios
+        .modal-footer
+          button#btn-desactivar-especialidad.btn.btn-outline-danger.d-none(type="button" data-nuevo-estado="false")
+            i.bi.bi-x-circle-fill.me-2
+            | Desactivar
+          button#btn-activar-especialidad.btn.btn-outline-success.d-none(type="button" data-nuevo-estado="true")
+            i.bi.bi-check-circle-fill.me-2
+            | Activar
+          button.btn.btn-primary.ms-2(type="submit")
+            i.bi.bi-save-fill.me-2
+            | Guardar Cambios
 Section scripts
   script(src="/js/especialidad/modalGestion.js" type="module")

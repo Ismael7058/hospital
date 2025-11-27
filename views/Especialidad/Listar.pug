@@ -36,16 +36,18 @@ block content
           table.table.table-striped.table-hover.align-middle
             thead.table-dark
               tr
-                th Nombre
+                th.text-center Codigo
+                th.text-center Nombre
                 th.text-center Estado
                 th.text-center Acciones
 
             tbody
               if especialidades && especialidades.length > 0
                 each especialidad in especialidades
-                  tr
-                    td= especialidad.nombre
-                    td.text-center
+                  tr(id=`especialidad-row-${especialidad.id}`)
+                    td.text-center= especialidad.id
+                    td.nombre-especialidad.text-center= especialidad.nombre
+                    td.estado-especialidad.text-center
                       if especialidad.activo
                         span.badge.bg-success Activo
                       else
@@ -57,8 +59,6 @@ block content
                         data-bs-toggle="modal",
                         data-bs-target="#modalGestionEspecialidad",
                         data-id=especialidad.id,
-                        data-nombre=especialidad.nombre,
-                        data-activo=especialidad.activo
                       )
                         i.bi.bi-pencil-square.me-1
                         | Gestionar
@@ -66,7 +66,7 @@ block content
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
                     tr
-                      td.text-center(colspan="3") &nbsp;
+                      td.text-center(colspan="4") &nbsp;
           if !especialidades || especialidades.length === 0
             .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
               h4.fw-light No se encontraron especialidades
