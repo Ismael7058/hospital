@@ -1,0 +1,109 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Listado de Especialidades
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          //- Este botón abre el modal de registro
+          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarEspecialidad")
+            i.bi.bi-journal-plus.me-2
+            | Nueva Especialidad
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET" action="/especialidades/Listar")
+          .row.g-3.align-items-end
+            .col-md-4
+              label.form-label(for="nombre") Nombre de Especialidad
+              input.form-control(type="text" id="nombre" name="nombre" value=filtros.nombre)
+            .col-md-4
+              label.form-label(for="activo") Estado
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-md-4.text-end
+              a.btn.btn-secondary(href="/especialidades/Listar") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th Nombre
+                th.text-center Estado
+                th.text-center Acciones
+
+            tbody
+              if especialidades && especialidades.length > 0
+                each especialidad in especialidades
+                  tr
+                    td= especialidad.nombre
+                    td.text-center
+                      if especialidad.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center
+                      //- Este botón abre el modal de gestión y pasa los datos de la especialidad
+                      button.btn.btn-primary.btn-sm.btn-gestionar(
+                        type="button",
+                        data-bs-toggle="modal",
+                        data-bs-target="#modalGestionEspecialidad",
+                        data-id=especialidad.id,
+                        data-nombre=especialidad.nombre,
+                        data-activo=especialidad.activo
+                      )
+                        i.bi.bi-pencil-square.me-1
+                        | Gestionar
+                - const filasVacias = 13 - especialidades.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="3") &nbsp;
+          if !especialidades || especialidades.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No se encontraron especialidades
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          -
+            const paginaActual = paginacion.paginaActual;
+            const totalPaginas = paginacion.totalPaginas;
+            const rango = 2;
+            let paginas = [];
+            if (paginaActual > rango + 1) {
+              paginas.push(1);
+              if (paginaActual > rango + 2) paginas.push('...');
+            }
+            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
+              if (!paginas.includes(i)) paginas.push(i);
+            }
+            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
+            if (paginaActual < totalPaginas - rango) {
+              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
+            }
+
+          nav(aria-label="Paginación de especialidades")
+            ul.pagination.justify-content-end.mb-0
+              li.page-item(class={disabled: paginaActual === 1})
+                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
+              each pagina in paginas
+                if pagina === '...'
+                  li.page-item.disabled: span.page-link ...
+                else
+                  li.page-item(class={active: pagina === paginaActual})
+                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
+              li.page-item(class={disabled: paginaActual === totalPaginas})
+                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente
+  Section modals
+    include ./modalRegistrar.pug
+    include ./modalGestion.pug

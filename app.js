@@ -10,7 +10,8 @@ const MatriculaApiRouter = require('./routes/api/matriculaApiRouter')
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
-const matriculaViewsRouter = require('./routes/views/matriculaViewsRouter')
+const matriculaViewsRouter = require('./routes/views/matriculaViewsRouter');
+const especialidadViewsRouter = require('./routes/views/especialidadViewsRouter')
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/api/matriculas', protegerRuta, MatriculaApiRouter)
 app.use('/', authViewsRouter);
 app.use('/usuarios', protegerRuta, userViewsRouter);
 app.use('/matriculas', protegerRuta, matriculaViewsRouter);
+app.use('/especialidad', protegerRuta, especialidadViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---

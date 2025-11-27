@@ -1,0 +1,40 @@
+//- Modal para gestionar una especialidad existente (editar nombre, cambiar estado)
+#modalGestionEspecialidad.modal.fade(tabindex="-1" aria-labelledby="modalGestionEspecialidadLabel" aria-hidden="true")
+  .modal-dialog.modal-dialog-centered
+    .modal-content
+      .modal-header
+        h5#modalGestionEspecialidadLabel.modal-title Gestionar Especialidad
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+      //- Formulario para editar el nombre de la especialidad
+      form#formGestionEspecialidad(autocomplete="off" novalidate)
+        .modal-body
+          //- Input oculto para almacenar el ID de la especialidad
+          input(type="hidden" id="gestion_especialidad_id" name="id")
+
+          //- Contenedor para mostrar errores generales del formulario
+          #error-container-gestion-especialidad.alert.alert-danger.d-none(role="alert")
+
+          .mb-3
+            label.form-label(for="gestion_nombre_especialidad") Nombre de la Especialidad
+            input.form-control(type="text" id="gestion_nombre_especialidad" name="nombre" required minlength="3")
+            .invalid-feedback
+
+        .modal-footer.d-flex.justify-content-between
+          //- Botones para cambiar el estado. Se mostrará uno u otro según el estado actual.
+          div
+            button.btn.btn-danger#btn-desactivar-especialidad(type="button")
+              i.bi.bi-trash-fill.me-2
+              | Desactivar
+            button.btn.btn-success.d-none#btn-activar-especialidad(type="button")
+              i.bi.bi-check-circle-fill.me-2
+              | Activar
+
+          //- Botones para cerrar el modal y guardar los cambios del nombre
+          div
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+            button.btn.btn-primary(type="submit")
+              i.bi.bi-save-fill.me-2
+              | Guardar Cambios
+Section scripts
+  script(src="/js/especialidad/modalGestion.js" type="module")
