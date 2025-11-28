@@ -6,6 +6,10 @@ const UsuarioModel = require('./usuario');
 const MatriculaModel = require('./matricula');
 const EspecialidadModel = require('./especialidad');
 const MedicoEspecialidadModel = require('./medico_especilidad');
+const AlaModel = require('./ala');
+const HabitacionModel = require('./habitacion');
+const CamaModel = require('./cama');
+const HistorialHigienizacionModel = require('./historial_higienizacion');
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -13,6 +17,10 @@ const Usuario = UsuarioModel(sequelize, DataTypes);
 const Matricula = MatriculaModel(sequelize, DataTypes);
 const Especialidad = EspecialidadModel(sequelize, DataTypes);
 const MedicoEspecialidad = MedicoEspecialidadModel(sequelize, DataTypes);
+const Ala = AlaModel(sequelize, DataTypes);
+const Habitacion = HabitacionModel(sequelize, DataTypes);
+const Cama = CamaModel(sequelize, DataTypes);
+const HistorialHigienizacion = HistorialHigienizacionModel(sequelize, DataTypes);
 
 const db = {
     sequelize,
@@ -20,7 +28,11 @@ const db = {
     Usuario,
     Matricula,
     Especialidad,
-    MedicoEspecialidad
+    MedicoEspecialidad,
+    Ala,
+    Habitacion,
+    Cama,
+    HistorialHigienizacion
 };
 
 // Un Rol tiene muchos Usuarios
@@ -68,6 +80,54 @@ db.Especialidad.belongsToMany(db.Usuario, {
     through: db.MedicoEspecialidad,
     foreignKey: 'especialidad_id',
     otherKey: 'usuario_id',
+    timestamps: false
+});
+
+// Una Ala tiene muchas Habitaciones
+db.Ala.hasMany(db.Habitacion, {
+    foreignKey: {
+        name: 'ala_id',
+        allowNull: false
+    }
+});
+
+// Una Habitacion pertenece a una Ala
+db.Habitacion.belongsTo(db.Ala, {
+    foreignKey: {
+        name: 'ala_id',
+        allowNull: false
+    }
+});
+
+// Una Habitacion tiene muchas Camas
+ db.Habitacion.hasMany(db.Cama, {
+    foreignKey: {
+        name: 'habitacion_id',
+        allowNull: false
+    }
+});
+
+// Una Cama pertenece a una Habitacion
+ db.Cama.belongsTo(db.Habitacion, {
+    foreignKey: {
+        name: 'habitacion_id',
+        allowNull: false
+    }
+});
+
+// Una Cama puede tener muchos Historial de Higienizacion
+db.Cama.belongsToMany(db.Usuario, {
+    through: db.HistorialHigienizacion,
+    foreignKey: 'cama_id',
+    otherKey: 'usuario_id',
+    timestamps: false
+});
+
+// Un Usuaio puede tener muchos Historiales de Higienizacion
+db.Usuario.belongsToMany(db.Cama, {
+    through: db.HistorialHigienizacion,
+    foreignKey: 'usuario_id',
+    otherKey: 'cama_id',
     timestamps: false
 });
 
