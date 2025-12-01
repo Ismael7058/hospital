@@ -1,0 +1,125 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Listado de Habitaciones
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+            i.bi.bi-funnel.me-2
+            | Filtros
+          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalHabitacion")
+            i.bi.bi-plus-lg.me-2
+            | Nueva Habitación
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET" action="/infraestructura/habitaciones")
+          .row.g-3.align-items-end
+            .col-md-3
+              label.form-label(for="numero") Número
+              input.form-control(type="text" id="numero" name="numero" value=filtros.numero)
+            .col-md-3
+              label.form-label(for="capacidad") Capacidad
+              input.form-control(type="number" id="capacidad" name="capacidad" value=filtros.capacidad)
+            .col-md-3
+              label.form-label(for="ala_id") Ala
+              select.form-select(id="ala_id" name="ala_id")
+                option(value="") Todas las alas
+                each ala in alas
+                  option(value=ala.id selected=(filtros.ala_id == ala.id))= ala.nombre
+            .col-md-3
+              label.form-label(for="activo") Estado
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-md-3
+              label.form-label(for="conCamasLibres") Con Camas Libres
+              select.form-select(id="conCamasLibres" name="conCamasLibres")
+                option(value="" selected=(filtros.conCamasLibres === '')) Cualquiera
+                option(value="true" selected=(filtros.conCamasLibres === 'true')) Sí
+                option(value="false" selected=(filtros.conCamasLibres === 'false')) No
+            .col-12.text-end
+              a.btn.btn-secondary(href="/infraestructura/habitaciones") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Número
+                th Ala
+                th Descripción
+                th.text-center Capacidad
+                th.text-center Camas Libres
+                th.text-center Estado
+                th.text-center Acciones
+
+            tbody
+              if habitaciones && habitaciones.length > 0
+                each habitacion in habitaciones
+                  tr
+                    td.text-center= habitacion.numero
+                    td= habitacion.ala ? habitacion.ala.nombre : 'N/A'
+                    td= habitacion.descripcion
+                    td.text-center= habitacion.capacidad
+                    td.text-center
+                      span.badge(class=habitacion.dataValues.camasLibres > 0 ? 'bg-info' : 'bg-secondary')= habitacion.dataValues.camasLibres
+                    td.text-center
+                      if habitacion.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center
+                      button.btn.btn-primary.btn-sm.me-1(type="button" data-bs-toggle="modal" data-bs-target="#modalHabitacion" data-id=habitacion.id title="Gestionar Habitación")
+                        i.bi.bi-pencil-square
+                      a.btn.btn-info.btn-sm(href=`/infraestructura/camas?habitacion_id=${habitacion.id}` title="Ver Camas")
+                        i.bi.bi-bed
+                - const filasVacias = 15 - habitaciones.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="7") &nbsp;
+          if !habitaciones || habitaciones.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No se encontraron habitaciones con los filtros aplicados
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          -
+            const paginaActual = paginacion.paginaActual;
+            const totalPaginas = paginacion.totalPaginas;
+            const rango = 2;
+            let paginas = [];
+            if (paginaActual > rango + 1) {
+              paginas.push(1);
+              if (paginaActual > rango + 2) paginas.push('...');
+            }
+            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
+              if (!paginas.includes(i)) paginas.push(i);
+            }
+            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
+            if (paginaActual < totalPaginas - rango) {
+              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
+            }
+
+          nav(aria-label="Paginación de habitaciones")
+            ul.pagination.justify-content-end.mb-0
+              li.page-item(class={disabled: paginaActual === 1})
+                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
+              each pagina in paginas
+                if pagina === '...'
+                  li.page-item.disabled: span.page-link ...
+                else
+                  li.page-item(class={active: pagina === paginaActual})
+                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
+              li.page-item(class={disabled: paginaActual === totalPaginas})
+                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente
+
+  //- Aquí iría el modal para crear/editar habitación, similar al de Alas.
+  //- #modalHabitacion.modal.fade ...

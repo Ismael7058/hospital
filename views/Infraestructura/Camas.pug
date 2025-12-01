@@ -1,0 +1,136 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Listado de Camas
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+            i.bi.bi-funnel.me-2
+            | Filtros
+          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalCama")
+            i.bi.bi-plus-lg.me-2
+            | Nueva Cama
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET" action="/infraestructura/camas")
+          .row.g-3.align-items-end
+            .col-md-3
+              label.form-label(for="codigo") Código
+              input.form-control(type="text" id="codigo" name="codigo" value=filtros.codigo)
+            .col-md-3
+              label.form-label(for="ala_id") Ala
+              select.form-select(id="ala_id" name="ala_id")
+                option(value="") Todas
+                each ala in alas
+                  option(value=ala.id selected=(filtros.ala_id == ala.id))= ala.nombre
+            .col-md-3
+              label.form-label(for="habitacion_id") Habitación
+              select.form-select(id="habitacion_id" name="habitacion_id")
+                option(value="") Todas
+                each habitacion in habitaciones
+                  option(value=habitacion.id selected=(filtros.habitacion_id == habitacion.id))= `N° ${habitacion.numero}`
+            .col-md-3
+              label.form-label(for="estado") Estado Cama
+              select.form-select(id="estado" name="estado")
+                option(value="") Todos
+                option(value="Libre" selected=(filtros.estado === 'Libre')) Libre
+                option(value="Ocupado" selected=(filtros.estado === 'Ocupado')) Ocupado
+                option(value="Higienizando" selected=(filtros.estado === 'Higienizando')) Higienizando
+            .col-md-3
+              label.form-label(for="activo") Estado Activo
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-12.text-end
+              a.btn.btn-secondary(href="/infraestructura/camas") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Código
+                th Ala
+                th Habitación
+                th.text-center Estado Cama
+                th.text-center Activo
+                th.text-center Acciones
+
+            tbody
+              if camas && camas.length > 0
+                each cama in camas
+                  tr
+                    td.text-center= cama.codigo
+                    td= cama.habitacion && cama.habitacion.ala ? cama.habitacion.ala.nombre : 'N/A'
+                    td= cama.habitacion ? `N° ${cama.habitacion.numero}` : 'N/A'
+                    td.text-center
+                      case cama.estado
+                        when 'Libre'
+                          span.badge.bg-success Libre
+                        when 'Ocupado'
+                          span.badge.bg-danger Ocupado
+                        when 'Higienizando'
+                          span.badge.bg-warning.text-dark Higienizando
+                        default
+                          span.badge.bg-secondary= cama.estado
+                    td.text-center
+                      if cama.activo
+                        span.badge.bg-success Sí
+                      else
+                        span.badge.bg-danger No
+                    td.text-center
+                      button.btn.btn-primary.btn-sm.me-1(type="button" data-bs-toggle="modal" data-bs-target="#modalCama" data-id=cama.id title="Gestionar Cama")
+                        i.bi.bi-pencil-square
+                      button.btn.btn-secondary.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalHistorial" data-id=cama.id title="Ver Historial de Higienización")
+                        i.bi.bi-clock-history
+                - const filasVacias = 15 - camas.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="6") &nbsp;
+          if !camas || camas.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No se encontraron camas con los filtros aplicados
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          -
+            const paginaActual = paginacion.paginaActual;
+            const totalPaginas = paginacion.totalPaginas;
+            const rango = 2;
+            let paginas = [];
+            if (paginaActual > rango + 1) {
+              paginas.push(1);
+              if (paginaActual > rango + 2) paginas.push('...');
+            }
+            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
+              if (!paginas.includes(i)) paginas.push(i);
+            }
+            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
+            if (paginaActual < totalPaginas - rango) {
+              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
+            }
+
+          nav(aria-label="Paginación de camas")
+            ul.pagination.justify-content-end.mb-0
+              li.page-item(class={disabled: paginaActual === 1})
+                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
+              each pagina in paginas
+                if pagina === '...'
+                  li.page-item.disabled: span.page-link ...
+                else
+                  li.page-item(class={active: pagina === paginaActual})
+                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
+              li.page-item(class={disabled: paginaActual === totalPaginas})
+                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente
+
+  //- Aquí irían los modales para crear/editar cama y ver historial.
+  //- #modalCama.modal.fade ...
+  //- #modalHistorial.modal.fade ...
