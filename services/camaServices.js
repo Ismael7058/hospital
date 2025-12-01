@@ -1,4 +1,4 @@
-const { Cama, Habitacion, Ala } = require('../db/models');
+const { Cama, Habitacion, Ala, HistorialHigienizacion, sequelize } = require('../db/models');
 const { Op } = require('sequelize');
 
 exports.registerCama = async (camaData) => {
@@ -128,20 +128,31 @@ exports.moverCama= async (id, habitacion_id) => {
     }
 }
 
-exports.setEstado = async (id, estado) => {
+exports.setEstado = async (idCama, idUsuario, estado) => {
     try {
-        const cama = await Cama.findByPk(id);
-        if (!cama) {
-            throw new Error('Cama no encontrada');
-        }
+        const resultado = await sequelize.transaction(async (t) => {
+            const cama = await Cama.findByPk(idCama, { transaction: t });
+            if (!cama) {
+                throw new Error('Cama no encontrada');
+            }
 
-        if (cama.estado === estado) {
-            throw new Error(`La cama ya se encuentra en el estado: ${estado}.`);
-        }
+            if (cama.estado === estado) {
+                throw new Error(`La cama ya se encuentra en el estado: ${estado}.`);
+            }
 
-        cama.estado = estado;
-        await cama.save();
-        return cama;
+            cama.estado = estado;
+            await cama.save({ transaction: t });
+
+            if (estado === 'Higienizando'){
+                await HistorialHigienizacion.create({
+                    cama_id: idCama,
+                    usuario_id: idUsuario,
+                    fecha_hora: new Date()
+                }, { transaction: t });
+            }
+            return cama;
+        });
+        return resultado;
     } catch (error) {
         throw error;
     }
