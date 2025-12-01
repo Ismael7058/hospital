@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        estado: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "Libre"
+        },
         activo: {
             type: DataTypes.BOOLEAN,
             defaultValue: true

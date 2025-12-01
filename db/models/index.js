@@ -88,7 +88,8 @@ db.Ala.hasMany(db.Habitacion, {
     foreignKey: {
         name: 'ala_id',
         allowNull: false
-    }
+    },
+    as: 'habitaciones'
 });
 
 // Una Habitacion pertenece a una Ala
@@ -96,7 +97,8 @@ db.Habitacion.belongsTo(db.Ala, {
     foreignKey: {
         name: 'ala_id',
         allowNull: false
-    }
+    },
+    as: 'ala'
 });
 
 // Una Habitacion tiene muchas Camas
@@ -104,7 +106,8 @@ db.Habitacion.belongsTo(db.Ala, {
     foreignKey: {
         name: 'habitacion_id',
         allowNull: false
-    }
+    },
+    as: 'camas'
 });
 
 // Una Cama pertenece a una Habitacion
@@ -112,7 +115,8 @@ db.Habitacion.belongsTo(db.Ala, {
     foreignKey: {
         name: 'habitacion_id',
         allowNull: false
-    }
+    },
+    as: 'habitacion'
 });
 
 // Una Cama puede tener muchos Historial de Higienizacion

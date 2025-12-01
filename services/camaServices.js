@@ -1,4 +1,5 @@
-const { Cama, Habitacion } = require('../db/models');
+const { Cama, Habitacion, Ala } = require('../db/models');
+const { Op } = require('sequelize');
 
 exports.registerCama = async (camaData) => {
     try {
@@ -36,6 +37,41 @@ exports.registerCama = async (camaData) => {
         throw error;
     }
 }
+
+exports.getListarCamas = async (filtros, pagina, porPagina) => {
+    const whereCama = {};
+    if (filtros.codigo) whereCama.codigo = { [Op.iLike]: `%${filtros.codigo}%` };
+    if (filtros.estado) whereCama.estado = filtros.estado;
+    if (filtros.activo !== '') whereCama.activo = filtros.activo === 'true';
+
+    const whereHabitacion = {};
+    if (filtros.habitacion_id) whereHabitacion.id = filtros.habitacion_id;
+    if (filtros.ala_id) whereHabitacion.ala_id = filtros.ala_id;
+
+    const { count, rows } = await Cama.findAndCountAll({
+        where: whereCama,
+        include: [{
+            model: Habitacion,
+            as: 'habitacion',
+            where: Object.keys(whereHabitacion).length > 0 ? whereHabitacion : null,
+            required: Object.keys(whereHabitacion).length > 0,
+            include: [{
+                model: Ala,
+                as: 'ala',
+                attributes: ['nombre']
+            }]
+        }],
+        limit: porPagina,
+        offset: (pagina - 1) * porPagina,
+        order: [['codigo', 'ASC']],
+        distinct: true
+    });
+
+    return {
+        camas: rows,
+        totalRegistros: count
+    };
+};
 
 exports.editCama = async(id, datosActualizados) => {
     try {

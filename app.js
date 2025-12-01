@@ -8,11 +8,13 @@ const authApiRouter = require('./routes/api/authApiRouter');
 const usuarioApiRouter = require('./routes/api/usuarioApiRouter');
 const MatriculaApiRouter = require('./routes/api/matriculaApiRouter');
 const especialidadApiRouter = require('./routes/api/especialidadApiRouter')
+// const infraestructuraApiRouter = require('./routes/api/infraestructuraApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
 const matriculaViewsRouter = require('./routes/views/matriculaViewsRouter');
 const especialidadViewsRouter = require('./routes/views/especialidadViewsRouter')
+const infraestructuraViewsRouter = require('./routes/views/infraestructuraViewsRouter');
 
 const app = express();
 
@@ -31,13 +33,15 @@ app.use(verificarAutenticacion);
 app.use('/api/auth', authApiRouter);
 app.use('/api/usuarios', protegerRuta, usuarioApiRouter);
 app.use('/api/matriculas', protegerRuta, MatriculaApiRouter);
-app.use('/api/especialidades', protegerRuta, especialidadApiRouter)
+app.use('/api/especialidades', protegerRuta, especialidadApiRouter);
+// app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
 app.use('/usuarios', protegerRuta, userViewsRouter);
 app.use('/matriculas', protegerRuta, matriculaViewsRouter);
 app.use('/especialidades', protegerRuta, especialidadViewsRouter);
+app.use('/infraestructura', protegerRuta, infraestructuraViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---

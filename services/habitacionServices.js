@@ -1,4 +1,5 @@
-const { Habitacion, Cama, sequelize } = require('../db/models');
+const { Habitacion, Cama, Ala, sequelize } = require('../db/models');
+const { Op } = require('sequelize');
 
 exports.registerHabitacion = async (habitacionData) => {
     const habitacion = await Habitacion.findOne({ where: { numero: habitacionData.numero } });
@@ -18,6 +19,41 @@ exports.registerHabitacion = async (habitacionData) => {
         throw error;
     }
 }
+
+exports.getListarHabitaciones = async (filtros, pagina, porPagina) => {
+    const whereClause = {};
+    if (filtros.numero) whereClause.numero = { [Op.iLike]: `%${filtros.numero}%` };
+    if (filtros.capacidad) whereClause.capacidad = filtros.capacidad;
+    if (filtros.activo !== '') whereClause.activo = filtros.activo === 'true';
+    if (filtros.ala_id) whereClause.ala_id = filtros.ala_id;
+
+    const subqueryCamasLibres = `(SELECT COUNT(*) FROM "Camas" AS c WHERE c.habitacion_id = "Habitacion".id AND c.estado = 'Libre' AND c.activo = true)`;
+
+    if (filtros.conCamasLibres === 'true') {
+        whereClause[Op.and] = sequelize.literal(`${subqueryCamasLibres} > 0`);
+    } else if (filtros.conCamasLibres === 'false') {
+        whereClause[Op.and] = sequelize.literal(`${subqueryCamasLibres} = 0`);
+    }
+
+    const { count, rows } = await Habitacion.findAndCountAll({
+        where: whereClause,
+        include: [{ model: Ala, as: 'ala', attributes: ['nombre'] }],
+        attributes: {
+            include: [
+                [sequelize.literal(subqueryCamasLibres), 'camasLibres']
+            ]
+        },
+        limit: porPagina,
+        offset: (pagina - 1) * porPagina,
+        order: [['numero', 'ASC']],
+        distinct: true,
+    });
+
+    return {
+        habitaciones: rows,
+        totalRegistros: count
+    };
+};
 
 exports.editHabitacion = async (id, datosActualizados) => {
     try {

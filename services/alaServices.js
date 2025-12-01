@@ -80,3 +80,22 @@ exports.setActivo = async (id, activo) => {
         throw error;
     }
 }
+
+exports.getListarAlas = async () => {
+    const alas = await Ala.findAll({
+        attributes: {
+            include: [
+                [
+                    sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM "Habitaciones" AS h
+                        WHERE h.ala_id = "Ala".id
+                    )`),
+                    'cantidadHabitaciones'
+                ]
+            ]
+        },
+        order: [['nombre', 'ASC']],
+    });
+    return alas;
+};
