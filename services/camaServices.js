@@ -22,7 +22,7 @@ exports.registerCama = async (camaData) => {
         });
 
         if (countCamas >= habitacion.capacidad) {
-            throw new Error(`La habitación ya ha alcanzado su capacidad máxima de ${habitacion.capacidad} cama(s).`);
+            throw new Error(`La habitación ya ha alcanzado su capacidad máxima de camas.`);
         }
 
         const datosParaCrear = {
@@ -117,7 +117,7 @@ exports.moverCama= async (id, habitacion_id) => {
         });
 
         if (countCamas >= nuevaHabitacion.capacidad) {
-            throw new Error(`La habitación de destino ya ha alcanzado su capacidad máxima de ${nuevaHabitacion.capacidad} cama(s).`);
+            throw new Error('La habitación de destino ya ha alcanzado su capacidad máxima de camas.');
         }
 
         cama.habitacion_id = habitacion_id;
@@ -137,7 +137,7 @@ exports.setEstado = async (idCama, idUsuario, estado) => {
             }
 
             if (cama.estado === estado) {
-                throw new Error(`La cama ya se encuentra en el estado: ${estado}.`);
+                throw new Error('La cama ya se encuentra en ese estado.');
             }
 
             cama.estado = estado;
@@ -166,11 +166,11 @@ exports.setActivo = async (id, activo) => {
         }
 
         if (cama.activo === activo) {
-            throw new Error(`La cama ya se encuentra ${activo ? 'activa' : 'inactiva'}.`);
+            throw new Error('La cama ya se encuentra en ese estado');
         }
 
         if (!activo && cama.estado !== 'Libre') {
-            throw new Error(`No se puede desactivar una cama que está en estado: ${cama.estado}.`);
+            throw new Error('No se puede desactivar una cama que no esta libre.');
         }
 
         if (activo){
@@ -186,7 +186,7 @@ exports.setActivo = async (id, activo) => {
             });
     
             if (countCamas >= habitacion.capacidad) {
-                throw new Error(`No se puede activar la cama. La habitación ya ha alcanzado su capacidad máxima de ${habitacion.capacidad} cama(s).`);
+                throw new Error('No se puede activar la cama. La habitación ya ha alcanzado su capacidad máxima de camas.');
             }
         }
         

@@ -8,7 +8,7 @@ const authApiRouter = require('./routes/api/authApiRouter');
 const usuarioApiRouter = require('./routes/api/usuarioApiRouter');
 const MatriculaApiRouter = require('./routes/api/matriculaApiRouter');
 const especialidadApiRouter = require('./routes/api/especialidadApiRouter')
-// const infraestructuraApiRouter = require('./routes/api/infraestructuraApiRouter');
+const infraestructuraApiRouter = require('./routes/api/infraestructuraApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -34,7 +34,7 @@ app.use('/api/auth', authApiRouter);
 app.use('/api/usuarios', protegerRuta, usuarioApiRouter);
 app.use('/api/matriculas', protegerRuta, MatriculaApiRouter);
 app.use('/api/especialidades', protegerRuta, especialidadApiRouter);
-// app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
+app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
