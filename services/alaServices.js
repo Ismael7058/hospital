@@ -1,4 +1,5 @@
 const { Ala, sequelize, Cama, Habitacion } = require('../db/models');
+const { Op } = require('sequelize');
 
 exports.registerAla = async (alaData) => {
     const ala = await Ala.findOne({ where: { nombre: alaData.nombre } });
@@ -52,11 +53,12 @@ exports.setActivo = async (id, activo) => {
                 const camasEstado = await Cama.count({
                     include: [{
                         model: Habitacion,
+                        as: 'habitacion',
                         required: true,
                         where: { ala_id: id },
                         attributes: []
                     }],
-                    where: { estado: 'Libre' },
+                    where: { estado: { [Op.ne]: 'Libre' } },
                     transaction: t
                 });
 
@@ -81,8 +83,10 @@ exports.setActivo = async (id, activo) => {
     }
 }
 
-exports.getListarAlas = async () => {
-    const alas = await Ala.findAll({
+exports.getListarAlas = async (pagina, porPagina) => {
+    const offset = (pagina - 1) * porPagina;
+
+    const { count, rows: alas } = await Ala.findAndCountAll({
         attributes: {
             include: [
                 [
@@ -96,6 +100,12 @@ exports.getListarAlas = async () => {
             ]
         },
         order: [['nombre', 'ASC']],
+        limit: porPagina,
+        offset: offset,
+        distinct: true
     });
-    return alas;
+    return {
+        alas,
+        totalRegistros: count
+    };
 };

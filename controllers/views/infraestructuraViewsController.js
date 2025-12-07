@@ -38,10 +38,26 @@ exports.getDashboard = async (req, res, next) => {
 
 exports.getListarAlas = async (req, res, next) => {
     try {
-        const alas = await alaServices.getListarAlas();
+        const pagina = parseInt(req.query.pagina, 10) || 1;
+        const porPagina = 13;
+
+        const { alas, totalRegistros } = await alaServices.getListarAlas(pagina, porPagina);
+
+        const totalPaginas = Math.ceil(totalRegistros / porPagina);
+
+        const filtros = {};
+        const filtrosQuery = new URLSearchParams(filtros).toString();
+
         res.render('./Infraestructura/Alas.pug', {
             title: 'Gestionar Alas',
-            alas: alas
+            alas: alas,
+            paginacion: {
+                paginaActual: pagina,
+                totalPaginas,
+                totalRegistros
+            },
+            filtros,
+            filtrosQuery
         });
     } catch (error) {
         console.error('Error al obtener las alas:', error);

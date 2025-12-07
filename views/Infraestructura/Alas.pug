@@ -6,12 +6,13 @@ block content
       .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
         div
           h4.mb-0 Listado de Alas
-        div
-          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalAla")
+        .d-flex
+          a.btn.btn-secondary(href="/infraestructura") Volver
+          button.btn.btn-success.ms-2(type="button" data-bs-toggle="modal" data-bs-target="#modalAla")
             i.bi.bi-plus-lg.me-2
             | Nueva Ala
 
-      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
         .table-responsive.table-fixed-height.rounded
           table.table.table-striped.table-hover.align-middle
             thead.table-dark
@@ -38,21 +39,30 @@ block content
                       button.btn.btn-sm.btn-warning.me-2(type="button" data-bs-toggle="modal" data-bs-target="#modalAla" data-id=ala.id data-nombre=ala.nombre)
                         i.bi.bi-pencil-square.me-1
                         | Editar
-                      button.btn.btn-sm.btn-info.btn-toggle-activo(type="button" data-id=ala.id data-activo=ala.activo)
+                      button.btn.btn-sm.btn-info.btn-toggle-activo(type="button" data-id=ala.id data-activo=String(ala.activo))
                         if ala.activo
                           i.bi.bi-toggle-off.me-1
                           | Desactivar
                         else
                           i.bi.bi-toggle-on.me-1
                           | Activar
-                - const filasVacias = 10 - alas.length;
+                - const filasVacias = 13 - alas.length;
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
                     tr
                       td.text-center(colspan="5") &nbsp;
               else
-                .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
-                  h4.fw-light No hay alas registradas
+                tr
+                  td.text-center(colspan="5")
+                    .py-5
+                      h4.fw-light.text-muted No hay alas registradas.
+      
+      //- Paginación
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.row
+          div.text-muted.col-2
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
 
   //- Modal para Crear/Editar Ala
   #modalAla.modal.fade(tabindex="-1" aria-labelledby="modalAlaLabel" aria-hidden="true")
@@ -69,4 +79,21 @@ block content
               input.form-control(type="text" id="alaNombre" name="nombre" required)
         .modal-footer
           button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-          button.btn.btn-primary(type="submit" form="formAla") Guardar Cambios
+          button.btn.btn-primary(type="submit" form="formAla") Guardar
+
+  //- Modal para Confirmar Activación/Desactivación
+  #confirmarEstadoAlaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoAlaModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title#confirmarEstadoAlaModalLabel Confirmar Acción
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p#confirmarEstadoAlaModalBody ¿Estás seguro?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-danger#confirmarEstadoAlaBtn(type="button") Confirmar
+
+block scripts
+  script(src="/js/infraestructura/modalRegistrarAla.js") 
+  script(src="/js/infraestructura/gestionEstadoAla.js")
