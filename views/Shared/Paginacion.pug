@@ -1,0 +1,40 @@
+nav.col-10.d-flex.justify-content-center.align-items-center(aria-label="Navegación de páginas")
+  ul.pagination
+    //- Botón "Anterior"
+    li.page-item(class={ 'disabled': paginacion.paginaActual === 1 })
+      - const prevPageUrl = `?pagina=${paginacion.paginaActual - 1}${filtrosQuery ? '&' + filtrosQuery : ''}`
+      a.page-link(href=prevPageUrl, aria-label="Anterior")
+        span(aria-hidden="true") &laquo;
+
+    //- Lógica para calcular el rango de páginas a mostrar
+    - const maxPaginasVisibles = 5
+    - let inicio = Math.max(1, paginacion.paginaActual - Math.floor(maxPaginasVisibles / 2))
+    - let fin = Math.min(paginacion.totalPaginas, inicio + maxPaginasVisibles - 1)
+    - if (fin - inicio < maxPaginasVisibles - 1) {
+    -   inicio = Math.max(1, fin - maxPaginasVisibles + 1)
+    - }
+
+    //- Elipsis y primera página si es necesario
+    if inicio > 1
+      li.page-item
+        a.page-link(href=`?pagina=1${filtrosQuery ? '&' + filtrosQuery : ''}`) 1
+      if inicio > 2
+        li.page-item.disabled: span.page-link ...
+
+    //- Números de página
+    - for (let i = inicio; i <= fin; i++)
+      li.page-item(class={ 'active': i === paginacion.paginaActual })
+        a.page-link(href=`?pagina=${i}${filtrosQuery ? '&' + filtrosQuery : ''}`)= i
+
+    //- Elipsis y última página si es necesario
+    if fin < paginacion.totalPaginas
+      if fin < paginacion.totalPaginas - 1
+        li.page-item.disabled: span.page-link ...
+      li.page-item
+        a.page-link(href=`?pagina=${paginacion.totalPaginas}${filtrosQuery ? '&' + filtrosQuery : ''}`)= paginacion.totalPaginas
+
+    //- Botón "Siguiente"
+    li.page-item(class={ 'disabled': paginacion.paginaActual === paginacion.totalPaginas })
+      - const nextPageUrl = `?pagina=${paginacion.paginaActual + 1}${filtrosQuery ? '&' + filtrosQuery : ''}`
+      a.page-link(href=nextPageUrl, aria-label="Siguiente")
+        span(aria-hidden="true") &raquo;

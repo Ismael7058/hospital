@@ -75,35 +75,8 @@ block content
         .card-footer.d-flex.justify-content-between.align-items-center
           div.text-muted
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
-          -
-            const paginaActual = paginacion.paginaActual;
-            const totalPaginas = paginacion.totalPaginas;
-            const rango = 2;
-            let paginas = [];
-            if (paginaActual > rango + 1) {
-              paginas.push(1);
-              if (paginaActual > rango + 2) paginas.push('...');
-            }
-            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
-              if (!paginas.includes(i)) paginas.push(i);
-            }
-            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
-            if (paginaActual < totalPaginas - rango) {
-              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
-            }
-
-          nav(aria-label="Paginación de especialidades")
-            ul.pagination.justify-content-end.mb-0
-              li.page-item(class={disabled: paginaActual === 1})
-                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
-              each pagina in paginas
-                if pagina === '...'
-                  li.page-item.disabled: span.page-link ...
-                else
-                  li.page-item(class={active: pagina === paginaActual})
-                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
-              li.page-item(class={disabled: paginaActual === totalPaginas})
-                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente
+          include ../Shared/Paginacion.pug
+          
   Section modals
     include ./modalRegistrar.pug
     include ./modalGestion.pug
