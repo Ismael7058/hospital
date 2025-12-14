@@ -36,6 +36,8 @@ router.patch('/ala/:id/edit', editAlaValidation(), alaApiController.editAla);
 // PATCH /api/infraestructura/ala/:id/activo
 router.patch('/ala/:id/activo', setActivoAlaValidation(), alaApiController.setActivoAla);
 
+// GET /api/infraestructura/ala/buscar
+router.get('/ala/buscar', alaApiController.getAlas);
 
 
 // POST /api/infraestructura/habitacion/register

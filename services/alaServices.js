@@ -109,3 +109,20 @@ exports.getListarAlas = async (pagina, porPagina) => {
         totalRegistros: count
     };
 };
+
+exports.getAlas = async (nombre) => {
+    try {
+        const alas = await Ala.findAll({
+            where: {
+                nombre: { [Op.iLike]: `%${nombre}%`},
+                activo: true
+            },
+            limit: 10,
+            attributes: ['id', 'nombre']
+        });
+
+        return alas;
+    } catch (error) {
+        throw new Error('Error al realizar la búsqueda de las alas.');
+    }
+}

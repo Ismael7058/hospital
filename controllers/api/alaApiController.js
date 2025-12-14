@@ -75,3 +75,17 @@ exports.setActivoAla = async (req, res) => {
     }
 };
 
+exports.getAlas = async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { nombre } = req.query;
+        const alas = await alaServices.getAlas(nombre || '');
+
+        res.status(200).json(alas);
+    } catch (error) {
+        res.status(500).json({ message: error || 'Error interno del servidor.' });
+    }
+}
