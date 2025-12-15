@@ -66,3 +66,9 @@ exports.setActivoCamaValidation = () => {
         body('activo').isBoolean().withMessage('El activo debe ser un valor booleano (true o false).'),
     ];
 };
+
+exports.getCamaValidation = () => {
+    return [
+        param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    ];
+};

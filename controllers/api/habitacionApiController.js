@@ -117,3 +117,14 @@ exports.getHabitacion = async (req, res) => {
         }
     }
 }
+
+exports.getHabitaciones = async (req, res) => {
+    try {
+        const { numero } = req.query;
+        const habitaciones = await habitacionServices.getHabitaciones(numero || '');
+
+        res.status(200).json(habitaciones);
+    } catch (error) {
+        res.status(500).json({ message: error || 'Error interno del servidor.' });
+    }
+}

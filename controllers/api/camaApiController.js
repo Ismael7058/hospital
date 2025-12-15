@@ -130,3 +130,22 @@ exports.setEstadoCama = async (req, res) => {
         }
     }
 }
+
+exports.getCama = async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { id } = req.params;
+        const cama = await camaServices.getCama(id);
+        res.status(200).json(cama);
+    } catch (error) {
+        switch (error.message) {
+            case 'Cama no encontrada':
+                return res.status(404).json({ message: error.message });
+            default:
+                res.status(500).json({ message: error.message || 'Error interno del servidor.' });
+        }
+    }
+}

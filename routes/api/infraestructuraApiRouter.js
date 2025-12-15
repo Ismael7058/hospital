@@ -24,7 +24,8 @@ const {
     editCamaValidation,
     moverCamaValidation,
     setEstadoCamaValidation,
-    setActivoCamaValidation
+    setActivoCamaValidation,
+    getCamaValidation
 } = require('../../validators/camaValidators')
 
 
@@ -56,6 +57,8 @@ router.patch('/habitacion/:id/activo', setActivoHabitacionValidation(), habitaci
 // GET /api/infraestructura/habitacion/:id
 router.get('/habitacion/:id', getHabitacionValidation(),habitacionApiController.getHabitacion);
 
+// GET /api/infraestructura/habitacion/buscar
+router.get('/habitacion/buscar', habitacionApiController.getHabitaciones);
 
 
 // POST /api/infraestructura/cama/register
@@ -72,5 +75,9 @@ router.patch('/cama/:id/estado', setEstadoCamaValidation(), camaApiController.se
 
 // PATCH /api/infraestructura/cama/:id/activo
 router.patch('/cama/:id/activo', setActivoCamaValidation(), camaApiController.setActivoCama);
+
+// GET /api/infraestructura/cama/:id
+router.get('/cama/:id', getCamaValidation(),camaApiController.getCama);
+
 
 module.exports = router;

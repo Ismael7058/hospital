@@ -76,10 +76,6 @@ exports.setActivoAla = async (req, res) => {
 };
 
 exports.getAlas = async (req, res) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({ errors: errors.array() });
-    }
     try {
         const { nombre } = req.query;
         const alas = await alaServices.getAlas(nombre || '');

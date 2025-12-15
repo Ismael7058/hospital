@@ -155,3 +155,20 @@ exports.getHabitacion = async (id) => {
 
     return habitacion;
 };
+
+exports.getHabitaciones = async (numero) => {
+    try {
+        const habitaciones = await Habitacion.findAll({
+            where: {
+                numero: { [Op.iLike]: `%${numero}%`},
+                activo: true
+            },
+            limit: 10,
+            attributes: ['id', 'numero']
+        });
+
+        return habitaciones;
+    } catch (error) {
+        throw new Error('Error al realizar la búsqueda de las habitaciones.');
+    }
+}

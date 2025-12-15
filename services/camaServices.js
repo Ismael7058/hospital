@@ -197,3 +197,16 @@ exports.setActivo = async (id, activo) => {
         throw error;
     }
 }
+
+exports.getCama = async (id) => {
+    const cama = await Cama.findByPk(id, {
+        include: [{
+            model: Habitacion,
+            as: 'habitacion',
+            attributes: ['id', 'numero']
+        }]
+    });
+
+    if (!cama) throw new Error('Cama no encontrada');
+    return cama;
+}
