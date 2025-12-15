@@ -1,0 +1,102 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Listado de Pacientes
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          a.btn.btn-success(href="/pacientes/registrar")
+            i.bi.bi-person-plus-fill.me-2
+            | Nuevo Paciente
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET" action="/pacientes")
+          .row.g-3.align-items-end
+            .col-md-3
+              label.form-label(for="tipo_doc") Tipo de Documento
+              select.form-select(id="tipo_doc" name="tipo_doc")
+                option(value="") Todos
+                option(value="DNI" selected=(filtros.tipo_doc === 'DNI')) DNI
+                option(value="Pasaporte" selected=(filtros.tipo_doc === 'Pasaporte')) Pasaporte
+                option(value="Cédula" selected=(filtros.tipo_doc === 'Cédula')) Cédula
+            .col-md-3
+              label.form-label(for="nro_doc") Numero de Documento
+              input.form-control(type="text" id="nro_doc" name="nro_doc" value=filtros.nro_doc)
+            .col-md-3
+              label.form-label(for="nombre") Nombre o Apellido
+              input.form-control(type="text" id="nombre" name="nombre" value=filtros.nombre)
+            .col-md-3
+              label.form-label(for="email") Email
+              input.form-control(type="text" id="email" name="email" value=filtros.email)
+            .col-md-3
+              label.form-label(for="telefono") Telefono
+              input.form-control(type="text" id="telefono" name="telefono" value=filtros.telefono)
+            .col-md-3
+              label.form-label(for="nacionalidad_id") Nacionalidad
+              select.form-select(id="nacionalidad_id" name="nacionalidad_id")
+                option(value="") Todos
+                each nacionalidad in nacionalidades
+                  option(value=nacionalidad.id selected=(filtros.nacionalidad_id == nacionalidad.id)) #{nacionalidad.nombre}
+            .col-md-3
+              label.form-label(for="activo") Estado
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-12.text-end
+              a.btn.btn-secondary(href="/pacientes") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Documento
+                th.text-center Nombre Completo
+                th.text-center Email
+                th.text-center Telefono
+                th.text-center Estado
+                th.text-center Acciones
+
+            tbody
+              if pacientes && pacientes.length > 0
+                each paciente in pacientes
+                  tr
+                    td.text-center
+                      if paciente.identificaciones && paciente.identificaciones.length > 0
+                        each identificacion, index in paciente.identificaciones
+                          div= `${identificacion.tipo_doc} ${identificacion.nro_doc}`
+
+                    td.text-center= `${paciente.nombre} ${paciente.apellido}`
+                    td.text-center= paciente.email
+                    td.text-center= paciente.telefono
+                    td.text-center
+                      if paciente.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center.text-center
+                      a.btn.btn-primary.btn-sm(href=`/pacientes/${paciente.id}` title="Gestionar paciente")
+                        i.bi.bi-pencil-square.me-1
+                        | Gestionar
+                - const filasVacias = (paginacion.registrosPorPagina || 13) - pacientes.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="6") &nbsp;
+          if !pacientes || pacientes.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No hay pacientes registrados
+
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug

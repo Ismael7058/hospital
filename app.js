@@ -15,6 +15,7 @@ const userViewsRouter = require('./routes/views/usuariosViewsRouter');
 const matriculaViewsRouter = require('./routes/views/matriculaViewsRouter');
 const especialidadViewsRouter = require('./routes/views/especialidadViewsRouter')
 const infraestructuraViewsRouter = require('./routes/views/infraestructuraViewsRouter');
+const pacienteViewsRouter = require('./routes/views/pacienteViewsRouter');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/usuarios', protegerRuta, userViewsRouter);
 app.use('/matriculas', protegerRuta, matriculaViewsRouter);
 app.use('/especialidades', protegerRuta, especialidadViewsRouter);
 app.use('/infraestructura', protegerRuta, infraestructuraViewsRouter);
+app.use('/pacientes', protegerRuta, pacienteViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---
