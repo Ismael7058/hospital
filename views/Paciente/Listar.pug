@@ -69,9 +69,15 @@ block content
                 each paciente in pacientes
                   tr
                     td.text-center
+                      //- Mostrar la primera identificación y un popover con el resto
                       if paciente.identificaciones && paciente.identificaciones.length > 0
-                        each identificacion, index in paciente.identificaciones
-                          div= `${identificacion.tipo_doc} ${identificacion.nro_doc}`
+                        span= `${paciente.identificaciones[0].tipo_doc} ${paciente.identificaciones[0].nro_doc}`
+                        if paciente.identificaciones.length > 1
+                          - const otrasIdentificaciones = paciente.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
+                          span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" title="Otras Identificaciones" data-bs-content=otrasIdentificaciones)
+                            | +#{paciente.identificaciones.length - 1}
+                      else
+                        span.text-muted Sin registro
 
                     td.text-center= `${paciente.nombre} ${paciente.apellido}`
                     td.text-center= paciente.email
@@ -100,3 +106,13 @@ block content
           div.text-muted
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
           include ../Shared/Paginacion.pug
+
+block scripts
+  script.
+    // Inicializar todos los popovers en la página
+    document.addEventListener('DOMContentLoaded', function () {
+      var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+      });
+    });

@@ -4,108 +4,110 @@ block styles
   link(rel="stylesheet", href="/css/dashboard.css")
 
 block content
-  // Contenedor principal para añadir padding
-  .container-fluid.px-4
-    //- Encabezado de la página
-    .d-flex.justify-content-center.pt-3.pb-2.mb-3.border-bottom
-      h1.display-6.fw-semibold Panel de administración
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.p-4.bg-body-tertiary
 
-    //- Fila de tarjetas con el estilo solicitado
-    .row
-      //- Tarjeta 1: Total de Usuarios
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios/Listar")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-primary.text-uppercase.fw-bold.mb-1
-                  small Total de Usuarios
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalUsuarios) 0 
 
-              .col-auto
-                i.bi.bi-people-fill.fs-2.text-body-tertiary
+      //- Encabezado de la página
+      .d-flex.justify-content-center.pt-3.pb-2.mb-3.border-bottom
+        h1.display-6.fw-semibold Panel de administración
 
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios/Listar?activo=true")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-success.text-uppercase.fw-bold.mb-1
-                  small Usuarios Activos
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.usuariosActivos) 0
-              .col-auto
-                i.bi.bi-person-check-fill.fs-2.text-body-tertiary
+      //- Fila de tarjetas con el estilo solicitado
+      .row
+        //- Tarjeta 1: Total de Usuarios
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios/Listar")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-primary.text-uppercase.fw-bold.mb-1
+                    small Total de Usuarios
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalUsuarios) 0 
 
-      .col-xl-4.col-md-6.mb-4
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-info.text-uppercase.fw-bold.mb-1
-                  small Roles Definidos
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalRoles) 0
-              .col-auto
-                i.bi.bi-shield-lock-fill.fs-2.text-body-tertiary
+                .col-auto
+                  i.bi.bi-people-fill.fs-2.text-body-tertiary
 
-      //- Tarjeta 4: Total de Matrículas
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-secondary.text-uppercase.fw-bold.mb-1
-                  small Total de Matrículas
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalMatriculas) 0
-              .col-auto
-                i.bi.bi-card-checklist.fs-2.text-body-tertiary
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios/Listar?activo=true")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-success.text-uppercase.fw-bold.mb-1
+                    small Usuarios Activos
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.usuariosActivos) 0
+                .col-auto
+                  i.bi.bi-person-check-fill.fs-2.text-body-tertiary
 
-      //- Tarjeta 5: Matrículas Activas
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar?activo=true")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-success.text-uppercase.fw-bold.mb-1
-                  small Matrículas Activas
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasActivas) 0
-              .col-auto
-                i.bi.bi-patch-check-fill.fs-2.text-body-tertiary
+        .col-xl-4.col-md-6.mb-4
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-info.text-uppercase.fw-bold.mb-1
+                    small Roles Definidos
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalRoles) 0
+                .col-auto
+                  i.bi.bi-shield-lock-fill.fs-2.text-body-tertiary
 
-      //- Tarjeta 6: Matrículas Próximas a Vencer (con color de advertencia)
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-warning.text-uppercase.fw-bold.mb-1
-                  small Próximas a Vencer (30d)
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasPorVencer) 0
-              .col-auto
-                i.bi.bi-alarm-fill.fs-2.text-body-tertiary
+        //- Tarjeta 4: Total de Matrículas
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-secondary.text-uppercase.fw-bold.mb-1
+                    small Total de Matrículas
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalMatriculas) 0
+                .col-auto
+                  i.bi.bi-card-checklist.fs-2.text-body-tertiary
 
-      //- Tarjeta 7: Total de Especialidades
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-primary.text-uppercase.fw-bold.mb-1
-                  small Total de Especialidades
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalEspecialidades) 0
-              .col-auto
-                i.bi.bi-heart-pulse-fill.fs-2.text-body-tertiary
+        //- Tarjeta 5: Matrículas Activas
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar?activo=true")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-success.text-uppercase.fw-bold.mb-1
+                    small Matrículas Activas
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasActivas) 0
+                .col-auto
+                  i.bi.bi-patch-check-fill.fs-2.text-body-tertiary
 
-      //- Tarjeta 8: Especialidades Activas
-      a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades?activo=true")
-        .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
-          .card-body
-            .row.g-0.align-items-center
-              .col.me-2
-                .text-success.text-uppercase.fw-bold.mb-1
-                  small Especialidades Activas
-                span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.especialidadesActivas) 0
-              .col-auto
-                i.bi.bi-clipboard2-pulse-fill.fs-2.text-body-tertiary
+        //- Tarjeta 6: Matrículas Próximas a Vencer (con color de advertencia)
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-warning.text-uppercase.fw-bold.mb-1
+                    small Próximas a Vencer (30d)
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.matriculasPorVencer) 0
+                .col-auto
+                  i.bi.bi-alarm-fill.fs-2.text-body-tertiary
 
-      //- Puedes dejar un espacio en blanco o añadir otra tarjeta para completar la fila
-      .col-xl-4.col-md-6.mb-4
+        //- Tarjeta 7: Total de Especialidades
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-primary.text-uppercase.fw-bold.mb-1
+                    small Total de Especialidades
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.totalEspecialidades) 0
+                .col-auto
+                  i.bi.bi-heart-pulse-fill.fs-2.text-body-tertiary
+
+        //- Tarjeta 8: Especialidades Activas
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades?activo=true")
+          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
+            .card-body
+              .row.g-0.align-items-center
+                .col.me-2
+                  .text-success.text-uppercase.fw-bold.mb-1
+                    small Especialidades Activas
+                  span.counter.h5.mb-0.fw-bold.text-secondary(data-target=estadisticas.especialidadesActivas) 0
+                .col-auto
+                  i.bi.bi-clipboard2-pulse-fill.fs-2.text-body-tertiary
+
+        //- Puedes dejar un espacio en blanco o añadir otra tarjeta para completar la fila
+        .col-xl-4.col-md-6.mb-4
