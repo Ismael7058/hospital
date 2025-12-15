@@ -7,16 +7,17 @@ exports.registerHabitacion = async (habitacionData) => {
         throw new Error('El numero ya está en uso');
     }
 
-    const datosParaCrear = {
-        ...habitacionData,
-        activo: true
-    }
-
     try {
-        const newHabitacion = await Habitacion.create(datosParaCrear);
-        return newHabitacion;
+        const nuevaHabitacion = await Habitacion.create({
+            numero: habitacionData.numero,
+            capacidad: habitacionData.capacidad,
+            descripcion: habitacionData.descripcion,
+            ala_id: habitacionData.ala_id,
+            activo: true
+        });
+        return nuevaHabitacion;
     } catch (error) {
-        throw error;
+        throw new Error('Error al registrar la habitacion');
     }
 }
 
@@ -63,9 +64,10 @@ exports.editHabitacion = async (id, datosActualizados) => {
         }
 
         const numeroUsado = await Habitacion.findOne({ where: { numero: datosActualizados.numero } });
-        if (numeroUsado && numeroUsado.id !== id) {
+        if (numeroUsado && numeroUsado.id != id) {
             throw new Error('El numero ya está en uso');
         }
+
 
         const atributosEditables = {
             numero: datosActualizados.numero,
@@ -118,7 +120,7 @@ exports.setActivo = async (id, activo) => {
                 const camasOcupadas = await Cama.count({
                     where: {
                         habitacion_id: id,
-                        ocupada: true
+                        estado: { [Op.ne]: 'Libre' }
                     },
                     transaction: t
                 });
@@ -139,3 +141,17 @@ exports.setActivo = async (id, activo) => {
         throw error;
     }
 }
+
+exports.getHabitacion = async (id) => {
+    const habitacion = await Habitacion.findByPk(id, {
+        include: [{
+            model: Ala,
+            as: 'ala',
+            attributes: ['id', 'nombre']
+        }]
+    });
+
+    if (!habitacion) throw new Error('Habitacion no encontrada');
+
+    return habitacion;
+};

@@ -6,7 +6,7 @@ exports.registerHabitacionValidation = () => {
         body('numero')
             .trim()
             .notEmpty().withMessage('El número de habitación es obligatorio.')
-            .isInt({ min: 1 }).withMessage('El número de habitación debe ser un número entero positivo.'),
+            .isLength({ min: 4 }).withMessage('El número de habitación debe tener al menos 4 caracteres.'),
         body('capacidad')
             .notEmpty().withMessage('La capacidad es obligatoria.')
             .isInt({ min: 1, max: 2 }).withMessage('La capacidad debe ser un número entre 1 y 2.'),
@@ -34,7 +34,7 @@ exports.editHabitacionValidation = () => {
         body('numero')
             .trim()
             .notEmpty().withMessage('El número de habitación es obligatorio.')
-            .isInt({ min: 1 }).withMessage('El número de habitación debe ser un número entero positivo.'),
+            .isLength({ min: 4 }).withMessage('El número de habitación debe tener al menos 4 caracteres.'),
         body('capacidad')
             .notEmpty().withMessage('La capacidad es obligatoria.')
             .isInt({ min: 1, max: 2 }).withMessage('La capacidad debe ser un número entre 1 y 2.'),
@@ -66,5 +66,11 @@ exports.setActivoHabitacionValidation = () => {
     return [
         param('id').isInt().withMessage('El ID debe ser un número entero.'),
         body('activo').isBoolean().withMessage('El activo debe ser un valor booleano (true o false).'),
+    ];
+};
+
+exports.getHabitacionValidation = () => {
+    return [
+        param('id').isInt().withMessage('El ID debe ser un número entero.'),
     ];
 };

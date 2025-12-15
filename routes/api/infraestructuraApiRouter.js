@@ -15,7 +15,8 @@ const {
     registerHabitacionValidation,
     editHabitacionValidation,
     moverHabitacionValidation,
-    setActivoHabitacionValidation
+    setActivoHabitacionValidation,
+    getHabitacionValidation
 } = require('../../validators/habitacionValidators')
 
 const { 
@@ -51,6 +52,9 @@ router.patch('/habitacion/:id/trasladar', moverHabitacionValidation(), habitacio
 
 // PATCH /api/infraestructura/habitacion/:id/activo
 router.patch('/habitacion/:id/activo', setActivoHabitacionValidation(), habitacionApiController.setActivoHabitacion);
+
+// GET /api/infraestructura/habitacion/:id
+router.get('/habitacion/:id', getHabitacionValidation(),habitacionApiController.getHabitacion);
 
 
 

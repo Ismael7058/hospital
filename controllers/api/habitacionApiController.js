@@ -54,9 +54,9 @@ exports.setActivoHabitacion = async (req, res) => {
     if(!errors.isEmpty()){
         return res.status(400).json({ errors: errors.array() });
     }
+    const { activo } = req.body;
     try {
         const { id } = req.params;
-        const { activo } = req.body;
 
         await habitacionServices.setActivo(id, activo);
 
@@ -93,6 +93,25 @@ exports.moverHabitacion = async (req, res) => {
                 return res.status(404).json({ message: error.message });
             case 'La habitacion ya se encuentra en la ala':
                 return res.status(409).json({ message: error.message });
+            default:
+                res.status(500).json({ message: error.message || 'Error interno del servidor.' });
+        }
+    }
+}
+
+exports.getHabitacion = async (req, res) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { id } = req.params;
+        const habitacion = await habitacionServices.getHabitacion(id);
+        res.status(200).json(habitacion);
+    } catch (error) {
+        switch (error.message) {
+            case 'Habitacion no encontrada':
+                return res.status(404).json({ message: error.message });
             default:
                 res.status(500).json({ message: error.message || 'Error interno del servidor.' });
         }
