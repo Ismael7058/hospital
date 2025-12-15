@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         descripcion: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
         },
         activo: {
             type: DataTypes.BOOLEAN,
