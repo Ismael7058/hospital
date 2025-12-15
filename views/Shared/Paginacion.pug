@@ -1,5 +1,5 @@
-nav.col-10.d-flex.justify-content-center.align-items-center(aria-label="Navegación de páginas")
-  ul.pagination
+nav.col-10.d-flex.justify-content-center(aria-label="Navegación de páginas")
+  ul.pagination.align-items-center.m-0
     //- Botón "Anterior"
     li.page-item(class={ 'disabled': paginacion.paginaActual === 1 })
       - const prevPageUrl = `?pagina=${paginacion.paginaActual - 1}${filtrosQuery ? '&' + filtrosQuery : ''}`

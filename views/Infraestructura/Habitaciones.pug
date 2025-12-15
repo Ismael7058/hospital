@@ -1,5 +1,11 @@
 extends ../layout
 
+block styles
+  //- Select2 CSS para Bootstrap 5
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css")
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css")
+
+
 block content
   .container-fluid.p-4.d-flex.flex-column.h-100
     .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
@@ -74,11 +80,25 @@ block content
                       else
                         span.badge.bg-danger Inactivo
                     td.text-center
-                      button.btn.btn-primary.btn-sm.me-1(type="button" data-bs-toggle="modal" data-bs-target="#modalHabitacion" data-id=habitacion.id title="Gestionar Habitación")
+                      button.btn.btn-primary.btn-sm.me-2.btn-editar-habitacion(
+                        type="button",
+                        data-bs-toggle="modal",
+                        data-bs-target="#modalHabitacion",
+                        data-id=habitacion.id,
+                        data-url=`/api/infraestructura/habitacion/${habitacion.id}`,
+                        title="Gestionar Habitación"
+                      )
                         i.bi.bi-pencil-square
-                      a.btn.btn-info.btn-sm(href=`/infraestructura/camas?habitacion_id=${habitacion.id}` title="Ver Camas")
-                        i.bi.bi-bed
-                - const filasVacias = 15 - habitaciones.length;
+                      a.btn.btn-info.btn-sm.me-2(href=`/infraestructura/camas?habitacion_id=${habitacion.id}` title="Ver Camas")
+                        i.bi.bi-door-open
+                      button.btn.btn-sm.btn-secondary.btn-toggle-activo(type="button" data-id=habitacion.id data-activo=String(habitacion.activo))
+                        if habitacion.activo
+                          i.bi.bi-toggle-off.me-1
+                          | Desactivar
+                        else
+                          i.bi.bi-toggle-on.me-1
+                          | Activar
+                - const filasVacias = 13 - habitaciones.length;
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
                     tr
@@ -87,39 +107,61 @@ block content
             .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
               h4.fw-light No se encontraron habitaciones con los filtros aplicados
 
+      //- Paginación
       if paginacion && paginacion.totalPaginas > 1
-        .card-footer.d-flex.justify-content-between.align-items-center
-          div.text-muted
+        .card-footer.justify-content-center.d-flex.align-items-center
+          div.text-muted.col-2
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
-          -
-            const paginaActual = paginacion.paginaActual;
-            const totalPaginas = paginacion.totalPaginas;
-            const rango = 2;
-            let paginas = [];
-            if (paginaActual > rango + 1) {
-              paginas.push(1);
-              if (paginaActual > rango + 2) paginas.push('...');
-            }
-            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
-              if (!paginas.includes(i)) paginas.push(i);
-            }
-            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
-            if (paginaActual < totalPaginas - rango) {
-              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
-            }
+          include ../Shared/Paginacion.pug
 
-          nav(aria-label="Paginación de habitaciones")
-            ul.pagination.justify-content-end.mb-0
-              li.page-item(class={disabled: paginaActual === 1})
-                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
-              each pagina in paginas
-                if pagina === '...'
-                  li.page-item.disabled: span.page-link ...
-                else
-                  li.page-item(class={active: pagina === paginaActual})
-                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
-              li.page-item(class={disabled: paginaActual === totalPaginas})
-                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente
+  //- Modal para crear/editar habitación, con un selector para buscar el ala
+  #modalHabitacion.modal.fade(tabindex="-1" aria-labelledby="modalHabitacionLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title#modalHabitacionLabel Formulario de Habitacion
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#formHabitacion
+            input(type="hidden" id="habitacionId" name="id")
+            .mb-3
+              label.form-label(for="select-ala") Ala
+              select#select-ala.form-select(name="ala_id" required style="width: 100%;")
+              .invalid-feedback#error-ala_id
+            .mb-3
+              label.form-label(for="numeroHabitacion") Número de Habitación
+              input.form-control(type="text" id="numeroHabitacion" name="numero" required)
+              .invalid-feedback#error-numero
+            .mb-3
+              label.form-label(for="capacidadHabitacion") Capacidad
+              input.form-control(type="number" id="capacidadHabitacion" name="capacidad" required min="1" max="2")
+              .invalid-feedback#error-capacidad
+            .mb-3
+              label.form-label(for="descripcionHabitacion") Descripción
+              textarea.form-control(id="descripcionHabitacion" name="descripcion" rows="3" required)
+              .invalid-feedback#error-descripcion
 
-  //- Aquí iría el modal para crear/editar habitación, similar al de Alas.
-  //- #modalHabitacion.modal.fade ...
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+          button.btn.btn-primary(type="submit" form="formHabitacion") Guardar
+
+
+  //- Modal para Confirmar Activación/Desactivación
+  #confirmarEstadoHabitacionModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoHabitacionModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title#confirmarEstadoHabitacionModalLabel Confirmar Acción
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p#confirmarEstadoHabitacionModalBody ¿Estás seguro?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-danger#confirmarEstadoHabitacionBtn(type="button") Confirmar
+
+block scripts
+  //- jQuery y Select2 JS
+  script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+  script(src="/js/infraestructura/modalHabitaciones.js")
+  script(src="/js/infraestructura/estadoHabitacion.js")

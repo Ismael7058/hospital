@@ -68,7 +68,7 @@ exports.getListarAlas = async (req, res, next) => {
 exports.getListarHabitaciones = async (req, res, next) => {
     try {
         const pagina = parseInt(req.query.pagina, 10) || 1;
-        const porPagina = 15;
+        const porPagina = 13;
 
         const filtros = {
             numero: req.query.numero || '',
@@ -106,7 +106,7 @@ exports.getListarHabitaciones = async (req, res, next) => {
 exports.getListarCamas = async (req, res, next) => {
     try {
         const pagina = parseInt(req.query.pagina, 10) || 1;
-        const porPagina = 15;
+        const porPagina = 13;
 
         const filtros = {
             codigo: req.query.codigo || '',

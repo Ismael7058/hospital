@@ -12,7 +12,7 @@ block content
             i.bi.bi-plus-lg.me-2
             | Nueva Ala
 
-      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
+      .card-body.flex-grow-1.d-flex.flex-column.overflow-hidden.px-4.pt-4
         .table-responsive.table-fixed-height.rounded
           table.table.table-striped.table-hover.align-middle
             thead.table-dark
@@ -59,7 +59,7 @@ block content
       
       //- Paginación
       if paginacion && paginacion.totalPaginas > 1
-        .card-footer.row
+        .card-footer.justify-content-center.d-flex.align-items-center
           div.text-muted.col-2
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
           include ../Shared/Paginacion.pug
