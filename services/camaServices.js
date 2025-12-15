@@ -26,7 +26,8 @@ exports.registerCama = async (camaData) => {
         }
 
         const datosParaCrear = {
-            ...camaData,
+            codigo: camaData.codigo,
+            habitacion_id: camaData.habitacion_id,
             estado: 'Libre',
             activo: true
         }
@@ -81,7 +82,7 @@ exports.editCama = async(id, datosActualizados) => {
         }
 
         const codigoUsado = await Cama.findOne({ where: { codigo: datosActualizados.codigo } });
-        if (codigoUsado && codigoUsado.id !== id) {
+        if (codigoUsado && codigoUsado.id != id) {
             throw new Error('El codigo ya está en uso');
         }
 
@@ -203,7 +204,12 @@ exports.getCama = async (id) => {
         include: [{
             model: Habitacion,
             as: 'habitacion',
-            attributes: ['id', 'numero']
+            attributes: ['id', 'numero', 'ala_id'],
+            include: [{
+                model: Ala,
+                as: 'ala',
+                attributes: ['id', 'nombre']
+            }]
         }]
     });
 

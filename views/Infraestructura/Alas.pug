@@ -7,7 +7,7 @@ block content
         div
           h4.mb-0 Listado de Alas
         .d-flex
-          a.btn.btn-secondary(href="/infraestructura") Volver
+          a.btn.btn-outline-secondary(href="/infraestructura") Volver
           button.btn.btn-success.ms-2(type="button" data-bs-toggle="modal" data-bs-target="#modalAla")
             i.bi.bi-plus-lg.me-2
             | Nueva Ala
@@ -36,6 +36,8 @@ block content
                       else
                         span.badge.bg-danger Inactiva
                     td.text-center
+                      a.btn.btn-info.btn-sm.me-2(href=`/infraestructura/habitaciones?ala_id=${ala.id}` title="Ver Habitaciones")
+                        i.bi.bi-door-open
                       button.btn.btn-sm.btn-warning.me-2(type="button" data-bs-toggle="modal" data-bs-target="#modalAla" data-id=ala.id data-nombre=ala.nombre)
                         i.bi.bi-pencil-square.me-1
                         | Editar

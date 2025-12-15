@@ -120,8 +120,8 @@ exports.getHabitacion = async (req, res) => {
 
 exports.getHabitaciones = async (req, res) => {
     try {
-        const { numero } = req.query;
-        const habitaciones = await habitacionServices.getHabitaciones(numero || '');
+        const { numero, ala_id } = req.query;
+        const habitaciones = await habitacionServices.getHabitaciones(numero || '', ala_id);
 
         res.status(200).json(habitaciones);
     } catch (error) {

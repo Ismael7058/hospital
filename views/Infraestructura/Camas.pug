@@ -1,5 +1,12 @@
 extends ../layout
 
+block styles
+  //- Select2 CSS para Bootstrap 5
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css")
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css")
+
+
+
 block content
   .container-fluid.p-4.d-flex.flex-column.h-100
     .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
@@ -7,7 +14,8 @@ block content
         div
           h4.mb-0 Listado de Camas
         div
-          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+          a.btn.btn-outline-secondary.me-2(href="/infraestructura") Volver
+          button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
             i.bi.bi-funnel.me-2
             | Filtros
           button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalCama")
@@ -84,10 +92,17 @@ block content
                       else
                         span.badge.bg-danger No
                     td.text-center
-                      button.btn.btn-primary.btn-sm.me-1(type="button" data-bs-toggle="modal" data-bs-target="#modalCama" data-id=cama.id title="Gestionar Cama")
+                      button.btn.btn-primary.btn-sm.me-2.btn-editar-cama(type="button" data-bs-toggle="modal" data-bs-target="#modalCama" data-id=cama.id data-url=`/api/infraestructura/cama/${cama.id}` title="Gestionar Cama")
                         i.bi.bi-pencil-square
-                      button.btn.btn-secondary.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalHistorial" data-id=cama.id title="Ver Historial de Higienización")
+                      button.btn.btn-secondary.btn-sm.me-2(type="button" data-bs-toggle="modal" data-bs-target="#modalHistorial" data-id=cama.id title="Ver Historial de Higienización")
                         i.bi.bi-clock-history
+                      button.btn.btn-sm.btn-info.btn-toggle-activo(type="button" data-id=cama.id data-activo=String(cama.activo))
+                        if cama.activo
+                          i.bi.bi-toggle-off.me-2
+                          | Desactivar
+                        else
+                          i.bi.bi-toggle-on.me-2
+                          | Activar
                 - const filasVacias = 15 - camas.length;
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
@@ -97,40 +112,56 @@ block content
             .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
               h4.fw-light No se encontraron camas con los filtros aplicados
 
+      //- Paginación
       if paginacion && paginacion.totalPaginas > 1
-        .card-footer.d-flex.justify-content-between.align-items-center
-          div.text-muted
+        .card-footer.justify-content-center.d-flex.align-items-center
+          div.text-muted.col-2
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
-          -
-            const paginaActual = paginacion.paginaActual;
-            const totalPaginas = paginacion.totalPaginas;
-            const rango = 2;
-            let paginas = [];
-            if (paginaActual > rango + 1) {
-              paginas.push(1);
-              if (paginaActual > rango + 2) paginas.push('...');
-            }
-            for (let i = Math.max(1, paginaActual - rango); i <= Math.min(totalPaginas, paginaActual + rango); i++) {
-              if (!paginas.includes(i)) paginas.push(i);
-            }
-            if (paginaActual < totalPaginas - rango - 1) paginas.push('...');
-            if (paginaActual < totalPaginas - rango) {
-              if (!paginas.includes(totalPaginas)) paginas.push(totalPaginas);
-            }
+          include ../Shared/Paginacion.pug
 
-          nav(aria-label="Paginación de camas")
-            ul.pagination.justify-content-end.mb-0
-              li.page-item(class={disabled: paginaActual === 1})
-                a.page-link(href=`?pagina=${paginaActual - 1}&${filtrosQuery}`) Anterior
-              each pagina in paginas
-                if pagina === '...'
-                  li.page-item.disabled: span.page-link ...
-                else
-                  li.page-item(class={active: pagina === paginaActual})
-                    a.page-link(href=`?pagina=${pagina}&${filtrosQuery}`)= pagina
-              li.page-item(class={disabled: paginaActual === totalPaginas})
-                a.page-link(href=`?pagina=${paginaActual + 1}&${filtrosQuery}`) Siguiente
+  //- Modal para crear/editar cama
+  #modalCama.modal.fade(tabindex="-1" aria-labelledby="modalCamaLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title#modalCamaLabel Formulario de Cama
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          form#formCama
+            input(type="hidden" id="camaId" name="id")
+            .mb-3
+              label.form-label(for="camaCodigo") Código de la Cama
+              input.form-control(type="text" id="camaCodigo" name="codigo" required)
+              .invalid-feedback#error-codigo
+            .mb-3
+              label.form-label(for="select-ala") Ala
+              select#select-ala.form-select(name="ala_id" required style="width: 100%;")
+              .invalid-feedback#error-ala_id
+            .mb-3
+              label.form-label(for="select-habitacion") Habitación
+              select#select-habitacion.form-select(name="habitacion_id" required style="width: 100%;" disabled)
+              .invalid-feedback#error-habitacion_id
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+          button.btn.btn-primary(type="submit" form="formCama") Guardar
 
-  //- Aquí irían los modales para crear/editar cama y ver historial.
-  //- #modalCama.modal.fade ...
-  //- #modalHistorial.modal.fade ...
+
+  //- Modal para Confirmar Activación/Desactivación
+  #confirmarEstadoCamaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoCamaModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title#confirmarEstadoCamaModalLabel Confirmar Acción
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p#confirmarEstadoCamaModalBody ¿Estás seguro?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-danger#confirmarEstadoCamaBtn(type="button") Confirmar
+
+block scripts
+  //- jQuery y Select2 JS
+  script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+  script(src="/js/infraestructura/modalCama.js")
+  script(src="/js/infraestructura/estadoCama.js")

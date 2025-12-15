@@ -26,7 +26,7 @@ const {
     setEstadoCamaValidation,
     setActivoCamaValidation,
     getCamaValidation
-} = require('../../validators/camaValidators')
+} = require('../../validators/camaValidators');
 
 
 // POST /api/infraestructura/ala/register
@@ -54,11 +54,12 @@ router.patch('/habitacion/:id/trasladar', moverHabitacionValidation(), habitacio
 // PATCH /api/infraestructura/habitacion/:id/activo
 router.patch('/habitacion/:id/activo', setActivoHabitacionValidation(), habitacionApiController.setActivoHabitacion);
 
+// GET /api/infraestructura/habitacion/buscar
+router.get('/habitacion/buscar', habitacionApiController.getHabitaciones);
+
 // GET /api/infraestructura/habitacion/:id
 router.get('/habitacion/:id', getHabitacionValidation(),habitacionApiController.getHabitacion);
 
-// GET /api/infraestructura/habitacion/buscar
-router.get('/habitacion/buscar', habitacionApiController.getHabitaciones);
 
 
 // POST /api/infraestructura/cama/register

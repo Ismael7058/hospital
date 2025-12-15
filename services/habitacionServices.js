@@ -156,15 +156,21 @@ exports.getHabitacion = async (id) => {
     return habitacion;
 };
 
-exports.getHabitaciones = async (numero) => {
+exports.getHabitaciones = async (numero, ala_id = null) => {
     try {
+        const where = {
+            numero: { [Op.iLike]: `%${numero}%`},
+            activo: true
+        };
+        if (ala_id) where.ala_id = ala_id;
+
+        where[Op.and] = sequelize.literal(`
+            "Habitacion"."capacidad" > (SELECT COUNT(*) FROM "Camas" AS c WHERE c.habitacion_id = "Habitacion".id AND c.activo = true)
+        `);
+
         const habitaciones = await Habitacion.findAll({
-            where: {
-                numero: { [Op.iLike]: `%${numero}%`},
-                activo: true
-            },
-            limit: 10,
-            attributes: ['id', 'numero']
+            where: where,
+            limit: 10
         });
 
         return habitaciones;

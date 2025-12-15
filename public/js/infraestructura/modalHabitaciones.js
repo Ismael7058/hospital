@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   alaSelect.select2({
     theme: 'bootstrap-5',
     placeholder: 'Busque un ala por nombre...',
-    minimumInputLength: 2,
+    minimumInputLength: 0,
     dropdownParent: $('#modalHabitacion'),
     ajax: {
       url: '/api/infraestructura/ala/buscar',
