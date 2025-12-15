@@ -10,6 +10,10 @@ const AlaModel = require('./ala');
 const HabitacionModel = require('./habitacion');
 const CamaModel = require('./cama');
 const HistorialHigienizacionModel = require('./historial_higienizacion');
+const PacienteModel = require('./paciente');
+const IdentificacionModel = require('./indentificacion');
+const NacionalidadModel = require('./nacionalidad');
+const PacienteNacionalidadModel = require('./paciente_nacionalidad');
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -21,6 +25,11 @@ const Ala = AlaModel(sequelize, DataTypes);
 const Habitacion = HabitacionModel(sequelize, DataTypes);
 const Cama = CamaModel(sequelize, DataTypes);
 const HistorialHigienizacion = HistorialHigienizacionModel(sequelize, DataTypes);
+const Paciente = PacienteModel(sequelize, DataTypes);
+const Identificacion = IdentificacionModel(sequelize, DataTypes);
+const Nacionalidad = NacionalidadModel(sequelize, DataTypes);
+const PacienteNacionalidad = PacienteNacionalidadModel(sequelize, DataTypes);
+
 
 const db = {
     sequelize,
@@ -32,7 +41,11 @@ const db = {
     Ala,
     Habitacion,
     Cama,
-    HistorialHigienizacion
+    HistorialHigienizacion,
+    Paciente,
+    Identificacion,
+    Nacionalidad,
+    PacienteNacionalidad
 };
 
 // Un Rol tiene muchos Usuarios
@@ -134,5 +147,43 @@ db.Usuario.belongsToMany(db.Cama, {
     otherKey: 'cama_id',
     timestamps: false
 });
+
+// Un Paciente tiene muchas Identificaciones
+db.Paciente.hasMany(db.Identificacion, {
+    foreignKey: {
+        name: 'paciente_id',
+        allowNull: false
+    },
+    as: 'identificaciones'
+});
+
+// Una Identificacion pertenece a un Paciente
+db.Identificacion.belongsTo(db.Paciente, {
+    foreignKey: {
+        name: 'paciente_id',
+        allowNull: false
+    },
+    as: 'paciente'
+});
+
+// Un Paciente puede tener muchas Nacionalidades
+db.Paciente.belongsToMany(db.Nacionalidad, {
+    through: db.PacienteNacionalidad,
+    foreignKey: 'paciente_id',
+    otherKey: 'nacionalidad_id',
+    timestamps: false,
+    as: 'nacionalidades'
+});
+
+// Una Nacionalidad puede pertenecer a muchos Pacientes
+db.Nacionalidad.belongsToMany(db.Paciente,{
+    through: db.PacienteNacionalidad,
+    foreignKey: 'nacionalidad_id',
+    otherKey: 'paciente_id',
+    timestamps: false,
+    as: 'pacientes'
+});
+
+
 
 module.exports = db;
