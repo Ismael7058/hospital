@@ -1,0 +1,120 @@
+extends ../layout
+
+block styles
+  //- CDN de Tagify para los estilos
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css")
+  style.
+    /* Estilos para que Tagify se integre bien con Bootstrap 5 */
+    .tagify {
+      --tags-border-color: #dee2e6;
+      border: none;
+    }
+    .tagify__input {
+      margin: 0;
+    }
+    .tagify--focus {
+      --tags-border-color: #86b7fe;
+    }
+
+block content
+  .container-fluid.d-flex.flex-column.min-h-100.p-4
+    form#registroPacienteForm.row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1(action="/api/pacientes/registrar" method="POST" autocomplete="off" novalidate)
+      h3.text-center.my-4 Crear Nuevo Paciente
+
+      //- Sección de Información Personal
+      .col-12.px-4.py-4.border.rounded
+        h5.mb-3 Información Personal
+        .row.gy-4
+          .col-md-6
+            label.form-label(for="nombre") Nombre(s)
+            input.form-control(type="text" id="nombre" name="nombre" required value=(old ? old.nombre : ''))
+            if errors && errors.find(e => e.path === 'nombre')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'nombre').msg
+          .col-md-6
+            label.form-label(for="apellido") Apellido(s)
+            input.form-control(type="text" id="apellido" name="apellido" required value=(old ? old.apellido : ''))
+            if errors && errors.find(e => e.path === 'apellido')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'apellido').msg
+          .col-md-4
+            label.form-label(for="fecha_nacimiento") Fecha de Nacimiento
+            input.form-control(type="date" id="fecha_nacimiento" name="fecha_nacimiento" required value=(old ? old.fecha_nacimiento : ''))
+            if errors && errors.find(e => e.path === 'fecha_nacimiento')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'fecha_nacimiento').msg
+          .col-md-4
+            label.form-label(for="sexo") Sexo
+            select.form-select(id="sexo" name="sexo" required)
+              option(value="" selected disabled) Seleccione...
+              option(value="Masculino" selected=(old && old.sexo === 'Masculino')) Masculino
+              option(value="Femenino" selected=(old && old.sexo === 'Femenino')) Femenino
+            if errors && errors.find(e => e.path === 'sexo')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'sexo').msg
+          .col-md-4
+            label.form-label(for="telefono") Teléfono
+            input.form-control(type="tel" id="telefono" name="telefono" placeholder="ej. 123-654-7890" value=(old ? old.telefono : ''))
+            if errors && errors.find(e => e.path === 'telefono')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'telefono').msg
+          .col-md-6
+            label.form-label(for="email") Correo Electrónico
+            input.form-control(type="email" id="email" name="email" placeholder="ejemplo@dominio.com" value=(old ? old.email : ''))
+            if errors && errors.find(e => e.path === 'email')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'email').msg
+          .col-md-6
+            label.form-label(for="direccion") Dirección
+            input.form-control(type="text" id="direccion" name="direccion" placeholder="ej. Calle Falsa 123" value=(old ? old.direccion : ''))
+            if errors && errors.find(e => e.path === 'direccion')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'direccion').msg
+
+          //- Sección de Nacionalidades con Tagify
+          .col-12.p-4.border.mt-4.rounded
+            h5.mb-3 Nacionalidades
+            input#nacionalidades-input.form-control(
+              name="nacionalidades"
+              value=(old && old.nacionalidades ? old.nacionalidades : '[]')
+            )
+            if errors && errors.find(e => e.path === 'nacionalidades')
+              .text-danger.mt-1.small= errors.find(e => e.path === 'nacionalidades').msg
+
+          //- Sección de Identificaciones
+          .col-12.p-4.border.mt-4.rounded
+            h5.mb-3 Documentos de Identificación
+            #identificaciones-container
+              .row.g-3.align-items-center.mb-3.identificacion-item
+                .col-md-6
+                  label.form-label.d-none Tipo de Documento
+                  select.form-select(name="identificaciones[0][tipo_doc]" required)
+                    option(value="" selected disabled) Tipo de documento...
+                    option(value="DNI") DNI
+                    option(value="Pasaporte") Pasaporte
+                    option(value="Cédula") Cédula
+                .col-md-5
+                  label.form-label.d-none Número de Documento
+                  input.form-control(type="text" name="identificaciones[0][nro_doc]" placeholder="Número de documento" required)
+                .col-md-1.text-end
+                  button.btn.btn-danger.btn-sm.btn-remove-identificacion(type="button" style="display:none;")
+                    i.bi.bi-trash
+                    |  Quitar
+            button#btn-add-identificacion.btn.btn-outline-primary.btn-sm(type="button")
+              i.bi.bi-plus-circle.me-2
+              | Añadir otra identificación
+
+
+
+      //- Botones de acción
+      .col-12.px-4.mt-auto.pt-4.d-flex.justify-content-end.pb-4
+        a.btn.btn-secondary.me-2(href="/pacientes")
+          i.bi.bi-arrow-left.me-2
+          | Volver
+        button.btn.btn-success(type="submit")
+          i.bi.bi-person-plus-fill.me-2
+          | Registrar Paciente
+
+block scripts
+  //- CDN de Tagify para la funcionalidad
+  script(src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js")
+
+  //- Pasamos la whitelist de nacionalidades como una variable JS global
+  //- El !{} evita que Pug escape los caracteres especiales del JSON
+  script.
+    const nacionalidadesWhitelist = !{JSON.stringify(nacionalidadesList.map(n => ({value: n.id, name: n.nombre})))};
+
+  script(src="/js/paciente/formPacienteRegister.js")
