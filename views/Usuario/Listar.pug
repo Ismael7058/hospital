@@ -15,7 +15,7 @@ block content
             | Nuevo Usuario
 
       .collapse#filtrosCollapse
-        form.card-body.border-bottom.px-4(method="GET" action="/usuarios/Listar")
+        form.card-body.border-bottom.px-4(method="GET" action="/usuarios")
           .row.g-3.align-items-end
             .col-md-3
               label.form-label(for="dni") DNI
@@ -40,7 +40,7 @@ block content
                 option(value="true" selected=(filtros.activo === 'true')) Activo
                 option(value="false" selected=(filtros.activo === 'false')) Inactivo
             .col-12.text-end
-              a.btn.btn-secondary(href="/usuarios/Listar") Limpiar
+              a.btn.btn-secondary(href="/usuarios") Limpiar
               button.btn.btn-primary.ms-2(type="submit") Filtrar
 
       // Hacemos que el cuerpo de la tarjeta crezca y contenga a la tabla
