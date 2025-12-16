@@ -42,7 +42,6 @@ exports.getListar = async (req, res, next) => {
             filtrosQuery: filtrosQuery
         });
     } catch (error) {
-        console.error('Error al obtener la lista de especialidades:', error);
         next(error);
     }
 };

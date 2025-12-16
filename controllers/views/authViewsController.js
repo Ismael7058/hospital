@@ -18,14 +18,13 @@ exports.getHome = async (req, res, next) => {
     }
 };
 
-exports.login = (req, res) => {
+exports.login = (req, res, next) => {
     try {
 
             res.render('index', { title: 'Bienvenido a Horizon' });
             
     } catch (error) {
-        console.error('Error al renderizar el index:', error);
-        res.status(500).send('Error interno del servidor al cargar la página.');
+        next(error);
     }
 };
 

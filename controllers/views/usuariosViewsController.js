@@ -1,7 +1,7 @@
 const { Rol, Usuario } = require('../../db/models');
 const { Op } = require('sequelize');
 
-exports.getRegistrar = async (req, res) => {
+exports.getRegistrar = async (req, res, next) => {
     try {
         const roles = await Rol.findAll({
             attributes: ['id', 'nombre'],
@@ -15,12 +15,11 @@ exports.getRegistrar = async (req, res) => {
             errors: []
         });
     } catch (error) {
-        console.error('Error al renderizar la vista de registro de usuarios:', error);
-        res.status(500).send('Error interno del servidor al cargar la página.');
+        next(error);
     }
 };
 
-exports.getUsuario = async (req, res) => {
+exports.getUsuario = async (req, res, next) => {
     try {
         const usuarioId = req.params.id;
         const [usuario, roles] = await Promise.all([
@@ -39,12 +38,11 @@ exports.getUsuario = async (req, res) => {
             roles: roles
         });
     } catch (error) {
-        console.error('Error al renderizar la vista de usuario:', error);
-        res.status(500).send('Error interno del servidor al cargar la página.');
+        next(error);
     }
 }
 
-exports.getListar = async (req, res) => {
+exports.getListar = async (req, res, next) => {
     try {
         // 1. OBTENER PARÁMETROS DE FILTRO Y PAGINACIÓN DE LA URL (req.query)
         const { dni, nombre, email, rol_id, activo, pagina = 1 } = req.query;

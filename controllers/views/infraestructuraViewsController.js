@@ -31,7 +31,6 @@ exports.getDashboard = async (req, res, next) => {
             alas: alasConDetalles
         });
     } catch (error) {
-        console.error('Error al obtener el dashboard de infraestructura:', error);
         next(error);
     }
 };
@@ -60,7 +59,6 @@ exports.getListarAlas = async (req, res, next) => {
             filtrosQuery
         });
     } catch (error) {
-        console.error('Error al obtener las alas:', error);
         next(error);
     }
 };
@@ -98,7 +96,6 @@ exports.getListarHabitaciones = async (req, res, next) => {
             filtrosQuery
         });
     } catch (error) {
-        console.error('Error al obtener las habitaciones:', error);
         next(error);
     }
 };
@@ -140,7 +137,6 @@ exports.getListarCamas = async (req, res, next) => {
             filtrosQuery
         });
     } catch (error) {
-        console.error('Error al obtener las camas:', error);
         next(error);
     }
 };

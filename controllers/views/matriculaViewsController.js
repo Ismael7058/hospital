@@ -7,7 +7,6 @@ exports.getRegistrar = async (req, res, next) => {
             title: 'Registrar Nueva Matrícula'
         });
     } catch (error) {
-        console.error('Error al renderizar la página de registro de matrícula:', error);
         next(error);
     }
 };
@@ -32,8 +31,7 @@ exports.getMatricula = async (req, res, next) => {
             matricula: matricula
         });
     } catch (error) {
-        console.error('Error al renderizar la vista de gestión de matrícula:', error);
-        next(error); // Pasamos el error al manejador global
+        next(error);
     }
 }
 
@@ -102,7 +100,6 @@ exports.getListar = async (req, res, next) => {
             filtrosQuery: filtrosQuery
         });
     } catch (error) {
-        console.error('Error al obtener la lista de matrículas:', error);
         next(error);
     }
 };
