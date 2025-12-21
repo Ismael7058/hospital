@@ -3,18 +3,7 @@ extends ../layout
 block styles
   //- CDN de Tagify para los estilos
   link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css")
-  style.
-    /* Estilos para que Tagify se integre bien con Bootstrap 5 */
-    .tagify {
-      --tags-border-color: #dee2e6;
-      border: none;
-    }
-    .tagify__input {
-      margin: 0;
-    }
-    .tagify--focus {
-      --tags-border-color: #86b7fe;
-    }
+  link(rel="stylesheet", href="/css/tagify.css")
 
 block content
   .container-fluid.d-flex.flex-column.min-h-100.p-4
@@ -90,7 +79,7 @@ block content
                   label.form-label.d-none Número de Documento
                   input.form-control(type="text" name="identificaciones[0][nro_doc]" placeholder="Número de documento" required)
                 .col-md-1.text-end
-                  button.btn.btn-danger.btn-sm.btn-remove-identificacion(type="button" style="display:none;")
+                  button.btn.btn-outline-danger.btn-sm.btn-remove-identificacion(type="button" style="display:none;")
                     i.bi.bi-trash
                     |  Quitar
             button#btn-add-identificacion.btn.btn-outline-primary.btn-sm(type="button")

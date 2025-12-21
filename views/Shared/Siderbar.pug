@@ -1,79 +1,74 @@
 nav#sidebarMenu.bg-dark.sidebar.h-100(aria-label="Navegación principal" data-bs-theme="dark")
-  .position-sticky.pt-3.ps-3
+  .position-sticky.pt-3
     ul.nav.flex-column
       li.nav-item
-        a.nav-link.active.d-flex.align-items-center.px-3.text-white(aria-current="page" href="/")
+        a.nav-link.active.d-flex.align-items-center.ps-4.text-white(aria-current="page" href="/" data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard")
           i.bi.bi-speedometer2.me-2
           span Dashboard
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-secondary
-      span Pacientes y Admision 
+    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+      span Gestión de Pacientes
     ul.nav.flex-column.mb-2
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Pacientes y Admision 
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/pacientes" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Pacientes")
+          i.bi.bi-people.me-2
+          span Lista de Pacientes
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Reporte anual
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/pacientes/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Paciente")
+          i.bi.bi-person-plus.me-2
+          span Nuevo Paciente
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-secondary
-      span Infraestructura
+    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+      span Registros Rápidos
     ul.nav.flex-column.mb-2
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Gestion de Habitaciones
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Reporte anual
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admision/registrar?emergencia=true" data-bs-toggle="tooltip" data-bs-placement="right" title="Emergencia")
+          i.bi.bi-heart-pulse.me-2
+          span Emergencia
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-secondary
-      span Seguimiento clinico 
+    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+      span Gestión de Admisión
     ul.nav.flex-column.mb-2
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Reporte mensual
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Admisiones")
+          i.bi.bi-people.me-2
+          span Lista de Admisiones
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Reporte anual
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admision/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Admisión")
+          i.bi.bi-person-plus.me-2
+          span Nuevo Admisión
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-secondary
-      span Gestion de Habitaciones
+    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+      span Gestión de Turnos
     ul.nav.flex-column.mb-2
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Reporte mensual
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/turnos" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Turnos")
+          i.bi.bi-people.me-2
+          span Lista de Turnos
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="#")
-          i.bi.bi-file-earmark-text.me-2
-          span Reporte anual
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/turnos/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Turnos")
+          i.bi.bi-person-plus.me-2
+          span Nuevo Turnos
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-secondary
-      span Administracion 
+
+    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+      span Administración
     ul.nav.flex-column.mb-2
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="/usuarios")
-          i.bi.bi-file-earmark-text.me-2
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/usuarios" data-bs-toggle="tooltip" data-bs-placement="right" title="Usuarios")
+          i.bi.bi-people-fill.me-2
           span Usuarios
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="/matriculas")
-          i.bi.bi-file-earmark-text.me-2
-          span Matriculas
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/matriculas" data-bs-toggle="tooltip" data-bs-placement="right" title="Matrículas")
+          i.bi.bi-card-checklist.me-2
+          span Matrículas
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="/especialidades")
-          i.bi.bi-file-earmark-text.me-2
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/especialidades" data-bs-toggle="tooltip" data-bs-placement="right" title="Especialidades")
+          i.bi.bi-heart-pulse-fill.me-2
           span Especialidades
       li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="/infraestructura")
-          i.bi.bi-file-earmark-text.me-2
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/infraestructura" data-bs-toggle="tooltip" data-bs-placement="right" title="Infraestructura")
+          i.bi.bi-hospital.me-2
           span Infraestructura
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.px-3.text-white(href="/pacientes")
-          i.bi.bi-file-earmark-text.me-2
-          span Pacientes
+
+script(src="/js/sidebar.js")

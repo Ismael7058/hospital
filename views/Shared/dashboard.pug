@@ -6,16 +6,11 @@ block styles
 block content
   .container-fluid.p-4.d-flex.flex-column.h-100
     .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.p-4.bg-body-tertiary
-
-
-      //- Encabezado de la página
       .d-flex.justify-content-center.pt-3.pb-2.mb-3.border-bottom
         h1.display-6.fw-semibold Panel de administración
 
-      //- Fila de tarjetas con el estilo solicitado
       .row
-        //- Tarjeta 1: Total de Usuarios
-        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios/Listar")
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
               .row.g-0.align-items-center
@@ -27,7 +22,7 @@ block content
                 .col-auto
                   i.bi.bi-people-fill.fs-2.text-body-tertiary
 
-        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios/Listar?activo=true")
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/usuarios?activo=true")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
               .row.g-0.align-items-center
@@ -49,8 +44,7 @@ block content
                 .col-auto
                   i.bi.bi-shield-lock-fill.fs-2.text-body-tertiary
 
-        //- Tarjeta 4: Total de Matrículas
-        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
               .row.g-0.align-items-center
@@ -61,8 +55,7 @@ block content
                 .col-auto
                   i.bi.bi-card-checklist.fs-2.text-body-tertiary
 
-        //- Tarjeta 5: Matrículas Activas
-        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar?activo=true")
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas?activo=true")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
               .row.g-0.align-items-center
@@ -73,8 +66,7 @@ block content
                 .col-auto
                   i.bi.bi-patch-check-fill.fs-2.text-body-tertiary
 
-        //- Tarjeta 6: Matrículas Próximas a Vencer (con color de advertencia)
-        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas/Listar")
+        a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/matriculas")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
               .row.g-0.align-items-center
@@ -85,7 +77,6 @@ block content
                 .col-auto
                   i.bi.bi-alarm-fill.fs-2.text-body-tertiary
 
-        //- Tarjeta 7: Total de Especialidades
         a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
@@ -97,7 +88,6 @@ block content
                 .col-auto
                   i.bi.bi-heart-pulse-fill.fs-2.text-body-tertiary
 
-        //- Tarjeta 8: Especialidades Activas
         a.col-xl-4.col-md-6.mb-4.text-decoration-none(href="/especialidades?activo=true")
           .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card
             .card-body
@@ -109,5 +99,4 @@ block content
                 .col-auto
                   i.bi.bi-clipboard2-pulse-fill.fs-2.text-body-tertiary
 
-        //- Puedes dejar un espacio en blanco o añadir otra tarjeta para completar la fila
         .col-xl-4.col-md-6.mb-4

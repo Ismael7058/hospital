@@ -1,0 +1,14 @@
+.tagify {
+    --tags-border-color: #dee2e6;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+.tagify::-webkit-scrollbar {
+    display: none;
+}
+.tagify__input {
+    margin: 0;
+}
+.tagify--focus {
+    --tags-border-color: #86b7fe;
+}

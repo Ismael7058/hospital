@@ -35,13 +35,24 @@ body, html {
 #main-content {
   flex-grow: 1; /* Ocupa todo el espacio horizontal restante */
   overflow-y: auto; /* ¡La clave! Permite el scroll vertical para el contenido principal */
-  background-color: #f8f9fa; /* Un color de fondo para el área de contenido */
+  background-color: #cfcfcf; /* Un color de fondo para el área de contenido */
 }
 
 /* Contenido dentro del main para darle padding.
    Se usa una clase específica (.content-padding) para evitar conflictos con layouts de altura completa. */
 #main-content > .content-padding {
   padding: 1.5rem;
+}
+
+/* Establece una altura fija para los enlaces para evitar saltos verticales */
+#sidebarMenu .nav-link {
+  height: 45px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Efecto hover para los enlaces del sidebar que no están activos */
+#sidebarMenu .nav-link:not(.active):hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* --- Estilos para la barra lateral colapsable --- */
@@ -82,6 +93,38 @@ nav#sidebarMenu.sidebar.collapse:not(.show) .nav-link {
 /* Asegura que los íconos no tengan margen extra cuando está colapsado */
 body.sidebar-collapsed #sidebarMenu .nav-link i {
   margin-right: 0 !important;
+}
+
+/* Convierte los h6 en separadores cuando la barra está colapsada */
+body.sidebar-collapsed #sidebarMenu .sidebar-heading {
+  height: 1.2rem; /* Mantiene la altura exacta del texto original */
+  background-color: transparent;
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem; /* Mantiene el margen original (mb-1) */
+  padding: 0;
+  padding-left: 0 !important; /* Anular el ps-3 del HTML */
+  width: 100%;
+  justify-content: center !important; /* Centra la línea horizontalmente */
+}
+
+/* Dibuja la línea dentro del contenedor h6 usando un pseudo-elemento */
+body.sidebar-collapsed #sidebarMenu .sidebar-heading::after {
+  content: "";
+  display: block;
+  width: 60%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Estilos para el botón de toggle del sidebar --- */
+/* Añade una transición suave al ícono del botón */
+#sidebarToggle .bi {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Rota el ícono cuando el sidebar está colapsado */
+body.sidebar-collapsed #sidebarToggle .bi {
+  transform: rotate(90deg);
 }
 
 /* Solución para que un elemento con .row no se coma el padding de su padre
