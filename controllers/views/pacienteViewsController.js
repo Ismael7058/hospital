@@ -114,3 +114,35 @@ exports.getRegistrar = async (req, res, next) => {
         next(error);
     }
 };
+
+
+exports.getPaciente = async (req, res, next) => {
+    try {
+        const pacienteId = req.params.id;
+
+        const [paciente, nacionalidadesList] = await Promise.all([
+            Paciente.findByPk(pacienteId, {
+                include: [
+                    { model: Nacionalidad, as: 'nacionalidades', through: { attributes: [] } },
+                    { model: Identificacion, as: 'identificaciones' }
+                ]
+            }),
+            Nacionalidad.findAll({
+                attributes: ['id', 'nombre'],
+                order: [['nombre', 'ASC']]
+            })
+        ]);
+
+        if (!paciente) {
+            return res.redirect('/pacientes');
+        }
+
+        res.render('./Paciente/Gestion.pug', {
+            title: `Gestionar Paciente: ${paciente.nombre} ${paciente.apellido}`,
+            paciente: paciente,
+            nacionalidadesList: nacionalidadesList
+        });
+    } catch (error) {
+        next(error);
+    }
+};

@@ -6,4 +6,6 @@ router.get('/', infraestructuraController.getListaPaciente);
 
 router.get('/registrar', infraestructuraController.getRegistrar);
 
+router.get('/:id', infraestructuraController.getPaciente);
+
 module.exports = router;

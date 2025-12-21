@@ -1,0 +1,152 @@
+extends ../layout
+
+block styles
+  //- CDN de Tagify para los estilos
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css")
+  link(rel="stylesheet", href="/css/tagify.css")
+
+
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1.justify-content-between
+      .row
+        h3.text-center.mt-4= title
+
+        //- Barra de herramientas de acceso rápido
+        .btn-toolbar.justify-content-center.py-(role="toolbar")
+          .btn-group.me-3(role="group")
+            a.btn.btn-outline-secondary(href="/pacientes"): i.bi.bi-arrow-left-circle.me-2
+              | Volver
+          .btn-group.me-3(role="group")
+            a.btn.btn-outline-primary(href=`/pacientes/${paciente.id}/seguros`): i.bi.bi-shield-check.me-2
+              | Seguros
+            a.btn.btn-outline-primary(href=`/pacientes/${paciente.id}/antecedentes`): i.bi.bi-file-medical.me-2
+              | Antecedentes
+            a.btn.btn-outline-primary(href=`/pacientes/${paciente.id}/estadia`): i.bi.bi-hospital.me-2
+              | Estadía
+          .btn-group.me-3(role="group")
+            a.btn.btn-outline-primary(href=`/turnos?paciente_id=${paciente.id}`): i.bi.bi-calendar-check.me-2
+              | Turnos
+            a.btn.btn-outline-primary(href=`/admisiones?paciente_id=${paciente.id}`): i.bi.bi-door-open.me-2
+              | Admisiones
+          .btn-group(role="group")
+            if paciente.activo
+                button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-paciente-id=paciente.id data-nuevo-estado="false" data-accion-texto="dar de baja" data-btn-clase="btn-danger" data-titulo="Confirmar Baja")
+                    i.bi.bi-person-x-fill.me-2
+                    | Eliminar
+            else
+                button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-paciente-id=paciente.id data-nuevo-estado="true" data-accion-texto="dar de alta" data-btn-clase="btn-success" data-titulo="Confirmar Alta")
+                    i.bi.bi-person-check-fill.me-2
+                    | Activar
+
+      .row.g-4.mt-0.flex-grow-1
+        //- SEGUNDA FILA: Formulario de Información Personal
+        .col-12
+          form#formInformacionPersonal.p-4.border.rounded.h-100.d-flex.flex-column(action=`/api/pacientes/${paciente.id}` autocomplete="off" novalidate)
+            input(type="hidden" name="id" value=paciente.id)
+            h5.mb-4 Informacion Personal
+            .row.g-4.flex-grow-1
+              .col-md-6.col-lg-4.mt-1
+                label.form-label(for="nombre") Nombre(s)
+                input.form-control(type="text" id="nombre" name="nombre" required value=paciente.nombre)
+              .col-md-6.col-lg-4.mt-1
+                label.form-label(for="apellido") Apellido(s)
+                input.form-control(type="text" id="apellido" name="apellido" required value=paciente.apellido)
+              .col-md-6.col-lg-4.mt-1
+                label.form-label(for="fecha_nacimiento") Fecha de Nacimiento
+                input.form-control(type="date" id="fecha_nacimiento" name="fecha_nacimiento" required value=(paciente.fecha_nacimiento ? new Date(paciente.fecha_nacimiento).toISOString().split('T')[0] : ''))
+              .col-md-6.col-lg-4.mt-1
+                label.form-label(for="sexo") Sexo
+                select.form-select(id="sexo" name="sexo" required)
+                  option(value="Masculino" selected=(paciente.sexo === 'Masculino')) Masculino
+                  option(value="Femenino" selected=(paciente.sexo === 'Femenino')) Femenino
+              .col-md-6.col-lg-4.mt-1
+                label.form-label(for="telefono") Teléfono
+                input.form-control(type="tel" id="telefono" name="telefono" value=paciente.telefono || '')
+              .col-md-6.col-lg-4.mt-1
+                label.form-label(for="email") Correo Electrónico
+                input.form-control(type="email" id="email" name="email" value=paciente.email || '')
+              .col-md-6.mt-1
+                label.form-label(for="direccion") Dirección
+                input.form-control(type="text" id="direccion" name="direccion" value=paciente.direccion || '')
+
+              //- Sección de Nacionalidades con Tagify
+              .col-md-6.mt-1
+                label.form-label(for="nacionalidades") Nacionalidades
+                input#nacionalidades-input.form-control(name="nacionalidades" value=JSON.stringify(paciente.nacionalidades.map(n => ({value: n.id, name: n.nombre}))))
+
+            .d-flex.justify-content-end.mt-2
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-save-fill.me-2
+                | Guardar
+
+        //- PRIMERA FILA: Formulario de Identificación (Nacionalidades y Documentos)
+        .col-12
+          form#formIdentificacion.p-4.border.rounded(action=`/api/pacientes/${paciente.id}/identificacion` autocomplete="off" novalidate)
+            input(type="hidden" name="id" value=paciente.id)
+            .row.g-3
+              //- Sección de Documentos de Identificación
+              .col-md-12
+                .d-flex.justify-content-between.align-items-center.mb-2
+                  h5.m-0 Documentos de Identificación
+                  button#btn-add-identificacion.btn.btn-outline-primary.btn-sm.rounded-pill.ms-2(type="button")
+                    i.bi.bi-plus-circle
+                    |  Agregar
+                #identificaciones-container
+                  if paciente.identificaciones && paciente.identificaciones.length > 0
+                    each identificacion, index in paciente.identificaciones
+                      .row.g-2.align-items-center.mb-2.identificacion-item
+                        .col-6
+                          select.form-select(name=`identificaciones[${index}][tipo_doc]` required)
+                            option(value="DNI" selected=(identificacion.tipo_doc === 'DNI')) DNI
+                            option(value="Pasaporte" selected=(identificacion.tipo_doc === 'Pasaporte')) Pasaporte
+                            option(value="Cédula" selected=(identificacion.tipo_doc === 'Cédula')) Cédula
+                        .col-6
+                          .input-group
+                            input.form-control(type="text" name=`identificaciones[${index}][nro_doc]` placeholder="Número" required value=identificacion.nro_doc)
+                            button.btn.btn-outline-danger.btn-remove-identificacion(type="button"): i.bi.bi-trash
+                  else
+                    //- Plantilla para añadir el primer documento si no hay ninguno
+                    .row.g-2.align-items-center.mb-2.identificacion-item
+                      .col-6
+                        select.form-select(name="identificaciones[0][tipo_doc]" required)
+                          option(value="" selected disabled) Tipo...
+                          option(value="DNI") DNI
+                          option(value="Pasaporte") Pasaporte
+                          option(value="Cédula") Cédula
+                      .col-6
+                        .input-group
+                          input.form-control(type="text" name=`identificaciones[${index}][nro_doc]` placeholder="Número" required value=identificacion.nro_doc)
+                          button.btn.btn-outline-danger.btn-remove-identificacion(type="button"): i.bi.bi-trash
+            .d-flex.justify-content-end
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-save-fill.me-2
+                | Guardar
+
+    //- Modal genérico para confirmar cambio de estado (Alta/Baja)
+    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5#confirmarEstadoModalLabel.modal-title
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            p#confirmarEstadoModalBody
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button#confirmarEstadoBtn.btn(type="button")
+
+block scripts
+  //- CDN de Tagify para la funcionalidad
+  script(src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js")
+
+  //- Pasamos la whitelist de nacionalidades como una variable JS global
+  //- El !{} evita que Pug escape los caracteres especiales del JSON
+  script.
+    const nacionalidadesWhitelist = !{JSON.stringify(nacionalidadesList.map(n => ({value: n.id, name: n.nombre})))};
+
+  //- Script para manejar la lógica de esta página
+  script(src="/js/paciente/gestionEstadoPaciente.js")
+  script(src="/js/paciente/gestionInfoPersonal.js")
+  script(src="/js/paciente/gestionIdentificacion.js")
