@@ -7,6 +7,8 @@ router.get('/', usuarioController.getListar);
 
 router.get('/Registrar', usuarioController.getRegistrar);
 
+router.get('/:id/agenda', usuarioController.getAusencia);
+
 router.get('/:id', usuarioController.getUsuario);
 
 

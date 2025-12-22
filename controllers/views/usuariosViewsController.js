@@ -1,4 +1,4 @@
-const { Rol, Usuario } = require('../../db/models');
+const { Rol, Usuario, Agenda } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getRegistrar = async (req, res, next) => {
@@ -112,3 +112,65 @@ exports.getListar = async (req, res, next) => {
         next(error);
     }
 };
+
+
+exports.getAusencia = async (req, res, next) => {
+  try {
+    const usuarioId = req.params.id;
+    const { year, month } = req.query;
+
+    // 1. Obtener el usuario para mostrar su nombre
+    const usuario = await Usuario.findByPk(usuarioId, {
+      attributes: ['id', 'nombre', 'apellido']
+    });
+
+    if (!usuario) {
+      return res.redirect('/usuarios');
+    }
+
+    // 2. Construir el filtro de fecha para las agendas
+    const whereClause = { usuario_id: usuarioId };
+    if (year) {
+      const startDate = new Date(year, month ? month - 1 : 0, 1);
+      const endDate = new Date(year, month ? month : 12, 0);
+      // Buscar solapamiento: (Inicio <= FinVentana) Y (Fin >= InicioVentana)
+      whereClause[Op.and] = [
+        { fecha_inicio: { [Op.lte]: endDate } },
+        { fecha_fin: { [Op.gte]: startDate } }
+      ];
+    }
+
+    // 3. Obtener las agendas (fechas no disponibles)
+    const agendas = await Agenda.findAll({
+      where: whereClause,
+      order: [['fecha_inicio', 'ASC']]
+    });
+
+    // 4. Preparar los eventos para FullCalendar
+    const eventosParaCalendario = agendas.filter(agenda => agenda.activo).map(agenda => {
+      // FullCalendar espera que la fecha de fin sea exclusiva para eventos allDay.
+      // Se le agrega 1 día a la fecha de fin para que se vea bien
+      const endDate = new Date(agenda.fecha_fin);
+      endDate.setDate(endDate.getDate() + 1);
+
+      return {
+        title: agenda.motivo || 'No disponible',
+        start: agenda.fecha_inicio,
+        end: endDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        allDay: true
+      };
+    });
+
+    res.render('./Usuario/Agenda.pug', {
+      title: `Agenda de ${usuario.nombre} ${usuario.apellido}`,
+      usuario: usuario,
+      agendas: agendas,
+      eventosParaCalendario: eventosParaCalendario,
+      filtros: { year, month },
+      // Para los dropdowns de filtro
+      añosDisponibles: [new Date().getFullYear(), new Date().getFullYear() + 1]
+    });
+  } catch (error) {
+    next(error);
+  }
+}
