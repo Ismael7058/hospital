@@ -10,6 +10,7 @@ const MatriculaApiRouter = require('./routes/api/matriculaApiRouter');
 const especialidadApiRouter = require('./routes/api/especialidadApiRouter')
 const infraestructuraApiRouter = require('./routes/api/infraestructuraApiRouter');
 const pacientesApiRouter = require('./routes/api/pacienteApiRouter');
+const AgendaApiRouter= require('./routes/api/agendaApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -37,7 +38,8 @@ app.use('/api/usuarios', protegerRuta, usuarioApiRouter);
 app.use('/api/matriculas', protegerRuta, MatriculaApiRouter);
 app.use('/api/especialidades', protegerRuta, especialidadApiRouter);
 app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
-app.use('/api/pacientes', protegerRuta, pacientesApiRouter)
+app.use('/api/pacientes', protegerRuta, pacientesApiRouter);
+app.use('/api/agendas', protegerRuta, AgendaApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
