@@ -1,0 +1,168 @@
+extends ../layout
+
+block styles
+  //- CDN de FullCalendar para los estilos
+  link(href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet')
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1
+      //- Título y botón de volver
+      .d-flex.justify-content-between.align-items-center.mb-4
+        h3.text-center.m-0= title
+        div
+          a.btn.btn-outline-secondary.me-2(href=`/usuarios/${usuario.id}`)
+            i.bi.bi-arrow-left.me-2
+            | Volver
+          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalAgregarAgenda")
+            i.bi.bi-plus-circle.me-2
+            | Nueva Agenda
+
+
+      //- Formulario de Filtros
+      .card.mb-4
+        .card-header
+          a.text-decoration-none.text-body.d-block.p-1(data-bs-toggle='collapse' href='#filtroCollapse' role='button' aria-expanded='false' aria-controls='filtroCollapse')
+            h6.mb-0
+              i.bi.bi-filter.me-2
+              | Filtros
+        .collapse#filtroCollapse
+          .card-body
+            form.row.g-2.align-items-end(method="GET" action=`/usuarios/${usuario.id}/agenda`)
+              .col-md
+                label.form-label(for="year") Año
+                select.form-select(id="year" name="year")
+                  option(value="") Todos
+                  each y in añosDisponibles
+                    option(value=y selected=filtros.year == y) #{y}
+              .col-md
+                label.form-label(for="month") Mes
+                select.form-select(id="month" name="month")
+                  option(value="") Todos
+                  - const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                  each mes, index in meses
+                    option(value=index + 1 selected=filtros.month == (index + 1)) #{mes}
+              .col-md-auto
+                button.btn.btn-primary.w-100(type="submit")
+                  i.bi.bi-funnel-fill.me-2
+                  | Filtrar
+
+      //- Contenido principal: Lista y Calendario
+      .row.g-4
+        //- Columna de la Lista de Fechas
+        .col-lg-5.d-flex.flex-column
+          .p-3.border.rounded.h-100.d-flex.flex-column
+            h5.mb-3 Fechas No Disponibles
+            if agendas && agendas.length > 0
+              .overflow-auto(style="max-height: 545px;")
+                ul.list-group
+                  each agenda in agendas
+                    li.list-group-item
+                      .d-flex.justify-content-between.align-items-center
+                        div
+                          span.d-block
+                            i.bi.bi-calendar-range.me-2
+                            strong= `${new Date(agenda.fecha_inicio).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' })} - ${new Date(agenda.fecha_fin).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' })}`
+                          if agenda.motivo
+                            span.text-muted.small(title=agenda.motivo)= agenda.motivo.length > 50 ? agenda.motivo.substring(0, 50) + '...' : agenda.motivo
+                        .btn-group.ms-2
+                          button.btn.btn-sm.btn-outline-primary(
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEditarAgenda"
+                            data-id=agenda.id
+                            data-fecha-inicio=agenda.fecha_inicio
+                            data-fecha-fin=agenda.fecha_fin
+                            data-motivo=agenda.motivo
+                          )
+                            i.bi.bi-pencil-fill
+                          if agenda.activo
+                            button.btn.btn-sm.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAgenda" data-id=agenda.id data-activo="true")
+                              i.bi.bi-trash-fill
+                          else
+                            button.btn.btn-sm.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAgenda" data-id=agenda.id data-activo="false")
+                              i.bi.bi-check-circle-fill
+            else
+              .alert.alert-info.text-center
+                i.bi.bi-info-circle.me-2
+                | No hay fechas de ausencia registradas para el período seleccionado.
+
+        //- Columna del Calendario
+        .col-lg-7
+          .p-3.border.rounded.h-100
+            #calendario
+
+    //- Modal Agregar Agenda
+    #modalAgregarAgenda.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog
+        form#formRegistrarAgenda.modal-content(action=`/api/agendas/register` method="POST")
+          .modal-header
+            h5.modal-title Nueva Agenda
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            input(type="hidden" name="usuario_id" value=usuario.id)
+            .mb-3
+              label.form-label(for="fecha_inicio") Fecha Inicio
+              input.form-control(type="date" name="fecha_inicio" required)
+            .mb-3
+              label.form-label(for="fecha_fin") Fecha Fin
+              input.form-control(type="date" name="fecha_fin" required)
+            .mb-3
+              label.form-label(for="motivo") Motivo
+              textarea.form-control(name="motivo" rows="2")
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button.btn.btn-primary(type="submit") Guardar
+
+    //- Modal Editar Agenda
+    #modalEditarAgenda.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog
+        form#formEditarAgenda.modal-content(method="POST")
+          .modal-header
+            h5.modal-title Editar Agenda
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            input#edit_id(type="hidden" name="id")
+            .mb-3
+              label.form-label(for="edit_fecha_inicio") Fecha Inicio
+              input#edit_fecha_inicio.form-control(type="date" name="fecha_inicio" required)
+            .mb-3
+              label.form-label(for="edit_fecha_fin") Fecha Fin
+              input#edit_fecha_fin.form-control(type="date" name="fecha_fin" required)
+            .mb-3
+              label.form-label(for="edit_motivo") Motivo
+              textarea#edit_motivo.form-control(name="motivo" rows="2")
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button.btn.btn-primary(type="submit") Actualizar
+
+    //- Modal Estado Agenda (Alta/Baja)
+    #modalEstadoAgenda.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title Confirmar Acción
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            p#mensajeEstado ¿Está seguro de cambiar el estado de esta agenda?
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            form#formEstadoAgenda(method="POST")
+                input(type="hidden" name="_method" value="PATCH")
+                input#estado_activo(type="hidden" name="activo")
+                button#btnConfirmarEstado.btn(type="submit") Confirmar
+
+block scripts
+  //- CDN de FullCalendar para la funcionalidad
+  script(src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js')
+  script(src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js')
+
+  //- Pasamos los eventos al script del cliente
+  script.
+    const eventos = !{JSON.stringify(eventosParaCalendario)};
+
+  //- Script para inicializar el calendario
+  script(src="/js/usuario/gestionAgenda.js")
+  script(src="/js/usuario/formAgendaRegister.js")
+  script(src="/js/usuario/formEditAgenda.js")
+  script(src="/js/usuario/gestionEstadoAgenda.js")
