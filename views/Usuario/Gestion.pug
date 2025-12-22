@@ -1,18 +1,38 @@
 extends ../layout
 
 block content
-  .container-fluid.d-flex.flex-column.min-h-100.p-4
-    .shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1
-      //- Contenedor para mostrar errores generales de la API
-      #general-error.alert.alert-danger.d-none
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1.justify-content-between
+      .row
+        //- Contenedor para mostrar errores generales de la API
+        #general-error.alert.alert-danger.d-none
 
-      //- Título dinámico
-      h3.text-center.my-4= title
+        //- Título dinámico
+        h3.text-center.mt-4= title
 
-      //- Fila principal que contiene los dos formularios como columnas
-      .row.g-4
+        //- Barra de herramientas de acceso rápido
+        .btn-toolbar.justify-content-center.py-3(role="toolbar")
+          .btn-group.me-3(role="group")
+            a.btn.btn-outline-secondary(href="/usuarios"): i.bi.bi-arrow-left-circle.me-2
+              | Volver
+          .btn-group.me-3(role="group")
+            a.btn.btn-outline-info(href=`/usuarios/${usuario.id}/agenda`)
+              i.bi.bi-calendar-week.me-2
+              | Agenda
+          .btn-group(role="group")
+            if usuario.activo
+              button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-usuario-id=usuario.id data-nuevo-estado="false" data-accion-texto="dar de baja" data-btn-clase="btn-danger" data-titulo="Confirmar Baja de Usuario")
+                i.bi.bi-person-x-fill.me-2
+                | Dar de Baja
+            else
+              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-usuario-id=usuario.id data-nuevo-estado="true" data-accion-texto="dar de alta" data-btn-clase="btn-success" data-titulo="Confirmar Alta de Usuario")
+                i.bi.bi-person-check-fill.me-2
+                | Dar de Alta
+
+      //- Fila principal que contiene los formularios
+      .row.g-4.mt-0.flex-grow-1
         //- Sección de Información Personal
-        .col-lg-12
+        .col-12
           form#formInformacionPersonal.p-4.border.rounded.h-100.d-flex.flex-column(autocomplete="off" novalidate)
             input(type="hidden" name="id" value=usuario.id)
             h5.mb-4 Información Personal
@@ -46,7 +66,7 @@ block content
                 | Guardar
 
         //- Sección de Administración
-        .col-lg-12
+        .col-12
           .row.g-4
             //- Columna para Administración de Cuenta y Estado
             .col-lg-7.d-flex.flex-column
@@ -66,29 +86,6 @@ block content
                             option(value=rol.id selected=(usuario.rol_id == rol.id)) #{rol.nombre}
                   //- Contenedor de botones
                   .d-flex.justify-content-end.align-items-center.mt-4
-                    //- Botón de Alta/Baja
-                    if usuario.activo
-                      button.btn.btn-outline-danger.me-auto(type="button" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#confirmarEstadoModal"
-                        data-usuario-id=usuario.id
-                        data-nuevo-estado="false"
-                        data-accion-texto="dar de baja"
-                        data-btn-clase="btn-danger"
-                        data-titulo="Confirmar Baja de Usuario")
-                        i.bi.bi-person-x-fill.me-2
-                        | Dar de Baja
-                    else
-                      button.btn.btn-outline-success.me-auto(type="button" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#confirmarEstadoModal"
-                        data-usuario-id=usuario.id
-                        data-nuevo-estado="true"
-                        data-accion-texto="dar de alta"
-                        data-btn-clase="btn-success"
-                        data-titulo="Confirmar Alta de Usuario")
-                        i.bi.bi-person-check-fill.me-2
-                        | Dar de Alta
                     //- Botón de Guardar
                     button.btn.btn-primary(type="submit")
                       i.bi.bi-save-fill.me-2
@@ -110,12 +107,6 @@ block content
                   button.btn.btn-warning(type="submit")
                     i.bi.bi-key-fill.me-2
                     | Cambiar Contraseña
-
-      //- Botón para volver, fuera de los formularios
-      .d-flex.justify-content-end.pt-3
-        a.btn.btn-secondary.me-2(href="/usuarios")
-          i.bi.bi-arrow-left.me-2
-          | Volver
 
     //- Modal genérico para confirmar cambio de estado (Alta/Baja)
     #confirmarEstadoModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoModalLabel" aria-hidden="true")

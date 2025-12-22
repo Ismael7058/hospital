@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         // Éxito: Redirigir al listado con un mensaje
-        window.location.href = '/matriculas/Listar?success=Matrícula registrada exitosamente';
+        window.location.href = '/matriculas?success=Matrícula registrada exitosamente';
       }
     } catch (error) {
       console.error('Error en el envío del formulario:', error);
