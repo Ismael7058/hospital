@@ -14,6 +14,7 @@ const PacienteModel = require('./paciente');
 const IdentificacionModel = require('./indentificacion');
 const NacionalidadModel = require('./nacionalidad');
 const PacienteNacionalidadModel = require('./paciente_nacionalidad');
+const AgendaModel = require('./agenda')
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -29,6 +30,7 @@ const Paciente = PacienteModel(sequelize, DataTypes);
 const Identificacion = IdentificacionModel(sequelize, DataTypes);
 const Nacionalidad = NacionalidadModel(sequelize, DataTypes);
 const PacienteNacionalidad = PacienteNacionalidadModel(sequelize, DataTypes);
+const Agenda = AgendaModel(sequelize, DataTypes);
 
 
 const db = {
@@ -45,7 +47,8 @@ const db = {
     Paciente,
     Identificacion,
     Nacionalidad,
-    PacienteNacionalidad
+    PacienteNacionalidad,
+    Agenda
 };
 
 // Un Rol tiene muchos Usuarios
@@ -184,6 +187,22 @@ db.Nacionalidad.belongsToMany(db.Paciente,{
     as: 'pacientes'
 });
 
+// Una Usuario tiene muchas Agendas
+db.Usuario.hasMany(db.Agenda, {
+    foreignKey: {
+        name: 'usuario_id',
+        allowNull: false
+    },
+    as: 'agendas'
+});
 
+// Una Agenda pertenece a un Usuario
+db.Agenda.belongsTo(db.Usuario, {
+    foreignKey: {
+        name: 'usuario_id',
+        allowNull: false
+    },
+    as: 'usuario'
+});
 
 module.exports = db;
