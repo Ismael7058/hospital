@@ -14,7 +14,9 @@ const PacienteModel = require('./paciente');
 const IdentificacionModel = require('./indentificacion');
 const NacionalidadModel = require('./nacionalidad');
 const PacienteNacionalidadModel = require('./paciente_nacionalidad');
-const AgendaModel = require('./agenda')
+const AgendaModel = require('./agenda');
+const PacienteSeguroModel = require('./paciente_seguro');
+const SeguroMedicoModel = require('./seguro_medico');
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -31,6 +33,8 @@ const Identificacion = IdentificacionModel(sequelize, DataTypes);
 const Nacionalidad = NacionalidadModel(sequelize, DataTypes);
 const PacienteNacionalidad = PacienteNacionalidadModel(sequelize, DataTypes);
 const Agenda = AgendaModel(sequelize, DataTypes);
+const SeguroMedico = SeguroMedicoModel(sequelize, DataTypes);
+const PacienteSeguro = PacienteSeguroModel(sequelize, DataTypes);
 
 
 const db = {
@@ -48,7 +52,9 @@ const db = {
     Identificacion,
     Nacionalidad,
     PacienteNacionalidad,
-    Agenda
+    Agenda,
+    SeguroMedico,
+    PacienteSeguro
 };
 
 // Un Rol tiene muchos Usuarios
@@ -203,6 +209,24 @@ db.Agenda.belongsTo(db.Usuario, {
         allowNull: false
     },
     as: 'usuario'
+});
+
+// Un Paciente puede tener muchos Seguros Medicos
+db.Paciente.belongsToMany(db.SeguroMedico, {
+    through: db.PacienteSeguro,
+    foreignKey: 'paciente_id',
+    otherKey: 'seguro_medico_id',
+    timestamps: false,
+    as: 'seguros'
+});
+
+// Un SeguroMedico puede pertenecer a muchos Pacientes
+db.SeguroMedico.belongsToMany(db.Paciente,{
+    through: db.PacienteSeguro,
+    foreignKey: 'seguro_medico_id',
+    otherKey: 'paciente_id',
+    timestamps: false,
+    as: 'pacientes'
 });
 
 module.exports = db;
