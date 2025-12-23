@@ -10,7 +10,8 @@ const MatriculaApiRouter = require('./routes/api/matriculaApiRouter');
 const especialidadApiRouter = require('./routes/api/especialidadApiRouter')
 const infraestructuraApiRouter = require('./routes/api/infraestructuraApiRouter');
 const pacientesApiRouter = require('./routes/api/pacienteApiRouter');
-const AgendaApiRouter= require('./routes/api/agendaApiRouter');
+const agendaApiRouter= require('./routes/api/agendaApiRouter');
+const seguroApiRouter = require('./routes/api/seguroApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -18,6 +19,7 @@ const matriculaViewsRouter = require('./routes/views/matriculaViewsRouter');
 const especialidadViewsRouter = require('./routes/views/especialidadViewsRouter')
 const infraestructuraViewsRouter = require('./routes/views/infraestructuraViewsRouter');
 const pacienteViewsRouter = require('./routes/views/pacienteViewsRouter');
+const seguroViewsRouter = require('./routes/views/seguroViewsRouter');
 
 const app = express();
 
@@ -39,7 +41,8 @@ app.use('/api/matriculas', protegerRuta, MatriculaApiRouter);
 app.use('/api/especialidades', protegerRuta, especialidadApiRouter);
 app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
 app.use('/api/pacientes', protegerRuta, pacientesApiRouter);
-app.use('/api/agendas', protegerRuta, AgendaApiRouter);
+app.use('/api/agendas', protegerRuta, agendaApiRouter);
+app.use('/api/seguros', protegerRuta, seguroApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
@@ -48,6 +51,7 @@ app.use('/matriculas', protegerRuta, matriculaViewsRouter);
 app.use('/especialidades', protegerRuta, especialidadViewsRouter);
 app.use('/infraestructura', protegerRuta, infraestructuraViewsRouter);
 app.use('/pacientes', protegerRuta, pacienteViewsRouter);
+app.use('/seguros', protegerRuta, seguroViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---

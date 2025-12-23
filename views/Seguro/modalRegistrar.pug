@@ -1,0 +1,23 @@
+#modalRegistrarSeguro.modal.fade(tabindex="-1" aria-labelledby="modalRegistrarSeguroLabel" aria-hidden="true")
+  .modal-dialog.modal-dialog-centered
+    .modal-content
+      .modal-header
+        h5#modalRegistrarSeguroLabel.modal-title Registrar Nuevo Seguro Medico
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+      form#formRegistrarSeguro(autocomplete="off" novalidate)
+        .modal-body
+          #error-container-seguro.alert.alert-danger.d-none(role="alert")
+
+          .mb-3
+            label.form-label(for="nombre_seguro") Nombre del Seguro Medico
+            input.form-control(type="text" id="nombre_seguro" name="nombre" required minlength="3")
+            .invalid-feedback
+
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+          button.btn.btn-primary(type="submit")
+            i.bi.bi-save-fill.me-2
+            | Guardar
+Section scripts
+  script(src="/js/seguro/modalRegistrar.js" type="module")
