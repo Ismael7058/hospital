@@ -229,4 +229,14 @@ db.SeguroMedico.belongsToMany(db.Paciente,{
     as: 'pacientes'
 });
 
+// Un PacienteSeguro pertenece a un SeguroMedico
+db.PacienteSeguro.belongsTo(db.SeguroMedico, {
+    foreignKey: 'seguro_medico_id'
+});
+
+// Un PacienteSeguro pertenece a un Paciente
+db.PacienteSeguro.belongsTo(db.Paciente, {
+    foreignKey: 'paciente_id'
+});
+
 module.exports = db;

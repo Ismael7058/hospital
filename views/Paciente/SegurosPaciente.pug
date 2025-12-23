@@ -1,0 +1,183 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Seguros del Paciente
+          if paciente
+            small.text-muted #{paciente.nombre} #{paciente.apellido} - DNI: #{paciente.dni}
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarPacienteSeguro")
+            i.bi.bi-plus-circle.me-2
+            | Asignar Seguro
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET")
+          .row.g-3.align-items-end
+            .col-md-4
+              label.form-label(for="estado") Estado
+              select.form-select(id="estado" name="estado")
+                option(value="") Todos
+                option(value="true" selected=(filtros && filtros.estado === 'true')) Activo
+                option(value="false" selected=(filtros && filtros.estado === 'false')) Inactivo
+            .col-md-4
+              label.form-label(for="vencimiento") Vencimiento
+              select.form-select(id="vencimiento" name="vencimiento")
+                option(value="") Todos
+                option(value="proximos" selected=(filtros && filtros.vencimiento === 'proximos')) Próximos a vencer (30 días)
+                option(value="vencidos" selected=(filtros && filtros.vencimiento === 'vencidos')) Vencidos
+            .col-md-4.text-end
+              if paciente
+                a.btn.btn-secondary(href=`/pacientes/${paciente.id}/seguros`) Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Seguro Médico
+                th.text-center Nro. Afiliado
+                th.text-center Vigencia
+                th.text-center Expiración
+                th.text-center Estado
+                th.text-center Acciones
+            tbody
+              if pacienteSeguros && pacienteSeguros.length > 0
+                each ps in pacienteSeguros
+                  tr(id=`ps-row-${ps.id}`)
+                    td.text-center= ps.SeguroMedico ? ps.SeguroMedico.nombre : 'N/A'
+                    td.text-center= ps.nro_afiliado
+                    td.text-center= ps.fecha_vigencia
+                    td.text-center(class=(new Date(ps.fecha_expiracion) < new Date() ? 'text-danger fw-bold' : ''))= ps.fecha_expiracion
+                    td.text-center.estado-cell
+                      if ps.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center
+                      button.btn.btn-primary.btn-sm.me-2(
+                        type="button" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modalGestionPacienteSeguro"
+                        data-id=ps.id
+                        data-seguro-id=ps.SeguroMedico ? ps.SeguroMedico.id : ''
+                        data-seguro-nombre=ps.SeguroMedico ? ps.SeguroMedico.nombre : ''
+                        data-nro-afiliado=ps.nro_afiliado
+                        data-fecha-vigencia=ps.fecha_vigencia
+                        data-fecha-expiracion=ps.fecha_expiracion
+                        data-activo=ps.activo.toString()
+                      )
+                        i.bi.bi-pencil-square
+                      button.btn.btn-sm.btn-info.btn-toggle-activo(type="button" data-id=ps.id data-activo=String(ps.activo))
+                        if ps.activo
+                          i.bi.bi-toggle-off.me-2
+                          | Desactivar
+                        else
+                          i.bi.bi-toggle-on.me-2
+                          | Activar
+                - const filasVacias = (paginacion.registrosPorPagina || 13) - pacienteSeguros.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="6") &nbsp;
+              else
+                tr
+                  td.text-center(colspan="6") No hay seguros asignados.
+
+          if paginacion && paginacion.totalPaginas > 1
+            .card-footer.d-flex.justify-content-between.align-items-center
+              div.text-muted
+                small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+              include ../Shared/Paginacion.pug
+
+  //- Modal Registrar
+  #modalRegistrarPacienteSeguro.modal.fade(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title Asignar Seguro Médico
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          #error-container-registrar.alert.alert-danger.d-none
+          form#formRegistrarPacienteSeguro(novalidate)
+            input(type="hidden" name="paciente_id" value=(paciente ? paciente.id : ''))
+            .mb-3
+              label.form-label(for="seguro_medico_id") Seguro Médico
+              select.form-select(name="seguro_medico_id" required)
+                option(value="") Seleccione...
+                if seguros
+                  each seguro in seguros
+                    option(value=seguro.id)= seguro.nombre
+            .mb-3
+              label.form-label(for="nro_afiliado") Nro. Afiliado
+              input.form-control(type="text" name="nro_afiliado" required)
+            .row
+              .col-6.mb-3
+                label.form-label(for="fecha_vigencia") Vigencia Desde
+                input.form-control(type="date" name="fecha_vigencia" required)
+              .col-6.mb-3
+                label.form-label(for="fecha_expiracion") Vence
+                input.form-control(type="date" name="fecha_expiracion" required)
+            .d-flex.justify-content-end
+              button.btn.btn-secondary.me-2(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit") Guardar
+
+  //- Modal Gestionar (Editar)
+  #modalGestionPacienteSeguro.modal.fade(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title Renovar Seguro del Paciente
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          #error-container-gestion.alert.alert-danger.d-none
+
+          .alert.alert-info.d-flex.align-items-center(role="alert")
+            i.bi.bi-info-circle-fill.me-2
+            div Únicamente puede cambiar la fecha de expiración
+
+          form#formGestionPacienteSeguro(novalidate)
+            input(type="hidden" id="gestion_id" name="id")
+            input(type="hidden" name="paciente_id" value=(paciente ? paciente.id : ''))
+            .mb-3
+              label.form-label(for="gestion_seguro_medico_nombre") Seguro Médico
+              input.form-control(type="text" id="gestion_seguro_medico_nombre" readonly)
+              input(type="hidden" id="gestion_seguro_medico_id" name="seguro_medico_id")
+            .mb-3
+              label.form-label(for="gestion_nro_afiliado") Nro. Afiliado
+              input.form-control(type="text" id="gestion_nro_afiliado" name="nro_afiliado" required readonly)
+            .row
+              .col-6.mb-3
+                label.form-label(for="gestion_fecha_vigencia") Vigencia Desde
+                input.form-control(type="date" id="gestion_fecha_vigencia" name="fecha_vigencia" required readonly)
+              .col-6.mb-3
+                label.form-label(for="gestion_fecha_expiracion") Fecha de Expiracion
+                input.form-control(type="date" id="gestion_fecha_expiracion" name="fecha_expiracion" required)
+            
+            .d-flex.justify-content-end.align-items-center.mt-3
+              button.btn.btn-secondary.me-2(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit") Renovar
+
+  //- Modal para Confirmar Activación/Desactivación
+  #confirmarEstadoSeguroPacienteModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoSeguroPacienteModalLabel" aria-hidden="true")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title#confirmarEstadoSeguroPacienteModalLabel Confirmar Acción
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p#confirmarEstadoSeguroPacienteModalBody ¿Estás seguro?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-danger#confirmarEstadoSeguroPacienteBtn(type="button") Confirmar
+
+block scripts
+  script(src="/js/paciente_seguro/modalRegistrar.js")
+  script(src="/js/paciente_seguro/modalGestion.js")
+  script(src="/js/paciente_seguro/estadoPS.js")
