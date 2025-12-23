@@ -12,6 +12,7 @@ const infraestructuraApiRouter = require('./routes/api/infraestructuraApiRouter'
 const pacientesApiRouter = require('./routes/api/pacienteApiRouter');
 const agendaApiRouter= require('./routes/api/agendaApiRouter');
 const seguroApiRouter = require('./routes/api/seguroApiRouter');
+const seguroPacienteApiRouter = require('./routes/api/pacienteSeguroApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -43,6 +44,7 @@ app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
 app.use('/api/pacientes', protegerRuta, pacientesApiRouter);
 app.use('/api/agendas', protegerRuta, agendaApiRouter);
 app.use('/api/seguros', protegerRuta, seguroApiRouter);
+app.use('/api/paciente-seguros', protegerRuta, seguroPacienteApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
