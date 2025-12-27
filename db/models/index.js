@@ -17,6 +17,7 @@ const PacienteNacionalidadModel = require('./paciente_nacionalidad');
 const AgendaModel = require('./agenda');
 const PacienteSeguroModel = require('./paciente_seguro');
 const SeguroMedicoModel = require('./seguro_medico');
+const HorarioModel = require('./horario');
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -35,7 +36,7 @@ const PacienteNacionalidad = PacienteNacionalidadModel(sequelize, DataTypes);
 const Agenda = AgendaModel(sequelize, DataTypes);
 const SeguroMedico = SeguroMedicoModel(sequelize, DataTypes);
 const PacienteSeguro = PacienteSeguroModel(sequelize, DataTypes);
-
+const Horario = HorarioModel(sequelize,DataTypes);
 
 const db = {
     sequelize,
@@ -54,7 +55,8 @@ const db = {
     PacienteNacionalidad,
     Agenda,
     SeguroMedico,
-    PacienteSeguro
+    Horario,
+    PacienteSeguro,
 };
 
 // Un Rol tiene muchos Usuarios
@@ -237,6 +239,24 @@ db.PacienteSeguro.belongsTo(db.SeguroMedico, {
 // Un PacienteSeguro pertenece a un Paciente
 db.PacienteSeguro.belongsTo(db.Paciente, {
     foreignKey: 'paciente_id'
+});
+
+// Un Usuario tiene muchos Horarios
+db.Usuario.hasMany(db.Horario, {
+    foreignKey: {
+        name: 'usuario_id',
+        allowNull: false
+    },
+    as: 'horarios'
+});
+
+// Un Horario pertenece a un Usuario
+db.Horario.belongsTo(db.Usuario, {
+    foreignKey: {
+        name: 'usuario_id',
+        allowNull: false
+    },
+    as: 'usuario'
 });
 
 module.exports = db;
