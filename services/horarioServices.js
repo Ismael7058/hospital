@@ -1,5 +1,5 @@
-const { where } = require('sequelize');
 const { Horario, Usuario } = require('../db/models');
+const { Op } = require('sequelize');
 
 
 exports.registrarHorario = async (horarioData) => {
@@ -50,9 +50,10 @@ exports.editHorario = async (id, datosModificados) => {
     if (horario.activo){
         const horarioExistente = await Horario.findOne({
             where: {
-                usuario_id: datosParaCrear.usuario_id,
-                fecha: datosParaCrear.fecha,
-                activo: true
+                usuario_id: horario.usuario_id,
+                fecha: datosModificados.fecha,
+                activo: true,
+                id: { [Op.ne]: id }
             }
         });
     
@@ -61,7 +62,7 @@ exports.editHorario = async (id, datosModificados) => {
         }
     }
 
-    await Horario.upadte (atriburosEditables, { where: { id:id } })
+    await horario.update(atriburosEditables);
 }
 
 exports.setActivoHorario = async (id, activo) => {
@@ -103,4 +104,13 @@ exports.eliminarHorario = async (id) => {
 
     await horario.destroy();
     return horario;
+}
+
+exports.getHorario = async(id) => {
+    const horario = await Horario.findByPk(id);
+
+    if (!horario) {
+        throw new Error('Horario no encontrado');
+    }
+    return horario
 }

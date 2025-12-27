@@ -9,6 +9,9 @@ const {
   eliminarHorarioValidation
  } = require('../../validators/horariosValidators')
 
+// GET /api/horarios/:id
+router.get('/:id', horarioController.getHorario);
+
 // POST /api/horarios/registrar
 router.post('/registrar', registrarHorarioValidation(), horarioController.registrarHorario);
 
