@@ -13,7 +13,6 @@ const dias = [
 
 exports.registrarHorarioValidation = () => {
   return [
-    param('id').isInt().withMessage('El ID debe ser un número entero.'),
     body('fecha', 'El día no es válido')
       .not().isEmpty().withMessage('El día es obligatorio.')
       .isIn(dias).withMessage(`El día debe ser uno de los siguientes: ${dias.join(', ')}`),

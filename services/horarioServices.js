@@ -79,8 +79,8 @@ exports.setActivoHorario = async (id, activo) => {
     if (activo){
         const horarioExistente = await Horario.findOne({
             where: {
-                usuario_id: datosParaCrear.usuario_id,
-                fecha: datosParaCrear.fecha,
+                usuario_id: horario.usuario_id,
+                fecha: horario.fecha,
                 activo: true
             }
         });
