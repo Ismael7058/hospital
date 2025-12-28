@@ -9,6 +9,8 @@ router.get('/Registrar', usuarioController.getRegistrar);
 
 router.get('/:id/agenda', usuarioController.getAusencia);
 
+router.get('/:id/horarios', usuarioController.getHorarios);
+
 router.get('/:id', usuarioController.getUsuario);
 
 

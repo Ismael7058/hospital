@@ -1,0 +1,197 @@
+extends ../layout
+
+block content
+    .container-fluid.p-4.d-flex.flex-column.h-100
+        .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+            .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+                div
+                    h4.mb-0 #{title}
+                div
+                    a.btn.btn-outline-secondary.me-2(href=`/usuarios/${usuario.id}`)
+                        i.fas.fa-arrow-left.me-2
+                        | Volver
+                    button.btn.btn-secondary.me-2(type="button", data-bs-toggle="collapse", data-bs-target="#filtrosCollapse", aria-expanded="false", aria-controls="filtrosCollapse")
+                        i.fas.fa-filter.me-2
+                        | Filtros
+                    button.btn.btn-primary(type="button", data-bs-toggle="modal", data-bs-target="#modalHorario")
+                        i.fas.fa-plus.me-2
+                        | Nuevo Horario
+
+
+            .collapse#filtrosCollapse
+                form.card-body.border-bottom.px-4(method="GET", action=`/usuarios/${usuario.id}/horarios`)
+                    .row.g-3.align-items-end
+                        .col-md-4
+                            label.form-label(for="fecha") Día
+                            select#fecha.form-select(name="fecha")
+                                option(value="", selected=!filtros.fecha) Todos
+                                each dia in ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
+                                    option(value=dia, selected=filtros.fecha === dia)= dia
+                        .col-md-4
+                            label.form-label(for="activo") Estado
+                            select#activo.form-select(name="activo")
+                                option(value="", selected=!filtros.activo) Todos
+                                option(value="true", selected=filtros.activo === 'true') Activos
+                                option(value="false", selected=filtros.activo === 'false') Inactivos
+                        .col-md-4.text-end
+                            a.btn.btn-secondary(href=`/usuarios/${usuario.id}/horarios`) Limpiar
+                            button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+            .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+                .table-responsive.table-fixed-height.rounded
+                    table.table.table-striped.table-hover.align-middle
+                        thead.table-dark
+                            tr
+                                th.text-center Día
+                                th.text-center Hora Inicio
+                                th.text-center Hora Fin
+                                th.text-center Estado
+                                th.text-center Acciones
+                        tbody
+                            if horarios.length > 0
+                                each horario in horarios
+                                    tr
+                                        td.text-center= horario.fecha
+                                        td.text-center= horario.hora_inicio
+                                        td.text-center= horario.hora_fin
+                                        td.text-center
+                                            if horario.activo
+                                                span.badge.bg-success Activo
+                                            else
+                                                span.badge.bg-danger Inactivo
+                                        td.text-center
+                                            button.btn.btn-warning.btn-sm.me-2(type="button", data-bs-toggle="modal", data-bs-target="#modalEditarHorario", data-id=horario.id, title="Editar")
+                                                i.bi.bi-pencil-fill
+                                            button.btn.btn-info.btn-sm.me-2(type="button", data-bs-toggle="modal", data-bs-target="#modalEstadoHorario", data-id=horario.id, data-activo=horario.activo.toString(), title="Cambiar Estado")
+                                                i.bi.bi-arrow-repeat.text-white
+                                            button.btn.btn-danger.btn-sm(type="button", data-bs-toggle="modal", data-bs-target="#modalEliminarHorario", data-id=horario.id, title="Eliminar")
+                                                i.bi.bi-trash-fill
+                                - const filasVacias = (paginacion.registrosPorPagina || 13) - horarios.length;
+                                if filasVacias > 0
+                                    - for (let i = 0; i < filasVacias; i++)
+                                        tr
+                                            td.text-center(colspan="5") &nbsp;
+                    if !horarios || horarios.length === 0
+                        .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+                            h4.fw-light No se encontraron horarios registrados.
+
+            if paginacion.totalPaginas > 1
+                .card-footer.d-flex.justify-content-between.align-items-center
+                    div.text-muted
+                        small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+                    nav(aria-label="Navegación de páginas")
+                        ul.pagination.justify-content-center.mb-0
+                            li.page-item(class=paginacion.paginaActual === 1 ? 'disabled' : '')
+                                a.page-link(href=`?pagina=${paginacion.paginaActual - 1}&${filtrosQuery}`) Anterior
+                            
+                            - var n = 1
+                            while n <= paginacion.totalPaginas
+                                li.page-item(class=paginacion.paginaActual === n ? 'active' : '')
+                                    a.page-link(href=`?pagina=${n}&${filtrosQuery}`)= n++
+                            
+                            li.page-item(class=paginacion.paginaActual === paginacion.totalPaginas ? 'disabled' : '')
+                                a.page-link(href=`?pagina=${paginacion.paginaActual + 1}&${filtrosQuery}`) Siguiente
+
+    //- Modal para registrar los horarios
+    #modalHorario.modal.fade(tabindex="-1" aria-labelledby="modalHorarioLabel" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+            .modal-content
+                .modal-header
+                    h5#modalHorarioLabel.modal-title Nuevo Horario
+                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+                form#formCrearHorario(autocomplete="off" novalidate)
+                    .modal-body
+                        #error-container-horario.alert.alert-danger.d-none(role="alert")
+                        input(type="hidden", name="usuario_id", value=usuario.id)
+                        .mb-3
+                            label.form-label(for="fechaInput") Día
+                            select#fechaInput.form-select(name="fecha", required)
+                                option(value="", selected, disabled) Seleccione un día
+                                each dia in ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
+                                    option(value=dia)= dia
+                        .row
+                            .col-md-6.mb-3
+                                label.form-label(for="horaInicio") Hora Inicio
+                                input#horaInicio.form-control(type="time", name="hora_inicio", required)
+                            .col-md-6.mb-3
+                                label.form-label(for="horaFin") Hora Fin
+                                input#horaFin.form-control(type="time", name="hora_fin", required)
+
+                    .modal-footer
+                        button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+                        button.btn.btn-primary(type="submit")
+                            i.bi.bi-save-fill.me-2
+                            | Guardar
+
+    //- Modal para editar los horarios
+    #modalEditarHorario.modal.fade(tabindex="-1" aria-labelledby="modalEditarHorarioLabel" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+            .modal-content
+                .modal-header
+                    h5#modalEditarHorarioLabel.modal-title Editar Horario
+                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+                form#formEditarHorario(autocomplete="off" novalidate)
+                    .modal-body
+                        #error-container-editar-horario.alert.alert-danger.d-none(role="alert")
+                        input#edit_id(type="hidden" name="id")
+                        input#edit_usuario_id(type="hidden", name="usuario_id", value=usuario.id)
+                        .mb-3
+                            label.form-label(for="fechaInputEdit") Día
+                            select#fechaInputEdit.form-select(name="fecha", required)
+                                option(value="", selected, disabled) Seleccione un día
+                                each dia in ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
+                                    option(value=dia)= dia
+                        .row
+                            .col-md-6.mb-3
+                                label.form-label(for="horaInicioEdit") Hora Inicio
+                                input#horaInicioEdit.form-control(type="time", name="hora_inicio", required)
+                            .col-md-6.mb-3
+                                label.form-label(for="horaFinEdit") Hora Fin
+                                input#horaFinEdit.form-control(type="time", name="hora_fin", required)
+
+                    .modal-footer
+                        button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+                        button.btn.btn-primary(type="submit")
+                            i.bi.bi-save-fill.me-2
+                            | Guardar
+
+    //- Modal Estado Horario
+    #modalEstadoHorario.modal.fade(tabindex="-1" aria-labelledby="modalEstadoHorarioLabel" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+            .modal-content
+                .modal-header
+                    h5#modalEstadoHorarioLabel.modal-title Confirmar Cambio de Estado
+                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                .modal-body
+                    p#mensajeEstadoHorario ¿Está seguro de cambiar el estado de este horario?
+                    #error-container-estado.alert.alert-danger.d-none
+                .modal-footer
+                    button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+                    form#formEstadoHorario
+                        input#estado_horario_id(type="hidden" name="id")
+                        input#estado_horario_activo(type="hidden" name="activo")
+                        button#btnConfirmarEstado.btn.btn-primary(type="submit") Confirmar
+
+    //- Modal Eliminar Horario
+    #modalEliminarHorario.modal.fade(tabindex="-1" aria-labelledby="modalEliminarHorarioLabel" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+            .modal-content
+                .modal-header
+                    h5#modalEliminarHorarioLabel.modal-title Confirmar Eliminación
+                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                .modal-body
+                    p ¿Está seguro de eliminar permanentemente este horario? Esta acción no se puede deshacer.
+                    #error-container-eliminar.alert.alert-danger.d-none
+                .modal-footer
+                    button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+                    form#formEliminarHorario
+                        input#eliminar_horario_id(type="hidden" name="id")
+                        button#btnConfirmarEliminar.btn.btn-danger(type="submit") Eliminar
+
+block scripts
+  script(src="/js/horario/registrarHorario.js")
+  script(src="/js/horario/editarHorario.js")
+  script(src="/js/horario/estadoHorario.js")
+  script(src="/js/horario/eliminarHorario.js")

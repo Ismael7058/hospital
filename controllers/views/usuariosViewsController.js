@@ -1,4 +1,4 @@
-const { Rol, Usuario, Agenda } = require('../../db/models');
+const { Rol, Usuario, Agenda, Horario } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getRegistrar = async (req, res, next) => {
@@ -174,3 +174,56 @@ exports.getAusencia = async (req, res, next) => {
     next(error);
   }
 }
+
+
+exports.getHorarios = async (req, res, next) => {
+    try {
+        const usuarioId = req.params.id;
+        const { fecha, activo, pagina = 1 } = req.query;
+        const registrosPorPagina = 13;
+        const offset = (pagina - 1) * registrosPorPagina;
+
+        const usuario = await Usuario.findByPk(usuarioId);
+
+        if (!usuario) {
+            return res.redirect('/usuarios');
+        }
+
+        const whereClause = { usuario_id: usuarioId };
+        if (fecha) whereClause.fecha = fecha;
+        if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+
+        const { count, rows: horarios } = await Horario.findAndCountAll({
+            where: whereClause,
+            order: [['hora_inicio', 'ASC']],
+            limit: registrosPorPagina,
+            offset: offset
+        });
+
+        const totalPaginas = Math.ceil(count / registrosPorPagina);
+
+        const filtros = { fecha, activo };
+        Object.keys(filtros).forEach(key => {
+            if (filtros[key] === undefined || filtros[key] === '') {
+                delete filtros[key];
+            }
+        });
+        const filtrosQuery = new URLSearchParams(filtros).toString();
+
+        res.render('./Usuario/Horarios.pug', {
+            title: `Horarios de ${usuario.nombre} ${usuario.apellido}`,
+            usuario: usuario,
+            horarios: horarios,
+            paginacion: {
+                paginaActual: parseInt(pagina),
+                totalPaginas,
+                totalRegistros: count,
+                registrosPorPagina: registrosPorPagina
+            },
+            filtros: filtros,
+            filtrosQuery: filtrosQuery
+        });
+    } catch (error) {
+        next(error);
+    }
+};
