@@ -10,20 +10,20 @@ exports.registrarTurno = async (turnoData) => {
   if (!medico) {
     throw new Error('Medico no encontrado');
   }
-
+  
   const paciente = await Paciente.findByPk(paciente_id);
   if (!paciente) {
     throw new Error('Paciente no encontrado');
   }
-
+  
   const medicoDisponible = await verificarDisponibilidadMedico(medico_id, fecha, hora_inicio, hora_fin);
   if (!medicoDisponible) {
     throw new Error('El medico no atiende en ese horario');
   }
-  if (medicoDisponible.Agendas && medicoDisponible.Agendas.length > 0) {
+  if (medicoDisponible.agendas && medicoDisponible.agendas.length > 0) {
     throw new Error('El medico no se encuentra disponible en esa fecha');
   }
-
+  
   const turnoExistente = await verificarTurnoExistente(medico_id, fecha, hora_inicio, hora_fin);
   if (turnoExistente) {
     throw new Error('El turno se superpone con otro turno vigente');
@@ -42,8 +42,8 @@ exports.registrarTurno = async (turnoData) => {
     estado: 'Pendiente',
     activo: true,
     medico_id,
-    paciente_id,
-    usuario_agenda
+    usuario_agenda,
+    paciente_id
   });
 
   return nuevoTurno;
@@ -71,11 +71,11 @@ exports.editarTurno = async (id, datosModificados) => {
     throw new Error('Paciente no encontrado');
   }
 
-  const medicoDisponible = await verificarDisponibilidadMedico(medico_id, fecha, hora_inicio, hora_fin); 
+  const medicoDisponible = await verificarDisponibilidadMedico(medico_id, fecha, hora_inicio, hora_fin);
   if (!medicoDisponible) {
     throw new Error('El medico no atiende en ese horario');
   }
-  if (medicoDisponible.Agendas && medicoDisponible.Agendas.length > 0) {
+  if (medicoDisponible.agendas && medicoDisponible.agendas.length > 0) {
     throw new Error('El medico no se encuentra disponible en esa fecha');
   }
 
@@ -125,7 +125,7 @@ exports.setActivo = async (id, activo) => {
     if (!medicoDisponible) {
       throw new Error('El medico no atiende en ese horario');
     }
-    if (medicoDisponible.Agendas && medicoDisponible.Agendas.length > 0) {
+    if (medicoDisponible.agendas && medicoDisponible.agendas.length > 0) {
       throw new Error('El medico no se encuentra disponible en esa fecha');
     }
 
@@ -244,6 +244,7 @@ const verificarDisponibilidadMedico = async (id, fechaTurno, hora_inicio, hora_f
     include: [
       {
         model: Horario,
+        as: 'horarios',
         required: true,
         where: {
           activo: true,
@@ -254,6 +255,7 @@ const verificarDisponibilidadMedico = async (id, fechaTurno, hora_inicio, hora_f
       },
       {
         model: Agenda,
+        as: 'agendas',
         required: false,
         where: {
           activo: true,
