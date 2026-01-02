@@ -1,0 +1,100 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 #{title}
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          a.btn.btn-success(href="/turnos/registrar")
+            i.bi.bi-calendar-plus.me-2
+            | Nuevo Turno
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method='GET' action='/turnos')
+          .row.g-3.align-items-end
+            .col-md-3
+              label.form-label(for='fecha') Fecha
+              input#fecha.form-control(type='date' name='fecha' value=filtros.fecha)
+            .col-md-3
+              label.form-label(for='medico') Médico
+              input#medico.form-control(type='text' name='medico' placeholder='Nombre, Apellido o DNI' value=filtros.medico)
+            .col-md-3
+              label.form-label(for='paciente') Paciente
+              input#paciente.form-control(type='text' name='paciente' placeholder='Nombre o Apellido' value=filtros.paciente)
+            .col-md-3
+              label.form-label(for='estado') Estado
+              select#estado.form-select(name='estado')
+                option(value='') Todos
+                option(value='Pendiente' selected=(filtros.estado == 'Pendiente')) Pendiente
+                option(value='Confirmado' selected=(filtros.estado == 'Confirmado')) Confirmado
+                option(value='Cancelado' selected=(filtros.estado == 'Cancelado')) Cancelado
+                option(value='Finalizado' selected=(filtros.estado == 'Finalizado')) Finalizado
+            .col-12.text-end
+              a.btn.btn-secondary(href='/turnos') Limpiar
+              button.btn.btn-primary.ms-2(type='submit') Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Fecha
+                th.text-center Hora Inicio
+                th.text-center Hora Fin
+                th.text-center Médico
+                th.text-center Paciente
+                th.text-center Motivo
+                th.text-center Estado
+                th.text-center Acciones
+            tbody
+              if turnos.length > 0
+                each turno in turnos
+                  tr
+                    td.text-center #{new Date(turno.fecha_hora_inicio).toLocaleDateString()}
+                    td.text-center #{new Date(turno.fecha_hora_inicio).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    td.text-center #{new Date(turno.fecha_hora_fin).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    td.text-center #{turno.medico ? turno.medico.nombre + ' ' + turno.medico.apellido : 'N/A'}
+                    td.text-center #{turno.paciente ? turno.paciente.nombre + ' ' + turno.paciente.apellido : 'N/A'}
+                    td.text-center #{turno.motivo}
+                    td.text-center
+                      span.badge(class=(turno.estado === 'Confirmado' ? 'bg-success' : turno.estado === 'Cancelado' ? 'bg-danger' : 'bg-warning text-dark')) #{turno.estado}
+                    td.text-center
+                      .btn-group
+                        a.btn.btn-primary.btn-sm.me-1(href=`/turnos/${turno.id}`)
+                          i.bi.bi-pencil-square.me-1
+                          | Editar
+                        button.btn.btn-sm(
+                          class=turno.activo ? 'btn-danger' : 'btn-success'
+                          type="button"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalCambiarEstado"
+                          data-id=turno.id
+                          data-activo=turno.activo.toString()
+                        )
+                          i.bi(class=turno.activo ? 'bi-trash' : 'bi-check-circle')
+                - const filasVacias = (paginacion.registrosPorPagina || 13) - turnos.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan='8') &nbsp;
+          if !turnos || turnos.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No se encontraron turnos.
+
+        //- Paginación
+        if paginacion.totalPaginas > 1
+            nav(aria-label='Paginación')
+                ul.pagination.justify-content-center.mb-0
+                    li.page-item(class=(paginacion.paginaActual === 1 ? 'disabled' : ''))
+                        a.page-link(href=`/turnos?pagina=${paginacion.paginaActual - 1}&${filtrosQuery}`) Anterior
+                    - var n = 1
+                    while n <= paginacion.totalPaginas
+                        li.page-item(class=(paginacion.paginaActual === n ? 'active' : ''))
+                            a.page-link(href=`/turnos?pagina=${n}&${filtrosQuery}`) #{n++}
+                    li.page-item(class=(paginacion.paginaActual === paginacion.totalPaginas ? 'disabled' : ''))
+                        a.page-link(href=`/turnos?pagina=${paginacion.paginaActual + 1}&${filtrosQuery}`) Siguiente
