@@ -56,7 +56,7 @@ exports.setActivo = async (req, res) => {
       case 'El paciente ya tiene un turno en ese horario':
           return res.status(409).json({ message: error.message });
       default:
-          res.status(500).json({ message: 'Error interno del servidor al registrar el turno' });
+          res.status(500).json({ message: 'Error interno del servidor al cambiar el estado activo el turno' });
     }
   }
 }
@@ -72,12 +72,12 @@ exports.setEstado = async (req, res) => {
     const { id } = req.params;
     await turnoServices.setEstado(id, estado);
     
-    res.status(200).json({ message: `Estado del turno cambiado a ${activo} exitosamente.` });
+    res.status(200).json({ message: `Estado del turno cambiado a ${estado} exitosamente.` });
   } catch (error) {
     switch (error.message) {
       case 'Turno no encontrado':
         return res.status(404).json({ message: error.message });
-      case `El estado del turno ya era: ${activo}`:
+      case `El estado del turno ya era: ${estado}`:
           return res.status(409).json({ message: error.message });
       default:
           res.status(500).json({ message: `Error interno del servidor al cambiar el estado del turno` });
