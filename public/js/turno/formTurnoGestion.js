@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botón de carga
     const submitBtn = form.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
@@ -99,15 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         mostrarAlerta(result.message, 'success');
+        setTimeout(() => window.location.reload(), 1000);
       }
     } catch (error) {
       console.error('Error:', error);
-      const generalError = document.getElementById('general-error');
-      generalError.textContent = error.message || 'Ocurrió un error de conexión.';
-      generalError.classList.remove('d-none');
+      mostrarAlerta('Error de conexión.','danger');
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
+        setTimeout(() => submitBtn.disabled = false, 1000);
     }
   });
   }
@@ -176,12 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Aplicar clase de color dinámica (reinicia las clases base y agrega la específica)
       confirmBtn.className = 'btn';
       if (clase) confirmBtn.classList.add(clase);
-      
       // Clonar para eliminar listeners previos
       const newBtn = confirmBtn.cloneNode(true);
       confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
       
       newBtn.addEventListener('click', async () => {
+        const originalText = newBtn.innerHTML;
+        newBtn.disabled = true;
+        newBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+
         try {
           const response = await fetch(`/api/turnos/${id}/activo`, {
             method: 'PATCH',
@@ -189,15 +189,65 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ activo })
           });
 
+            const result = await response.json();
+
           if (response.ok) {
-            window.location.reload();
+            mostrarAlerta(result.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
           } else {
-            const data = await response.json();
-            alert(data.message || 'Error al cambiar el estado.');
+            mostrarAlerta(result.message , 'warning');
+            newBtn.disabled = false;
+            newBtn.innerHTML = originalText;
           }
         } catch (error) {
           console.error(error);
-          alert('Error de conexión.');
+          mostrarAlerta('Error de conexión.','danger');
+          newBtn.disabled = false;
+          newBtn.innerHTML = originalText;
+        }
+      });
+    });
+  }
+
+  // Cancelar Turno
+  const cancelarTurnoModal = document.getElementById('cancelarTurnoModal');
+  if (cancelarTurnoModal) {
+    cancelarTurnoModal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget;
+      const id = button.getAttribute('data-id');
+
+      const confirmBtn = document.getElementById('btnCancelarTurno');
+      
+      const newBtn = confirmBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+      newBtn.addEventListener('click', async () => {
+        const originalText = newBtn.innerHTML;
+        newBtn.disabled = true;
+        newBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+
+        try {
+          const response = await fetch(`/api/turnos/${id}/estado`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: 'Cancelado' })
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            mostrarAlerta(result.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
+          } else {
+            mostrarAlerta(result.message , 'warning');
+            newBtn.disabled = false;
+            newBtn.innerHTML = originalText;
+          }
+        } catch (error) {
+          console.error(error);
+          mostrarAlerta('Error de conexión.','danger');
+          newBtn.disabled = false;
+          newBtn.innerHTML = originalText;
         }
       });
     });
@@ -216,20 +266,30 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
 
       newBtn.addEventListener('click', async () => {
+        const originalText = newBtn.innerHTML;
+        newBtn.disabled = true;
+        newBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+
         try {
           const response = await fetch(`/api/turnos/${id}`, {
             method: 'DELETE'
           });
 
+          const result = await response.json();
+
           if (response.ok) {
-            window.location.href = '/turnos?success=Turno eliminado exitosamente';
+            mostrarAlerta(result.message, 'success');
+            setTimeout(() => window.location.href = '/turnos', 1000);
           } else {
-            const data = await response.json();
-            alert(data.message || 'Error al eliminar el turno.');
+            mostrarAlerta(result.message , 'warning');
+            newBtn.disabled = false;
+            newBtn.innerHTML = originalText;
           }
         } catch (error) {
           console.error(error);
-          alert('Error de conexión.');
+          mostrarAlerta('Error de conexión.','danger');
+          newBtn.disabled = false;
+          newBtn.innerHTML = originalText;
         }
       });
     });

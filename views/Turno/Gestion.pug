@@ -25,12 +25,22 @@ block content
             a.btn.btn-outline-info(href=`/usuarios/${turno.medico_id}`)
               i.bi.bi-person-badge.me-2
               | Ver Médico
-            //- Redirigir a Admisión (Usando ID del turno como referencia)
-            a.btn.btn-outline-primary(href=`/admision/${turno.id}`)
+            //- Ver Paciente
+            a.btn.btn-outline-info(href=`/pacientes/${turno.paciente_id}`)
+              i.bi.bi-person-fill.me-2
+              | Ver Paciente
+            //- Hacer una Admisión
+            a.btn.btn-outline-primary(href=`/admisiones/registrar?turno_id=${turno.id}`)
               i.bi.bi-clipboard-data.me-2
               | Admisión
 
           .btn-group(role="group")
+            //- Cancelar Turno
+            if turno.estado == 'Pendiente'
+              button.btn.btn-outline-secondary(type="button" data-bs-toggle="modal" data-bs-target="#cancelarTurnoModal" data-id=turno.id)
+                i.bi.bi-x-circle.me-2
+                | Cancelar
+
             //- Alta/Baja Lógica
             if turno.activo
               button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="false" data-accion="dar de baja" data-clase="btn-warning")
@@ -133,7 +143,7 @@ block content
 
     //- Modales de Confirmación
     #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog
+      .modal-dialog.modal-dialog-centered
         .modal-content
           .modal-header
             h5.modal-title Confirmar Acción
@@ -144,8 +154,20 @@ block content
             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
             button#btnConfirmarEstado.btn(type="button") Confirmar
 
+    #cancelarTurnoModal.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Cancelar Turno
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          .modal-body
+            p ¿Está seguro de que desea cancelar este turno? El estado cambiará a "Cancelado".
+          .modal-footer
+            button.btn.btn-outline-secondary(type="button" data-bs-dismiss="modal") Cerrar
+            button#btnCancelarTurno.btn.btn-secondary(type="button") Cancelar Turno
+
     #eliminarTurnoModal.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog
+      .modal-dialog.modal-dialog-centered
         .modal-content
           .modal-header
             h5.modal-title Eliminar Turno
