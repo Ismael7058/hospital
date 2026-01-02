@@ -7,5 +7,7 @@ router.get('/', turnoController.getTurnos);
 
 router.get('/registrar', turnoController.getRegistrar);
 
+router.get('/:id', turnoController.getTurno);
+
 
 module.exports = router;

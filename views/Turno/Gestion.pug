@@ -1,0 +1,162 @@
+extends ../layout
+
+block styles
+  //- Select2 CSS para Bootstrap 5
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css")
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css")
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1.justify-content-between
+      .row
+        //- Contenedor para mostrar errores generales de la API
+        #general-error.alert.alert-danger.d-none
+
+        h3.text-center.mt-4 Gestionar Turno
+
+        //- Barra de herramientas de acceso rápido
+        .btn-toolbar.justify-content-center.py-3.gap-3(role="toolbar")
+          .btn-group(role="group")
+            a.btn.btn-outline-secondary(href="/turnos"): i.bi.bi-arrow-left-circle.me-2
+              | Volver
+          
+          .btn-group(role="group")
+            //- Redirigir al Médico (Usuario)
+            a.btn.btn-outline-info(href=`/usuarios/${turno.medico_id}`)
+              i.bi.bi-person-badge.me-2
+              | Ver Médico
+            //- Redirigir a Admisión (Usando ID del turno como referencia)
+            a.btn.btn-outline-primary(href=`/admision/${turno.id}`)
+              i.bi.bi-clipboard-data.me-2
+              | Admisión
+
+          .btn-group(role="group")
+            //- Alta/Baja Lógica
+            if turno.activo
+              button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="false" data-accion="dar de baja" data-clase="btn-warning")
+                i.bi.bi-eye-slash-fill.me-2
+                | Dar de Baja
+            else
+              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="true" data-accion="dar de alta" data-clase="btn-success")
+                i.bi.bi-eye-fill.me-2
+                | Dar de Alta
+            
+            //- Eliminar Permanente
+            button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#eliminarTurnoModal" data-id=turno.id)
+              i.bi.bi-trash-fill.me-2
+              | Eliminar
+
+      //- Formulario de Edición
+      .row.g-4.mt-0.flex-grow-1
+        .col-12
+          form#form-gestion-turno.p-4.border.rounded.h-100.d-flex.flex-column.justify-content-between(novalidate autocomplete="off")
+            input(type="hidden" id="turno_id" name="id" value=turno.id)
+            
+            h5.mb-3.border-bottom.pb-2 Detalles del Turno
+            .row.gy-4.h-100.pt-5
+                //- Médicos y Pacientes con Select2
+                .col-md-6
+                    label.form-label(for="select-medico") 
+                        i.bi.bi-person-badge-fill.me-2
+                        | Médico
+                    select#select-medico.form-select(name="medico_id" required style="width: 100%;")
+                        if turno.medico
+                            option(value=turno.medico.id selected) #{turno.medico.nombre} #{turno.medico.apellido}
+                    .invalid-feedback#error-medico_id
+                
+                .col-md-6
+                    label.form-label(for="select-paciente") 
+                        i.bi.bi-person-fill.me-2
+                        | Paciente
+                    select#select-paciente.form-select(name="paciente_id" required style="width: 100%;")
+                        if turno.paciente
+                            option(value=turno.paciente.id selected) #{turno.paciente.nombre} #{turno.paciente.apellido}
+                    .invalid-feedback#error-paciente_id
+
+                //- Fecha
+                .col-md-6
+                    label.form-label(for="fecha") Fecha
+                    .input-group.has-validation
+                        span.input-group-text: i.bi.bi-calendar-date
+                        input.form-control(type="date" id="fecha" name="fecha" required value=turno.fecha)
+                        .invalid-feedback#error-fecha
+
+                //- Generación de TimeSlots
+                - var timeSlots = [];
+                - for(var h = 0; h < 24; h++) {
+                -   for(var m = 0; m < 60; m += 30) {
+                -     var time = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+                -     timeSlots.push(time);
+                -   }
+                - }
+
+                //- Hora Inicio
+                .col-md-6
+                    label.form-label(for="hora_inicio") Hora Inicio
+                    .input-group.has-validation
+                        span.input-group-text: i.bi.bi-clock
+                        select.form-select(id="hora_inicio" name="hora_inicio" required)
+                            each time in timeSlots
+                                option(value=time selected=(turno.hora_inicio && turno.hora_inicio.startsWith(time))) #{time}
+                        .invalid-feedback#error-hora_inicio
+
+                //- Hora Fin
+                .col-md-6
+                    label.form-label(for="hora_fin") Hora Fin
+                    .input-group.has-validation
+                        span.input-group-text: i.bi.bi-clock-fill
+                        select.form-select(id="hora_fin" name="hora_fin" required)
+                            each time in timeSlots
+                                option(value=time selected=(turno.hora_fin && turno.hora_fin.startsWith(time))) #{time}
+                        .invalid-feedback#error-hora_fin
+
+                //- Estado
+                .col-md-6
+                    label.form-label(for="estado") Estado
+                    .input-group.has-validation
+                        span.input-group-text: i.bi.bi-info-circle
+                        select.form-select(id="estado" name="estado" required)
+                            each est in ['Pendiente', 'Confirmado', 'Cancelado', 'Realizado']
+                                option(value=est selected=(turno.estado === est)) #{est}
+                        .invalid-feedback#error-estado
+
+                //- Motivo
+                .col-12
+                    label.form-label(for="motivo") Motivo
+                    textarea.form-control(id="motivo" name="motivo" required rows="3" placeholder="Describa el motivo de la consulta...") #{turno.motivo}
+                    .invalid-feedback#error-motivo
+
+            .d-flex.justify-content-end.mt-4
+                button.btn.btn-primary(type="submit")
+                    i.bi.bi-save-fill.me-2
+                    | Guardar Cambios
+
+    //- Modales de Confirmación
+    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title Confirmar Acción
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          .modal-body
+            p ¿Está seguro de realizar esta acción?
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button#btnConfirmarEstado.btn(type="button") Confirmar
+
+    #eliminarTurnoModal.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title Eliminar Turno
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          .modal-body
+            p.text-danger ¿Está seguro de que desea eliminar este turno permanentemente? Esta acción no se puede deshacer.
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button#btnEliminarTurno.btn.btn-danger(type="button") Eliminar
+
+block scripts
+  script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+  script(src="/js/turno/formTurnoGestion.js")
