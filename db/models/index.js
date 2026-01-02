@@ -18,6 +18,7 @@ const AgendaModel = require('./agenda');
 const PacienteSeguroModel = require('./paciente_seguro');
 const SeguroMedicoModel = require('./seguro_medico');
 const HorarioModel = require('./horario');
+const TurnoModel = require('./turno');
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -37,6 +38,7 @@ const Agenda = AgendaModel(sequelize, DataTypes);
 const SeguroMedico = SeguroMedicoModel(sequelize, DataTypes);
 const PacienteSeguro = PacienteSeguroModel(sequelize, DataTypes);
 const Horario = HorarioModel(sequelize,DataTypes);
+const Turno = TurnoModel(sequelize, DataTypes);
 
 const db = {
     sequelize,
@@ -57,6 +59,7 @@ const db = {
     SeguroMedico,
     Horario,
     PacienteSeguro,
+    Turno,
 };
 
 // Un Rol tiene muchos Usuarios
@@ -257,6 +260,60 @@ db.Horario.belongsTo(db.Usuario, {
         allowNull: false
     },
     as: 'usuario'
+});
+
+// Un Usuario (Medico) tiene muchos Turnos
+db.Usuario.hasMany(db.Turno, {
+    foreignKey: {
+        name: 'medico_id',
+        allowNull: false
+    },
+    as: 'turnos_medico'
+});
+
+// Un Turno pertenece a un Usuario (Medico)
+db.Turno.belongsTo(db.Usuario, {
+    foreignKey: {
+        name: 'medico_id',
+        allowNull: false
+    },
+    as: 'medico'
+});
+
+// Un Usuario (Agenda Turno) tiene muchos Turnos
+db.Usuario.hasMany(db.Turno, {
+    foreignKey: {
+        name: 'usuario_agenda',
+        allowNull: false
+    },
+    as: 'turnos_agendados'
+});
+
+// Un Turno pertenece a un Usuario (Agenda)
+db.Turno.belongsTo(db.Usuario, {
+    foreignKey: {
+        name: 'usuario_agenda',
+        allowNull: false
+    },
+    as: 'usuario_creador'
+});
+
+// Un Paciente tiene muchos Turnos
+db.Paciente.hasMany(db.Turno, {
+    foreignKey: {
+        name: 'paciente_id',
+        allowNull: false
+    },
+    as: 'turnos'
+});
+
+// Un Turno pertenece a un Paciente
+db.Turno.belongsTo(db.Paciente, {
+    foreignKey: {
+        name: 'paciente_id',
+        allowNull: false
+    },
+    as: 'paciente'
 });
 
 module.exports = db;
