@@ -14,11 +14,13 @@ exports.verificarAutenticacion = async (req, res, next) => {
                 include: [{ model: Rol, attributes: ['nombre'] }]
             });
 
-            if (usuario) {
+            if (usuario && usuario.activo) {
                 // Adjuntamos el usuario al objeto 'req' para rutas de API
                 req.usuario = usuario;
                 // Adjuntamos el usuario a 'res.locals' para que esté disponible en todas las vistas Pug
                 res.locals.usuarioAutenticado = usuario;
+            } else if (usuario && !usuario.activo) {
+                res.clearCookie('jwt');
             }
         } catch (error) {
             console.error('Error de autenticación:', error.message);
@@ -35,4 +37,3 @@ exports.protegerRuta = (req, res, next) => {
     // Si no está autenticado, redirigir al login
     res.redirect('/login');
 };
-
