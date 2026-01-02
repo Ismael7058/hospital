@@ -140,7 +140,7 @@ exports.setActivo = async (id, activo) => {
       throw new Error('El turno se superpone con otro turno vigente');
     }
 
-    const turnoPaciente = await verificarSuperposicionPaciente(turno.paciente_id, fechaNormalizada, turno.hora_inicio, turno.hora_fin, id);
+    const turnoPaciente = await verificarSuperposicionPaciente(turno.paciente_id, fechaAdptada, turno.hora_inicio, turno.hora_fin, id);
     if (turnoPaciente) {
       throw new Error('El paciente ya tiene un turno en ese horario');
     }
