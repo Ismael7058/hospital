@@ -21,6 +21,8 @@ router.patch('/:id/identificacion', editIdentificacionPacienteValidation(), paci
 // PATCH /api/pacientes/:id
 router.patch('/:id', editInformacionPacienteValidation(), pacienteApiController.editInformacion);
 
+// GET /api/pacientes/buscar
+router.get('/buscar', pacienteApiController.buscarPacientes);
 
 
 module.exports = router;

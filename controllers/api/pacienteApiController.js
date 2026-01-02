@@ -40,7 +40,7 @@ exports.setActivo = async (req, res) => {
             case 'Paciente no encontrado':
                 return res.status(404).json({ message: error.message });
             case 'No se puede desactivar el ala porque tiene camas ocupadas.':
-            case `El paciente ya se encuentra ${estado ? 'activo' : 'inactivo'}.`:
+            case `El paciente ya se encuentra ${activo ? 'activo' : 'inactivo'}.`:
                 return res.status(409).json({ message: error.message });
             default:
                 res.status(500).json({ message: error.message || 'Error interno del servidor.' });
@@ -91,3 +91,16 @@ exports.editIdentificacion = async (req, res) => {
       }
   }
 }
+
+
+exports.buscarPacientes = async (req, res) => {
+    try {
+        const searchTerm = req.query.q || '';
+
+        const pacientes = await pacienteServices.buscarPacientes(searchTerm);
+
+        res.status(200).json(pacientes);
+    } catch (error) {
+        res.status(500).json({ message: 'Error interno del servidor al realizar la búsqueda.' });
+    }
+};

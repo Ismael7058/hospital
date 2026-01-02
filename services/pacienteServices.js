@@ -1,4 +1,5 @@
 const { Paciente, Nacionalidad, Identificacion, sequelize } = require('../db/models');
+const { Op } = require('sequelize');
 
 
 exports.registerPaciente = async (pacienteData) => {
@@ -42,7 +43,7 @@ exports.registerPaciente = async (pacienteData) => {
 
 exports.setActivo = async (id, estado) => {
     const paciente = await Paciente.findByPk(id);
-    if(!paciente){
+    if (!paciente) {
         throw new Error('Paciente no encontrado');
     }
 
@@ -115,4 +116,34 @@ exports.editIdentificacion = async (id, identificaciones) => {
         await t.rollback();
         throw error;
     }
+}
+
+exports.buscarPacientes = async (searchTerm) => {
+    if (!searchTerm || searchTerm.length < 3) {
+        return [];
+    }
+    const pacientes = await Paciente.findAll({
+        where: {
+            [Op.and]: [
+                { activo: true },
+                {
+                    [Op.or]: [
+                        { nombre: { [Op.like]: `%${searchTerm}%` } },
+                        { apellido: { [Op.like]: `%${searchTerm}%` } },
+                        { '$identificaciones.nro_doc$': { [Op.like]: `%${searchTerm}%` } }
+                    ]
+                }
+            ]
+        },
+        include: [{
+            model: Identificacion,
+            as: 'identificaciones',
+            attributes: ['tipo_doc', 'nro_doc']
+        }],
+        limit: 10,
+        subQuery: false,
+        attributes: ['id', 'nombre', 'apellido']
+    });
+
+    return pacientes;
 }
