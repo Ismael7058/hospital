@@ -4,10 +4,10 @@ const { Usuario } = require('../db/models');
 const dias = [
     'Lunes',
     'Martes',
-    'Miercoles',
+    'Miércoles',
     'Jueves',
     'Viernes',
-    'Sabado',
+    'Sábado',
     'Domingo'
 ]
 
