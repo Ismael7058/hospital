@@ -44,8 +44,7 @@ block content
             thead.table-dark
               tr
                 th.text-center Fecha
-                th.text-center Hora Inicio
-                th.text-center Hora Fin
+                th.text-center Hora
                 th.text-center Médico
                 th.text-center Paciente
                 th.text-center Motivo
@@ -55,9 +54,8 @@ block content
               if turnos.length > 0
                 each turno in turnos
                   tr
-                    td.text-center #{new Date(turno.fecha_hora_inicio).toLocaleDateString()}
-                    td.text-center #{new Date(turno.fecha_hora_inicio).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                    td.text-center #{new Date(turno.fecha_hora_fin).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    td.text-center #{new Date(turno.fecha).toLocaleDateString('es-AR', { timeZone: 'UTC' })}
+                    td.text-center #{turno.hora_inicio ? turno.hora_inicio.slice(0, 5) : ''} - #{turno.hora_fin ? turno.hora_fin.slice(0, 5) : ''}
                     td.text-center #{turno.medico ? turno.medico.nombre + ' ' + turno.medico.apellido : 'N/A'}
                     td.text-center #{turno.paciente ? turno.paciente.nombre + ' ' + turno.paciente.apellido : 'N/A'}
                     td.text-center #{turno.motivo}
@@ -81,7 +79,7 @@ block content
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
                     tr
-                      td.text-center(colspan='8') &nbsp;
+                      td.text-center(colspan='7') &nbsp;
           if !turnos || turnos.length === 0
             .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
               h4.fw-light No se encontraron turnos.

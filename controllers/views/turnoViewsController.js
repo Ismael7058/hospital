@@ -15,7 +15,7 @@ exports.getTurnos = async (req, res, next) => {
             const fechaFin = new Date(fecha);
             fechaFin.setHours(23, 59, 59, 999);
             fechaInicio.setHours(0, 0, 0, 0);
-            whereClause.fecha_hora_inicio = { [Op.between]: [fechaInicio, fechaFin] };
+            whereClause.fecha = { [Op.between]: [fechaInicio, fechaFin] };
         }
 
         if (estado) whereClause.estado = estado;
