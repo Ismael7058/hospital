@@ -22,9 +22,6 @@ exports.registrarTurnoValidation = () => {
     body('medico_id')
       .not().isEmpty().withMessage('El medico es obligatorio.')
       .isInt().withMessage('El ID del medico debe ser un número entero.'),
-    body('usuario_agenda')
-      .not().isEmpty().withMessage('El usuario es obligatorio.')
-      .isInt().withMessage('El ID del usuario debe ser un número entero.'),
     body('paciente_id')
       .notEmpty().withMessage('El ID del paciente es obligatorio')
       .isInt().withMessage('El ID del paciente debe ser un número entero'),
