@@ -26,6 +26,7 @@ const infraestructuraViewsRouter = require('./routes/views/infraestructuraViewsR
 const pacienteViewsRouter = require('./routes/views/pacienteViewsRouter');
 const seguroViewsRouter = require('./routes/views/seguroViewsRouter');
 const turnoViewsRouter = require('./routes/views/turnosViewsRouter');
+const tipoAntecedentesViewsRouter = require('./routes/views/tipoAntecendentesViewsRouter');
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use('/infraestructura', protegerRuta, infraestructuraViewsRouter);
 app.use('/pacientes', protegerRuta, pacienteViewsRouter);
 app.use('/seguros', protegerRuta, seguroViewsRouter);
 app.use('/turnos', protegerRuta, turnoViewsRouter);
+app.use('/tipos-antecedentes', protegerRuta, tipoAntecedentesViewsRouter);
 
 
 // --- MANEJO DE ERRORES ---
