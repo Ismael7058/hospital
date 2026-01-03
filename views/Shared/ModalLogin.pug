@@ -1,24 +1,27 @@
 //- Modal de Inicio de Sesión
 #loginModal.modal.fade(tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true")
   .modal-dialog.modal-dialog-centered
-    .modal-content
-      .modal-header
-        h5#loginModalLabel.modal-title Iniciar Sesión
+    .modal-content.bg-dark.text-light(data-bs-theme="dark")
+      .modal-header.border-0
         button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-      .modal-body
+      .modal-body.p-4
+        .text-center.mb-4
+          i.bi.bi-hospital.fs-1.text-primary
+          h3.fw-bold.mt-2 Hospital Horizon
+          p.text-white-50 Inicia sesión para continuar
+
         //- Formulario de Login
         form#loginForm(novalidate)
           //- Div para mostrar errores generales del login (ej. "Credenciales incorrectas")
           #loginError.alert.alert-danger.d-none
 
-          .mb-3
-            label.form-label(for="emailInput") Correo Electrónico
+          .form-floating.mb-3
             input#emailInput.form-control(type="email" name="email" placeholder="nombre@ejemplo.com" required)
-          .mb-3
-            label.form-label(for="passwordInput") Contraseña
+            label(for="emailInput") Correo Electrónico
+          .form-floating.mb-3
             input#passwordInput.form-control(type="password" name="password" placeholder="Contraseña" required)
-          .d-flex.justify-content-end
-            button.btn.btn-secondary.me-2(type="button" data-bs-dismiss="modal") Cerrar
+            label(for="passwordInput") Contraseña
+          .d-flex.justify-content-center.mt-4
             button.btn.btn-primary(type="submit") Iniciar Sesión
 
 block scripts

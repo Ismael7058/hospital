@@ -1,6 +1,6 @@
 header.navbar.navbar-dark.sticky-top.bg-dark.shadow.p-2
   // Contenedor principal para alinear elementos a la izquierda y derecha
-  .container-fluid.d-flex.align-items-center
+  .container-fluid.d-flex.align-items-center.justify-content-between
     // --- Elementos de la Izquierda ---
     if usuarioAutenticado
       // Botón para mostrar/ocultar el menú lateral
@@ -8,6 +8,11 @@ header.navbar.navbar-dark.sticky-top.bg-dark.shadow.p-2
         i.bi.bi-list.fs-4
     // Logo/Nombre de la aplicación
     a.navbar-brand.ps-2(href="/") Hospital Horizon
+
+    if !usuarioAutenticado
+      button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#loginModal")
+          i.bi.bi-box-arrow-in-right.me-2
+          | Iniciar Sesión
 
     // --- Elementos de la Derecha (si el usuario está autenticado) ---
     if usuarioAutenticado

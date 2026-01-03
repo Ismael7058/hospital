@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
   if (!loginForm) return;
 
+  // Evitar adjuntar múltiples listeners si el script se carga varias veces
+  if (loginForm.dataset.listenerAttached) return;
+  loginForm.dataset.listenerAttached = 'true';
+
   const loginModal = document.getElementById('loginModal');
   const emailInput = document.getElementById('emailInput');
   const passwordInput = document.getElementById('passwordInput');
@@ -40,17 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/';
       } else {
         // Error: mostramos el mensaje del servidor en el div de error.
-        errorDiv.textContent = result.message || 'Ocurrió un error inesperado.';
-        errorDiv.classList.remove('d-none');
+        mostrarAlerta(result.message || 'Ocurrió un error inesperado.', 'danger');
       }
     } catch (error) {
-      errorDiv.textContent = 'No se pudo conectar con el servidor.';
-      errorDiv.classList.remove('d-none');
-      console.error('Error de red al iniciar sesión:', error);
+        mostrarAlerta('No se pudo conectar con el servidor.', 'danger');
     } finally {
-      // Restaurar el botón
-      submitButton.disabled = false;
-      submitButton.innerHTML = originalButtonText;
+        setTimeout(() => {
+          // Restaurar el botón
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalButtonText;
+        }, 1000);
     }
   });
 
