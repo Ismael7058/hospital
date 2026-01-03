@@ -16,7 +16,7 @@ router.get('/:id', idTipoAntecedentesValidation(), tipoAntecedentesApiController
 router.post('/registrar', registrarTipoAntecedentesValidation(), tipoAntecedentesApiController.registrarTipoAntecedentes); 
     
 // PATCH /api/tipo-antecedente/:id/activo
-router.patch(':id/activo', setActivoTipoAntecedentesValidation(), tipoAntecedentesApiController.setActivo);
+router.patch('/:id/activo', setActivoTipoAntecedentesValidation(), tipoAntecedentesApiController.setActivo);
 
 // PATCH /api/tipo-antecedente/:id
 router.patch('/:id', editarTipoAntecedentesValidation(), tipoAntecedentesApiController.editarTipoAntecedentes);

@@ -1,7 +1,7 @@
 const { TiposAtencedentes } = require('../db/models');
 
 exports.getTipoAntecedentes = async (id) => {
-  const tipoAntecedente = TiposAtencedentes.findByPk(id);
+  const tipoAntecedente = await TiposAtencedentes.findByPk(id);
   if (!tipoAntecedente) {
     throw new Error('Tipo de antecedente no encontrado');
     
@@ -14,7 +14,7 @@ exports.registrarTipoAntecedentes = async (datosTipoAntecedente) => {
   const { nombre } = datosTipoAntecedente;
 
   const tipoAntecedenteExistente = await TiposAtencedentes.findOne({ where: { nombre} });
-  if (!tipoAntecedenteExistente) {
+  if (tipoAntecedenteExistente) {
     throw new Error('El tipo de antecedente ya existe');
   }
 
@@ -23,7 +23,7 @@ exports.registrarTipoAntecedentes = async (datosTipoAntecedente) => {
 };
 
 exports.setActivo = async (id, activo) => {
-  const tipoAntecedente = TiposAtencedentes.findByPk(id);
+  const tipoAntecedente = await TiposAtencedentes.findByPk(id);
   if(!tipoAntecedente) {
     throw new Error('Tipo de antecedente no encontrado');
   }
@@ -38,7 +38,7 @@ exports.setActivo = async (id, activo) => {
 
 exports.editarTipoAntecedentes = async (id, datosActualizados) => {
   const { nombre } = datosActualizados;
-  const tipoAntecedente = TiposAtencedentes.findByPk(id);
+  const tipoAntecedente = await TiposAtencedentes.findByPk(id);
   if(!tipoAntecedente) {
     throw new Error('Tipo de antecedente no encontrado');
   }
@@ -48,10 +48,10 @@ exports.editarTipoAntecedentes = async (id, datosActualizados) => {
 
   const tipoAntecedenteExistente = await TiposAtencedentes.findOne({ where: { nombre } });
 
-  if (!tipoAntecedenteExistente) {
+  if (tipoAntecedenteExistente) {
     throw new Error('El tipo de antecedente ya existe');
   }
 
   tipoAntecedente.nombre = nombre;
-  tipoAntecedente.save();
+  await tipoAntecedente.save();
 };
