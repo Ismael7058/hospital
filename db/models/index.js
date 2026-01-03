@@ -19,6 +19,9 @@ const PacienteSeguroModel = require('./paciente_seguro');
 const SeguroMedicoModel = require('./seguro_medico');
 const HorarioModel = require('./horario');
 const TurnoModel = require('./turno');
+const TiposAtencedentesModel = require('./tipo_antecedente');
+const AntecedentePacienteModel = require('./antencedente_paciente');
+const FuentesInformacionModel = require('./fuente_informacion');
 
 
 const Rol = RolModel(sequelize, DataTypes);
@@ -39,6 +42,9 @@ const SeguroMedico = SeguroMedicoModel(sequelize, DataTypes);
 const PacienteSeguro = PacienteSeguroModel(sequelize, DataTypes);
 const Horario = HorarioModel(sequelize,DataTypes);
 const Turno = TurnoModel(sequelize, DataTypes);
+const TiposAtencedentes = TiposAtencedentesModel(sequelize, DataTypes);
+const AntecedentePaciente = AntecedentePacienteModel(sequelize, DataTypes);
+const FuentesInformacion = FuentesInformacionModel(sequelize,DataTypes);
 
 const db = {
     sequelize,
@@ -60,6 +66,9 @@ const db = {
     Horario,
     PacienteSeguro,
     Turno,
+    TiposAtencedentes,
+    AntecedentePaciente,
+    FuentesInformacion
 };
 
 // Un Rol tiene muchos Usuarios
@@ -315,5 +324,39 @@ db.Turno.belongsTo(db.Paciente, {
     },
     as: 'paciente'
 });
+
+// Un Paciente puede tener muchos Antecedentes
+db.Paciente.belongsToMany(db.TiposAtencedentes, {
+    through: db.AntecedentePaciente,
+    foreignKey: 'paciente_id',
+    otherKey: 'tipo_antecedente_id',
+    timestamps: false
+});
+
+// Un Antecedente puede pertenecer a muchos Paciente
+db.TiposAtencedentes.belongsToMany(db.Paciente, {
+    through: db.AntecedentePaciente,
+    foreignKey: 'tipo_antecedente_id',
+    otherKey: 'paciente_id',
+    timestamps: false
+});
+
+// Una Fuente de Informacion tiene muchos Antecedentes de Pacientes
+db.FuentesInformacion.hasMany(db.AntecedentePaciente, {
+    foreignKey: {
+        name: 'fuente_informacion_id',
+        allowNull: false
+    }
+});
+
+// Un Antedecente de un Paciente pertenece a una unica Fuente de Informacion
+db.AntecedentePaciente.belongsTo(db.FuentesInformacion, {
+    foreignKey: {
+        name: 'fuente_informacion_id',
+        allowNull: false
+    },
+});
+
+
 
 module.exports = db;
