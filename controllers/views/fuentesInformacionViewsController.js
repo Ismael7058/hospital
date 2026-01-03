@@ -1,0 +1,47 @@
+const { FuentesInformacion } = require('../../db/models');
+const { Op } = require('sequelize');
+
+exports.getListar = async (req, res, next) => {
+    try {
+        const { nombre, activo, pagina = 1 } = req.query;
+        const registrosPorPagina = 13;
+        const offset = (pagina - 1) * registrosPorPagina;
+
+        const whereClause = {};
+        if (nombre) whereClause.nombre = { [Op.iLike]: `%${nombre}%` };
+        if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+
+        const { count, rows: fuentesInformacion } = await FuentesInformacion.findAndCountAll({
+            where: whereClause,
+            order: [['nombre', 'ASC']],
+            limit: registrosPorPagina,
+            offset: offset,
+            distinct: true
+        });
+
+        const totalPaginas = Math.ceil(count / registrosPorPagina);
+        const filtros = { nombre, activo };
+
+        Object.keys(filtros).forEach(key => {
+            if (filtros[key] === undefined || filtros[key] === '') {
+                delete filtros[key];
+            }
+        });
+
+        const filtrosQuery = new URLSearchParams(filtros).toString();
+
+        res.render('./FuenteInformacion/FuentesInformacion.pug', {
+            title: 'Listado de Fuentes de Informacion',
+            fuentesInformacion: fuentesInformacion,
+            paginacion: {
+                totalRegistros: count,
+                totalPaginas: totalPaginas,
+                paginaActual: parseInt(pagina),
+            },
+            filtros: filtros,
+            filtrosQuery: filtrosQuery
+        });
+    } catch (error) {
+        next(error);
+    }
+};

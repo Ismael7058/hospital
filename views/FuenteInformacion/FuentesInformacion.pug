@@ -1,0 +1,141 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h4.mb-0 Lista de Fuentes de Informacion
+        div
+          button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse")
+            i.bi.bi-funnel-fill.me-2
+            | Filtros
+          //- Este botón abre el modal de registro
+          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarFuenteInformacion")
+            i.bi.bi-journal-plus.me-2
+            | Nueva Fuente de Informacion
+
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.px-4(method="GET" action="/funtes-informacion")
+          .row.g-3.align-items-end
+            .col-md-4
+              label.form-label(for="nombre") Nombre de la Fuente de Informacion
+              input.form-control(type="text" id="nombre" name="nombre" value=filtros.nombre)
+            .col-md-4
+              label.form-label(for="activo") Estado
+              select.form-select(id="activo" name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            .col-md-4.text-end
+              a.btn.btn-secondary(href="/funtes-informacion") Limpiar
+              button.btn.btn-primary.ms-2(type="submit") Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
+        .table-responsive.table-fixed-height.rounded
+          table.table.table-striped.table-hover.align-middle
+            thead.table-dark
+              tr
+                th.text-center Codigo
+                th.text-center Nombre
+                th.text-center Estado
+                th.text-center Acciones
+
+            tbody
+              if fuentesInformacion && fuentesInformacion.length > 0
+                each fuenteInformacion in fuentesInformacion
+                  tr(id=`fuente-informacion-row-${fuenteInformacion.id}`)
+                    td.text-center= fuenteInformacion.id
+                    td.nombre-fuente-informacion.text-center= fuenteInformacion.nombre
+                    td.estado-fuente-informacion.text-center
+                      if fuenteInformacion.activo
+                        span.badge.bg-success Activo
+                      else
+                        span.badge.bg-danger Inactivo
+                    td.text-center
+                      //- Este botón abre el modal de gestión y pasa los datos de la fuente de informaicon
+                      button.btn.btn-primary.btn-sm.btn-gestionar(
+                        type="button",
+                        data-bs-toggle="modal",
+                        data-bs-target="#modalGestionFuenteInformacion",
+                        data-id=fuenteInformacion.id,
+                      )
+                        i.bi.bi-pencil-square.me-1
+                        | Gestionar
+                - const filasVacias = 13 - fuentesInformacion.length;
+                if filasVacias > 0
+                  - for (let i = 0; i < filasVacias; i++)
+                    tr
+                      td.text-center(colspan="4") &nbsp;
+          if !fuentesInformacion || fuentesInformacion.length === 0
+            .position-absolute.top-50.start-50.translate-middle.text-center.text-muted
+              h4.fw-light No se encontraron Fuentes de Informacion
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
+          
+  //- Modal para gestionar una fuente de informacion existente (editar nombre, cambiar estado)
+  #modalGestionFuenteInformacion.modal.fade(tabindex="-1" aria-labelledby="modalGestionFuenteInformacionLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5#modalGestionFuenteInformacionLabel.modal-title Gestionar Fuente de Informacion
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+        //- Formulario para editar el nombre de la fuente de informacion
+        form#formGestionFuenteInformacion(autocomplete="off" novalidate)
+          .modal-body
+            //- Input oculto para almacenar el ID de la fuente de informacion
+            input(type="hidden" id="gestion_fuente_informacion_id" name="id")
+
+            //- Contenedor para mostrar errores generales del formulario
+            #error-container-gestion-fuente-informacion.alert.alert-danger.d-none(role="alert")
+
+            .mb-3
+              label.form-label(for="gestion_nombre_fuente_informacion") Nombre de la Fuente de Informacion
+              input.form-control(type="text" id="gestion_nombre_fuente_informacion" name="nombre" required minlength="3")
+              .invalid-feedback
+
+          .modal-footer
+            button#btn-desactivar-fuente-informacion.btn.btn-outline-danger.d-none(type="button" data-nuevo-estado="false")
+              i.bi.bi-x-circle-fill.me-2
+              | Desactivar
+            button#btn-activar-fuente-informacion.btn.btn-outline-success.d-none(type="button" data-nuevo-estado="true")
+              i.bi.bi-check-circle-fill.me-2
+              | Activar
+            button.btn.btn-primary.ms-2(type="submit")
+              i.bi.bi-save-fill.me-2
+              | Guardar Cambios
+
+
+  //- Modal para registrar una nueva fuente de informacion
+  #modalRegistrarFuenteInformacion.modal.fade(tabindex="-1" aria-labelledby="modalRegistrarFuenteInformacionLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5#modalRegistrarFuenteInformacionLabel.modal-title Registrar Nuevo Fuente de Informacion
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+        //- El formulario se envía a través de JS, por lo que no necesita action ni method aquí.
+        form#formRegistrarFuenteInformacion(autocomplete="off" novalidate)
+          .modal-body
+            //- Contenedor para mostrar errores generales del formulario
+            #error-container-fuente-informacion.alert.alert-danger.d-none(role="alert")
+
+            .mb-3
+              label.form-label(for="nombre_fuente_informacion") Nombre del Fuente de Informacion
+              input.form-control(type="text" id="nombre_fuente_informacion" name="nombre" required minlength="3")
+              //- Contenedor para el mensaje de validación específico de este campo
+              .invalid-feedback
+
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+            button.btn.btn-primary(type="submit")
+              i.bi.bi-save-fill.me-2
+              | Guardar
+
+  script(src="/js/fuente_informacion/modalRegistrar.js" type="module")
+  script(src="/js/fuente_informacion/modalGestion.js" type="module")
