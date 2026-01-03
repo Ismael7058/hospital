@@ -16,7 +16,7 @@ router.get('/:id', idFuenteValidation(), fuentesInformacionApiController.getFuen
 router.post('/registrar', registrarFuenteValidation(), fuentesInformacionApiController.registrarFuente); 
     
 // PATCH /api/fuentes/:id/activo
-router.patch(':id/activo', setActivoFuenteValidation(), fuentesInformacionApiController.setActivo);
+router.patch('/:id/activo', setActivoFuenteValidation(), fuentesInformacionApiController.setActivo);
 
 // PATCH /api/fuentes/:id
 router.patch('/:id', editarFuenteValidation(), fuentesInformacionApiController.editarFuente);

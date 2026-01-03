@@ -1,5 +1,5 @@
 const fuentesInformacionServices = require('../../services/fuentesInformacionServices');
-const { validationResult, body } = require('express-validator');
+const { validationResult } = require('express-validator');
 
 exports.getFuente = async (req, res) => {
   const errors = validationResult(req);

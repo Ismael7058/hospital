@@ -13,7 +13,7 @@ exports.registrarFuente = async (datosFuente) => {
   const { nombre } = datosFuente;
 
   const fuenteExistente = await FuentesInformacion.findOne({ where: { nombre } });
-  if (!fuenteExistente) {
+  if (fuenteExistente) {
     throw new Error('La fuente de informacion ya existe');
   }
 
@@ -22,7 +22,7 @@ exports.registrarFuente = async (datosFuente) => {
 };
 
 exports.setActivo = async (id, activo) => {
-  const fuente = FuentesInformacion.findByPk(id);
+  const fuente = await FuentesInformacion.findByPk(id);
   if(!fuente) {
     throw new Error('Fuente de Informacion no encontrada');
   }
@@ -37,7 +37,7 @@ exports.setActivo = async (id, activo) => {
 
 exports.editarFuente = async (id, datosActualizados) => {
   const { nombre } = datosActualizados;
-  const fuente = FuentesInformacion.findByPk(id);
+  const fuente = await FuentesInformacion.findByPk(id);
   if(!fuente) {
     throw new Error('Fuente de Informacion no encontrada');
   }
@@ -47,10 +47,10 @@ exports.editarFuente = async (id, datosActualizados) => {
 
   const fuenteExistente = await FuentesInformacion.findOne({ where: { nombre } });
 
-  if (!fuenteExistente) {
+  if (fuenteExistente) {
     throw new Error('La fuente de informacion ya existe');
   }
 
   fuente.nombre = nombre;
-  fuente.save();
+  await fuente.save();
 };
