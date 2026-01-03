@@ -11,11 +11,7 @@ exports.getTurnos = async (req, res, next) => {
 
         // Filtro por fecha (rango del día completo)
         if (fecha) {
-            const fechaInicio = new Date(fecha);
-            const fechaFin = new Date(fecha);
-            fechaFin.setHours(23, 59, 59, 999);
-            fechaInicio.setHours(0, 0, 0, 0);
-            whereClause.fecha = { [Op.between]: [fechaInicio, fechaFin] };
+            whereClause.fecha = fecha;
         }
 
         if (estado) whereClause.estado = estado;

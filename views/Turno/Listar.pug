@@ -65,16 +65,7 @@ block content
                       .btn-group
                         a.btn.btn-primary.btn-sm.me-1(href=`/turnos/${turno.id}`)
                           i.bi.bi-pencil-square.me-1
-                          | Editar
-                        button.btn.btn-sm(
-                          class=turno.activo ? 'btn-danger' : 'btn-success'
-                          type="button"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modalCambiarEstado"
-                          data-id=turno.id
-                          data-activo=turno.activo.toString()
-                        )
-                          i.bi(class=turno.activo ? 'bi-trash' : 'bi-check-circle')
+                          | Gestionar
                 - const filasVacias = (paginacion.registrosPorPagina || 13) - turnos.length;
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
