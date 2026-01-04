@@ -349,6 +349,22 @@ db.FuentesInformacion.hasMany(db.AntecedentePaciente, {
     }
 });
 
+// Un AntecedentePaciente pertenece a un Paciente
+db.AntecedentePaciente.belongsTo(db.Paciente, {
+    foreignKey: {
+        name: 'paciente_id',
+        allowNull: false
+    }
+});
+
+// Un AntecedentePaciente pertenece a un Tipo de Antecedente
+db.AntecedentePaciente.belongsTo(db.TiposAtencedentes, {
+    foreignKey: {
+        name: 'tipo_antecedente_id',
+        allowNull: false
+    }
+});
+
 // Un Antedecente de un Paciente pertenece a una unica Fuente de Informacion
 db.AntecedentePaciente.belongsTo(db.FuentesInformacion, {
     foreignKey: {
