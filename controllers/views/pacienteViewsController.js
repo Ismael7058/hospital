@@ -1,4 +1,4 @@
-const { Paciente, Nacionalidad, Identificacion, PacienteSeguro, SeguroMedico } = require('../../db/models');
+const { Paciente, Nacionalidad, Identificacion, PacienteSeguro, SeguroMedico, AntecedentePaciente, TiposAtencedentes, FuentesInformacion } = require('../../db/models');
 const { Op } = require('sequelize');
 
 const REGISTROS_POR_PAGINA = 13;
@@ -215,6 +215,79 @@ exports.getSeguros = async (req, res, next) => {
                 totalRegistros: count,
                 registrosPorPagina: REGISTROS_POR_PAGINA
             }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+exports.getAntecedentes = async (req, res, next) => {
+    try {
+        const pacienteId = req.params.id;
+        const { tipo_antecedente_id, fecha_inicio, fecha_fin, validado, activo, pagina = 1 } = req.query;
+        const offset = (pagina - 1) * REGISTROS_POR_PAGINA;
+
+        const paciente = await Paciente.findByPk(pacienteId, {
+          include: {
+           model: Identificacion, as: 'identificaciones', attributes: ['tipo_doc', 'nro_doc']
+          }
+        });
+        if (!paciente) {
+            return res.redirect('/pacientes');
+        }
+
+        const whereClause = { paciente_id: pacienteId };
+        if (tipo_antecedente_id) whereClause.tipo_antecedente_id = tipo_antecedente_id;
+        
+        if (fecha_inicio && fecha_fin) {
+            whereClause.fecha_registro = { [Op.between]: [fecha_inicio, fecha_fin] };
+        } else if (fecha_inicio) {
+            whereClause.fecha_registro = { [Op.gte]: fecha_inicio };
+        } else if (fecha_fin) {
+            whereClause.fecha_registro = { [Op.lte]: fecha_fin };
+        }
+
+        if (validado !== undefined && validado !== '') whereClause.validado = validado === 'true';
+        if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+
+        const { count, rows: antecedentes } = await AntecedentePaciente.findAndCountAll({
+            where: whereClause,
+            include: [
+                { model: TiposAtencedentes, where: { activo: true } },
+                { model: FuentesInformacion, where: { activo: true } }
+            ],
+            order: [['fecha_registro', 'DESC']],
+            limit: REGISTROS_POR_PAGINA,
+            offset: offset
+        });
+
+        const tiposAntecedentes = await TiposAtencedentes.findAll({ where: { activo: true }, order: [['nombre', 'ASC']] });
+        const fuentesInformacion = await FuentesInformacion.findAll({ where: { activo: true }, order: [['nombre', 'ASC']] });
+
+        const totalPaginas = Math.ceil(count / REGISTROS_POR_PAGINA);
+        
+        // Preparar filtros para la vista
+        const filtros = { tipo_antecedente_id, fecha_inicio, fecha_fin, validado, activo };
+        Object.keys(filtros).forEach(key => {
+            if (filtros[key] === undefined || filtros[key] === '') delete filtros[key];
+        });
+        const filtrosQuery = new URLSearchParams(filtros).toString();
+
+        res.render('./Paciente/Antecedentes.pug', {
+            title: `Antecedentes Clínicos: ${paciente.nombre} ${paciente.apellido}`,
+            paciente,
+            antecedentes,
+            tiposAntecedentes,
+            fuentesInformacion,
+            paginacion: {
+                paginaActual: parseInt(pagina),
+                totalPaginas,
+                totalRegistros: count,
+                registrosPorPagina: REGISTROS_POR_PAGINA
+            },
+            filtros,
+            filtrosQuery
         });
     } catch (error) {
         next(error);

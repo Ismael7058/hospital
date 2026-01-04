@@ -1,0 +1,300 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      //- Encabezado de la Tarjeta
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+        div
+          h2.mb-1
+            i.bi.bi-journal-medical.me-2.text-primary
+            | Antecedentes Clínicos
+          h5.text-muted Paciente: #{paciente.nombre} #{paciente.apellido}
+          div.d-flex.align-items-center.text-muted
+            i.bi.bi-person-vcard.me-2
+            if paciente.identificaciones && paciente.identificaciones.length > 0
+              span= `${paciente.identificaciones[0].tipo_doc} ${paciente.identificaciones[0].nro_doc}`
+              if paciente.identificaciones.length > 1
+                - const otrasIdentificaciones = paciente.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
+                span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content=otrasIdentificaciones)
+                  | +#{paciente.identificaciones.length - 1}
+            else
+              span Sin registro
+        div.d-flex.justify-content-center.align-items-start.h-100
+          a.btn.btn-outline-secondary.me-2(href=`/pacientes/${paciente.id}`)
+            i.bi.bi-arrow-left.me-2
+            | Volver
+          button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+            i.bi.bi-funnel.me-2
+            | Filtros
+          button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarAntecedente")
+            i.bi.bi-plus-lg.me-2
+            | Nuevo Antecedente
+
+      //- Filtro
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.bg-light(method="GET" action=`/pacientes/${paciente.id}/antecedentes`)
+            .row.g-3.align-items-end
+              .col-md-2
+                label.form-label.small.fw-bold Tipo de Antecedente
+                select.form-select.form-select-sm(name="tipo_antecedente_id")
+                  option(value="") Todos
+                  each tipo in tiposAntecedentes
+                    option(value=tipo.id selected=(filtros && filtros.tipo_antecedente_id == tipo.id)) #{tipo.nombre}
+              .col-md-2
+                label.form-label.small.fw-bold Desde
+                input.form-control.form-control-sm(type="date" name="fecha_inicio" value=(filtros ? filtros.fecha_inicio : ''))
+              .col-md-2
+                label.form-label.small.fw-bold Hasta
+                input.form-control.form-control-sm(type="date" name="fecha_fin" value=(filtros ? filtros.fecha_fin : ''))
+              .col-md-2
+                label.form-label.small.fw-bold Validación
+                select.form-select.form-select-sm(name="validado")
+                  option(value="") Todos
+                  option(value="true" selected=(filtros && filtros.validado === 'true')) Validado
+                  option(value="false" selected=(filtros && filtros.validado === 'false')) Pendiente
+              .col-md-2
+                label.form-label.small.fw-bold Estado
+                select.form-select.form-select-sm(name="activo")
+                  option(value="") Todos
+                  option(value="true" selected=(filtros && filtros.activo === 'true')) Activos
+                  option(value="false" selected=(filtros && filtros.activo === 'false')) Eliminados
+              .col-md-2.text-end
+                if filtros && Object.keys(filtros).length > 0
+                   a.btn.btn-sm.btn-outline-secondary.me-2(href=`/pacientes/${paciente.id}/antecedentes`) 
+                     | Limpiar
+                button.btn.btn-sm.btn-primary(type="submit") 
+                  | Filtrar
+
+      //- Lista de Antecedentes
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
+            if antecedentes.length > 0
+              .table-responsive.h-100
+                  table.table.table-striped.table-hover.align-middle.mb-0
+                    thead.table-dark
+                      tr
+                        th.text-center Fecha
+                        th.text-center Tipo
+                        th.text-center Descripción
+                        th.text-center Fuente
+                        th.text-center Observaciones
+                        th.text-center Estado
+                        th.text-center Acciones
+                    tbody
+                      each ant in antecedentes
+                        tr
+                          td.text-center #{ant.fecha_registro}
+                          td.text-center 
+                            if ant.TiposAtencedente
+                                span.badge.bg-secondary #{ant.TiposAtencedente.nombre}
+                            else
+                                span.text-muted -
+                          td.text-truncate(style="max-width: 250px;" title=ant.descripcion) #{ant.descripcion}
+                          td.text-center
+                            if ant.FuentesInformacion
+                              span.badge.bg-info.text-dark #{ant.FuentesInformacion.nombre}
+                            else 
+                              span.text-muted N/A
+                          td.text-center
+                            if ant.observaciones
+                              button.btn.btn-sm.btn-link.text-secondary(
+                                type="button" 
+                                data-bs-toggle="popover" 
+                                title="Observaciones" 
+                                data-bs-content=ant.observaciones
+                                data-bs-trigger="focus"
+                              ) Ver nota
+                            else
+                              span.text-muted -
+                          td.text-center
+                            if ant.validado
+                              span.badge.bg-success
+                                i.bi.bi-check-circle-fill.me-1
+                                | Validado
+                            else
+                              span.badge.bg-warning.text-dark
+                                i.bi.bi-clock.me-1
+                                | Pendiente
+                          td.text-center
+                            .btn-group
+                              button.btn.btn-sm.btn-outline-primary(
+                                onclick=`cargarDatosModal(${JSON.stringify(ant)})`
+                                title="Editar"
+                              )
+                                i.bi.bi-pencil-square.me-1
+                                | Gestion
+
+                              button.btn.btn-sm(
+                                class=ant.validado ? 'btn-outline-secondary' : 'btn-outline-success'
+                                onclick=`cambiarValidacion(${ant.id}, ${!ant.validado})`
+                                title=ant.validado ? 'Invalidar' : 'Validar'
+                              )
+                                i.bi.me-1(class=ant.validado ? 'bi-x-circle' : 'bi-check2-all')
+                                | #{ant.validado ? 'Invalidar' : 'Validar'}
+
+                              button.btn.btn-sm(
+                                class=ant.activo ? 'btn-outline-danger' : 'btn-outline-info'
+                                onclick=`eliminarAntecedente(${ant.id}, ${!ant.activo})`
+                                title=ant.activo ? 'Desactivar' : 'Activar'
+                              )
+                                i.bi.me-1(class=ant.activo ? 'bi-trash' : 'bi-arrow-counterclockwise')
+                                | #{ant.activo ? 'Eliminar' : 'Activar'}
+                      - var n = antecedentes.length
+                      while n < 13
+                        tr
+                          td.text-center &nbsp;
+                          td.text-center &nbsp;
+                          td &nbsp;
+                          td.text-center &nbsp;
+                          td.text-center &nbsp;
+                          td.text-center &nbsp;
+                          td.text-center
+                            button.btn.btn-sm.invisible
+                              i.bi.bi-pencil-square.me-1
+                              | Gestion
+                        - n++
+            else
+              .text-center.py-5.text-muted
+                i.bi.bi-folder2-open.fs-1.mb-3
+                p No se encontraron antecedentes con los filtros seleccionados.
+
+      //- Paginación
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.justify-content-center.d-flex.align-items-center
+          div.text-muted.col-2
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
+
+  //- Modal Registrar Antecedente
+  .modal.fade#modalRegistrarAntecedente(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-lg.modal-dialog-centered
+      .modal-content
+        form#formRegistrarAntecedente
+          .modal-header
+            h5.modal-title Nuevo Antecedente
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            input(type="hidden" name="paciente_id" value=paciente.id)
+            
+            .row.g-3
+              .col-md-6
+                label.form-label Tipo de Antecedente
+                select.form-select(name="tipo_antecedente_id" required)
+                  option(value="") Seleccione...
+                  each tipo in tiposAntecedentes
+                    option(value=tipo.id) #{tipo.nombre}
+            
+              .col-md-6
+                label.form-label Fecha de Registro
+                input.form-control(type="date" name="fecha_registro" required value=new Date().toISOString().split('T')[0])
+
+              .col-12
+                label.form-label Descripción
+                input.form-control(type="text" name="descripcion" required placeholder="Ej: Alergia a la Penicilina")
+
+              .col-md-6
+                label.form-label Fuente de Información
+                select.form-select(name="fuente_informacion_id" required)
+                  option(value="") Seleccione...
+                  each fuente in fuentesInformacion
+                    option(value=fuente.id) #{fuente.nombre}
+              
+              .col-md-6.d-flex.align-items-end
+                .form-check.form-switch.mb-2
+                  input.form-check-input(type="checkbox" name="validado" checked)
+                  label.form-check-label Validado médicamente
+
+              .col-12
+                label.form-label Observaciones
+                textarea.form-control(name="observaciones" rows="3")
+
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button.btn.btn-primary(type="submit") Guardar
+
+  //- Modal Editar Antecedente
+  .modal.fade#modalEditarAntecedente(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-lg.modal-dialog-centered
+      .modal-content
+        form#formEditarAntecedente
+          .modal-header
+            h5.modal-title Editar Antecedente
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            input#edit_antecedenteId(type="hidden" name="id")
+            input(type="hidden" name="paciente_id" value=paciente.id)
+            
+            .row.g-3
+              .col-md-6
+                label.form-label Tipo de Antecedente
+                select.form-select#edit_tipo_antecedente_id(name="tipo_antecedente_id" required)
+                  option(value="") Seleccione...
+                  each tipo in tiposAntecedentes
+                    option(value=tipo.id) #{tipo.nombre}
+            
+              .col-md-6
+                label.form-label Fecha de Registro
+                input.form-control#edit_fecha_registro(type="date" name="fecha_registro" required)
+
+              .col-12
+                label.form-label Descripción
+                input.form-control#edit_descripcion(type="text" name="descripcion" required)
+
+              .col-md-6
+                label.form-label Fuente de Información
+                select.form-select#edit_fuente_informacion_id(name="fuente_informacion_id" required)
+                  option(value="") Seleccione...
+                  each fuente in fuentesInformacion
+                    option(value=fuente.id) #{fuente.nombre}
+              
+              .col-md-6.d-flex.align-items-end
+                .form-check.form-switch.mb-2
+                  input.form-check-input#edit_validado(type="checkbox" name="validado")
+                  label.form-check-label Validado médicamente
+
+              .col-12
+                label.form-label Observaciones
+                textarea.form-control#edit_observaciones(name="observaciones" rows="3")
+
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button.btn.btn-primary(type="submit") Actualizar
+
+  //- Modal Eliminar
+  .modal.fade#modalEliminarAntecedente(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title Confirmar Eliminación
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p ¿Está seguro de eliminar este antecedente?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-danger#btnConfirmarEliminar(type="button") Eliminar
+
+  //- Modal Validar
+  .modal.fade#modalValidarAntecedente(tabindex="-1" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title Confirmar Validación
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p ¿Desea marcar este antecedente como validado médicamente?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          button.btn.btn-success#btnConfirmarValidar(type="button") Validar
+
+block scripts
+  script(src="/js/Paciente/editarAntecedente.js")
+  script(src="/js/Paciente/registrarAntecedente.js")
+  script(src="/js/Paciente/estadoAntecedente.js")
+  script(src="/js/Paciente/validacionAntecedente.js")
+  script.
+      document.addEventListener('DOMContentLoaded', function () {
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+          return new bootstrap.Popover(popoverTriggerEl)
+        })
+      });

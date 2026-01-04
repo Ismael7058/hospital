@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const infraestructuraController = require('../../controllers/views/pacienteViewsController');
+const pacienteController = require('../../controllers/views/pacienteViewsController');
 
-router.get('/', infraestructuraController.getListaPaciente);
+router.get('/', pacienteController.getListaPaciente);
 
-router.get('/registrar', infraestructuraController.getRegistrar);
+router.get('/registrar', pacienteController.getRegistrar);
 
-router.get('/:id/seguros', infraestructuraController.getSeguros);
+router.get('/:id/seguros', pacienteController.getSeguros);
 
-router.get('/:id', infraestructuraController.getPaciente);
+router.get('/:id/antecedentes', pacienteController.getAntecedentes);
+
+router.get('/:id', pacienteController.getPaciente);
 
 module.exports = router;
