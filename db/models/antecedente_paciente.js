@@ -21,6 +21,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BIGINT,
             allowNull: false
         },
+        paciente_id: {
+            type: DataTypes.BIGINT,
+            allowNull: false
+        },
+        tipo_antecedente_id: {
+            type: DataTypes.BIGINT,
+            allowNull: false
+        },
         validado: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
@@ -35,6 +43,3 @@ module.exports = (sequelize, DataTypes) => {
     });
     return AntecedentePaciente;
 };
-/*
-
-*/

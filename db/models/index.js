@@ -20,7 +20,7 @@ const SeguroMedicoModel = require('./seguro_medico');
 const HorarioModel = require('./horario');
 const TurnoModel = require('./turno');
 const TiposAtencedentesModel = require('./tipo_antecedente');
-const AntecedentePacienteModel = require('./antencedente_paciente');
+const AntecedentePacienteModel = require('./antecedente_paciente');
 const FuentesInformacionModel = require('./fuente_informacion');
 
 
@@ -67,8 +67,8 @@ const db = {
     PacienteSeguro,
     Turno,
     TiposAtencedentes,
-    AntecedentePaciente,
-    FuentesInformacion
+    FuentesInformacion,
+    AntecedentePaciente
 };
 
 // Un Rol tiene muchos Usuarios
@@ -327,18 +327,34 @@ db.Turno.belongsTo(db.Paciente, {
 
 // Un Paciente puede tener muchos Antecedentes
 db.Paciente.belongsToMany(db.TiposAtencedentes, {
-    through: db.AntecedentePaciente,
+    through: {
+        model: db.AntecedentePaciente,
+        unique: false
+    },
     foreignKey: 'paciente_id',
     otherKey: 'tipo_antecedente_id',
     timestamps: false
 });
 
+// Un Paciente tiene muchos AntecedentePaciente (Relación directa)
+db.Paciente.hasMany(db.AntecedentePaciente, {
+    foreignKey: 'paciente_id'
+});
+
 // Un Antecedente puede pertenecer a muchos Paciente
 db.TiposAtencedentes.belongsToMany(db.Paciente, {
-    through: db.AntecedentePaciente,
+    through: {
+        model: db.AntecedentePaciente,
+        unique: false
+    },
     foreignKey: 'tipo_antecedente_id',
     otherKey: 'paciente_id',
     timestamps: false
+});
+
+// Un Tipo de Antecedente tiene muchos AntecedentePaciente (Relación directa)
+db.TiposAtencedentes.hasMany(db.AntecedentePaciente, {
+    foreignKey: 'tipo_antecedente_id'
 });
 
 // Una Fuente de Informacion tiene muchos Antecedentes de Pacientes
