@@ -1,0 +1,205 @@
+extends ../layout
+
+block styles
+  //- Select2 CSS para Bootstrap 5
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css")
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css")
+
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
+      //- Encabezado de la Tarjeta
+      .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
+
+          div
+            h4.mb-1
+              | #{title}
+            if pacienteFiltro
+              h5.text-muted Paciente: #{pacienteFiltro.nombre} #{pacienteFiltro.apellido}
+              div.d-flex.align-items-center.text-muted
+                i.bi.bi-person-vcard.me-1
+                if pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0
+                  span= `${pacienteFiltro.identificaciones[0].tipo_doc} ${pacienteFiltro.identificaciones[0].nro_doc}`
+                  if pacienteFiltro.identificaciones.length > 1
+                    - const otrasIdentificaciones = pacienteFiltro.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
+                    span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content=otrasIdentificaciones)
+                      | +#{pacienteFiltro.identificaciones.length - 1}
+                else
+                  h2.mb-1
+                    i.bi.bi-journal-medical.me-1.text-primary
+                    | #{title}
+          div.d-flex.justify-content-center.align-items-center.h-100
+            button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+              i.bi.bi-funnel.me-2
+              | Filtros
+            a.btn.btn-primary(href=`/admisiones/registrar?modo=guardia` title="Limpiar Filtros") 
+              i.bi.bi-plus-lg.me-2
+              | Nueva Admision
+
+      //- Filtro
+      .collapse#filtrosCollapse
+        form.card-body.border-bottom.bg-light.p-4(method="GET" action=`/admisiones`)
+          .row.g-4
+            //- Columna Izquierda: Búsqueda de Entidades (Médico/Paciente)
+            .col-lg-4
+              h6.text-muted.mb-3.small.text-uppercase.fw-bold
+                i.bi.bi-people.me-2
+                | Búsqueda
+              .d-flex.flex-column.gap-3
+                div
+                  label.form-label.small.fw-bold(for="select-medico") Médico
+                  select#select-medico.form-select.form-select-sm(name="medico_id" style="width: 100%;")
+                    if medicoFiltro
+                      option(value=medicoFiltro.id selected) #{medicoFiltro.nombre} #{medicoFiltro.apellido} (DNI: #{medicoFiltro.dni})
+                div
+                  label.form-label.small.fw-bold(for="select-paciente") Paciente
+                  select#select-paciente.form-select.form-select-sm(name="paciente_id" style="width: 100%;")
+                    if pacienteFiltro
+                      - const dni = pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0 ? pacienteFiltro.identificaciones[0].nro_doc : 'S/D'
+                      option(value=pacienteFiltro.id selected) #{pacienteFiltro.nombre} #{pacienteFiltro.apellido} (DNI: #{dni})
+
+            //- Columna Derecha: Filtros de Estado y Fecha
+            .col-lg-8
+              h6.text-muted.mb-3.small.text-uppercase.fw-bold
+                i.bi.bi-sliders.me-2
+                | Criterios
+              .row.g-3
+                .col-md-4
+                  label.form-label.small.fw-bold Vía de Ingreso
+                  select.form-select.form-select-sm(name="via_ingreso_id")
+                    option(value="") Todos
+                    each via in viaIngresoFiltro
+                      option(value=via.id selected=(filtros && filtros.via_ingreso_id == via.id)) #{via.nombre}
+                .col-md-4
+                  label.form-label.small.fw-bold Fecha
+                  input.form-control.form-control-sm(type="date" name="fecha" value=(filtros ? filtros.fecha : ''))
+                .col-md-4
+                  label.form-label.small.fw-bold Estado Atención
+                  select.form-select.form-select-sm(name="estado_atencion")
+                    option(value="") Todos
+                    option(value="En Espera" selected=(filtros && filtros.estado_atencion === 'En Espera')) En Espera
+                    option(value="En Atencion" selected=(filtros && filtros.estado_atencion === 'En Atencion')) En Atencion
+                    option(value="Llamado" selected=(filtros && filtros.estado_atencion === 'Llamado')) Llamado
+                    option(value="Finalizado" selected=(filtros && filtros.estado_atencion === 'Finalizado')) Finalizado
+                .col-md-4
+                  label.form-label.small.fw-bold Estado Registro
+                  select.form-select.form-select-sm(name="estado")
+                    option(value="") Todos
+                    option(value="Activa" selected=(filtros && filtros.estado === 'Activa')) Activa
+                    option(value="Cancelada" selected=(filtros && filtros.estado === 'Cancelada')) Cancelada
+                    option(value="Dada Alta" selected=(filtros && filtros.estado === 'Dada Alta')) Dada Alta
+                .col-md-4
+                  label.form-label.small.fw-bold Disponibilidad
+                  select.form-select.form-select-sm(name="activo")
+                    option(value="") Todos
+                    option(value="true" selected=(filtros && filtros.activo === 'true')) Disponible
+                    option(value="false" selected=(filtros && filtros.activo === 'false')) No disponible
+                
+                //- Botones
+                .col-md-4.d-flex.align-items-end.justify-content-end.gap-2
+                  a.btn.btn-sm.btn-outline-secondary(href=`/admisiones` title="Limpiar Filtros") 
+                    i.bi.bi-eraser
+                    | Limpiar
+                  button.btn.btn-sm.btn-primary.flex-grow-1(type="submit") 
+                    i.bi.bi-search.me-1
+                    | Filtrar
+
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
+        if admisiones.length > 0
+          .table-responsive.table-fixed-height.rounded
+            table.table.table-striped.table-hover.align-middle.mb-0
+              thead.table-dark
+                tr
+                  th.text-center Fecha - Hora
+                  th.text-start.ps-4 Paciente
+                  th.text-start Medico
+                  th.text-start Motivo
+                  th.text-center Atencion
+                  th.text-center Estado
+                  th.text-center Disponible
+                  th.text-center Via de Ingreso
+                  th.text-center Acciones
+              tbody 
+                  each admision in admisiones
+                    tr
+                      td.text-center #{admision.fecha_hora_ingreso}
+                      td.text-start.ps-4
+                        div
+                          a.text-decoration-none.fw-bold(href=`/pacientes/${admision.paciente.id}`) 
+                            | #{admision.paciente.nombre} #{admision.paciente.apellido}
+                        if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
+                          div.small.text-muted.d-flex.align-items-center
+                            span #{admision.paciente.identificaciones[0].tipo_doc} #{admision.paciente.identificaciones[0].nro_doc}
+                            if admision.paciente.identificaciones.length > 1
+                              - const otrasIdentificaciones = admision.paciente.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
+                              span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" title="Otras Identificaciones" data-bs-content=otrasIdentificaciones)
+                                | +#{admision.paciente.identificaciones.length - 1}
+                      td.text-start
+                        if admision.medico_atencion
+                          a.text-decoration-none(href=`/usuarios/${admision.medico_atencion.id}`) 
+                            | #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
+                        else
+                          span.text-muted -
+                      td.text-start.text-truncate(style="max-width: 200px;" title=admision.motivo_internacion) #{admision.motivo_internacion}
+                      td.text-center
+                        span.badge(class=admision.estado_atencion === 'En Espera' ? 'bg-warning text-dark' : admision.estado_atencion === 'En Atencion' ? 'bg-primary' : 'bg-success') #{admision.estado_atencion}
+                      td.text-center #{admision.estado}
+                      td.text-center
+                        if admision.activo
+                          i.bi.bi-check-circle-fill.text-success(title="Disponible")
+                        else
+                          i.bi.bi-x-circle-fill.text-danger(title="No Disponible")
+                      td.text-center #{admision.via_ingreso ? admision.via_ingreso.nombre : '-'}
+                      td.text-center
+                        .btn-group
+                          a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}` title="Gestionar")
+                            i.bi.bi-pencil-square.me-1
+                            | Gestionar
+                          if admision.medico_atencion
+                            a.btn.btn-sm.btn-outline-info(href=`/medicos/${admision.medico_atencion.id}` title="Ver Médico")
+                              i.bi.bi-person-badge
+                          a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente.id}` title="Ver Paciente")
+                            i.bi.bi-person
+                  - var n = admisiones.length;
+                  while n < 13
+                    tr
+                      td.text-center &nbsp;
+                      td.text-center &nbsp;
+                      td &nbsp;
+                      td.text-center &nbsp;
+                      td.text-center &nbsp;
+                      td.text-center &nbsp;
+                      td.text-center
+                        button.btn.btn-sm.invisible
+                          i.bi.bi-pencil-square.me-1
+                          | Gestion
+                    - n++
+        else 
+          .text-center.py-5.text-muted.h-100.d-flex.justify-content-center.align-items-center
+            i.bi.bi-folder2-open.fs-1.mb-3
+            p.ps-2 No se encontraron admisiones con los filtros seleccionados.
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
+
+
+
+block scripts
+  //- jQuery y Select2 JS
+  script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+
+  script(src="/js/admision/buscarMedico.js")
+  script(src="/js/admision/buscarPaciente.js")
+
+  script.
+    // Inicializar todos los popovers en la página
+    document.addEventListener('DOMContentLoaded', function () {
+      var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+      });
+    });
