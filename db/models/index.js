@@ -22,7 +22,9 @@ const TurnoModel = require('./turno');
 const TiposAtencedentesModel = require('./tipo_antecedente');
 const AntecedentePacienteModel = require('./antecedente_paciente');
 const FuentesInformacionModel = require('./fuente_informacion');
-
+const AdmisionModel = require('./admision');
+const AdmisionEnfermeroModel = require('./admision_enfermero');
+const ViaIngresoModel = require('./via_ingreso');
 
 const Rol = RolModel(sequelize, DataTypes);
 const Usuario = UsuarioModel(sequelize, DataTypes);
@@ -45,6 +47,9 @@ const Turno = TurnoModel(sequelize, DataTypes);
 const TiposAtencedentes = TiposAtencedentesModel(sequelize, DataTypes);
 const AntecedentePaciente = AntecedentePacienteModel(sequelize, DataTypes);
 const FuentesInformacion = FuentesInformacionModel(sequelize,DataTypes);
+const Admision = AdmisionModel(sequelize, DataTypes);
+const AdmisionEnfermero = AdmisionEnfermeroModel(sequelize, DataTypes);
+const ViaIngreso = ViaIngresoModel(sequelize, DataTypes);
 
 const db = {
     sequelize,
@@ -68,7 +73,10 @@ const db = {
     Turno,
     TiposAtencedentes,
     FuentesInformacion,
-    AntecedentePaciente
+    AntecedentePaciente,
+    Admision,
+    AdmisionEnfermero,
+    ViaIngreso
 };
 
 // Un Rol tiene muchos Usuarios
@@ -389,6 +397,94 @@ db.AntecedentePaciente.belongsTo(db.FuentesInformacion, {
     },
 });
 
+// Un Turno puede pertenecer a una Admision
+db.Turno.belongsTo(db.Admision, {
+  foreignKey: {
+      name: 'admision_id',
+      allowNull: true
+  }
+});
+
+// Una Admision tiene un Turno asociado (opcional)
+db.Admision.hasOne(db.Turno, {
+    foreignKey: 'admision_id'
+});
+
+// Una Admision pertenece a un paciente
+db.Admision.belongsTo(db.Paciente, {
+  foreignKey: {
+      name: 'paciente_id',
+      allowNull: false
+  },
+  as: 'paciente'
+});
+
+// Un Paciente tiene muchas Admisiones
+db.Paciente.hasMany(db.Admision, {
+    foreignKey: 'paciente_id',
+    as: 'admisiones'
+});
+
+// Una Admision pertenece a un Usuario (Registra)
+db.Admision.belongsTo(db.Usuario, {
+  foreignKey: {
+      name: 'usuario_registro_id',
+      allowNull: false
+  },
+  as: 'usuario_registro'
+});
+
+// Una Admision pertenece a un Usuario (Medico)
+db.Admision.belongsTo(db.Usuario, {
+  foreignKey: {
+      name: 'medico_atencion_id',
+      allowNull: true
+  },
+  as: 'medico_atencion'
+});
+
+// Una Admision pertenece a una Via de Ingreso
+db.Admision.belongsTo(db.ViaIngreso, {
+  foreignKey: {
+      name: 'via_ingreso_id',
+      allowNull: false
+  },
+  as: 'via_ingreso'
+});
+
+// Una Admision puede pertenecer a muchos Usuarios (Rol Enfermero)
+db.Admision.belongsToMany(db.Usuario, {
+  through: {
+    model: db.AdmisionEnfermero,
+    unique: false
+  },
+    foreignKey: 'admision_id',
+    otherKey: 'enfermero_id',
+    timestamps: false,
+    as: 'enfermeros'
+});
+
+// Una AdmisionEnfermero pertenece a una Admision
+db.AdmisionEnfermero.belongsTo(db.Admision, {
+  foreignKey: {
+      name: 'admision_id',
+      allowNull: false
+  }
+});
+
+// Una AdmisionEnfermero pertenece a un Usuario (Enfermero)
+db.AdmisionEnfermero.belongsTo(db.Usuario, {
+    foreignKey: {
+        name: 'enfermero_id',
+        allowNull: false
+    },
+    as: 'enfermero'
+});
+
+// Un Usuario (Rol Enfermero) tiene muchas Admisiones (Relacion directa)
+db.Usuario.hasMany(db.AdmisionEnfermero, {
+  foreignKey: 'enfermero_id'
+});
 
 
 module.exports = db;
