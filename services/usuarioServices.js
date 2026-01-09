@@ -160,30 +160,24 @@ exports.setEstado = async (id, estado) => {
 };
 
 exports.buscarUsuarios = async (searchTerm) => {
-    if (!searchTerm || searchTerm.length < 3) {
-        return [];
-    }
+  if (!searchTerm || searchTerm.length < 3) {
+      return [];
+  }
+  const usuarios = await Usuario.findAll({
+    where: {
+      [Op.or]: [
+        { nombre: { [Op.iLike]: `%${searchTerm}%` } },
+        { apellido: { [Op.iLike]: `%${searchTerm}%` } },
+        { dni: { [Op.iLike]: `%${searchTerm}%` } }
+      ],
+      activo: true
+    },
+    limit: 10,
+    attributes: ['id', 'nombre', 'apellido', 'dni'],
+    order: [['apellido', 'ASC'], ['nombre', 'ASC']]
+  });
 
-    try {
-        const usuarios = await Usuario.findAll({
-            where: {
-                [Op.or]: [
-                    { nombre: { [Op.like]: `%${searchTerm}` } },
-                    { apellido: { [Op.like]: `%${searchTerm}` } },
-                    { dni: { [Op.like]: `%${searchTerm}` } }
-                ],
-                activo: true
-            },
-            limit: 10,
-            attributes: ['id', 'nombre', 'apellido', 'dni']
-        });
-
-        return usuarios;
-    } catch (error) {
-        console.error("Error en el servicio al buscar usuarios:", error);
-        // Re-lanzar el error para que el controlador lo maneje
-        throw new Error('Error al realizar la búsqueda de usuarios.');
-    }
+  return usuarios;
 };
 
 exports.asignarEspecialidad = async (usuarioId, especialidadId) => {

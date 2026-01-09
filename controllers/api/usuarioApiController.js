@@ -163,15 +163,13 @@ exports.setEstado = async (req, res) => {
 };
 
 exports.buscar = async (req, res) => {
-    try {
-        const searchTerm = req.query.q || '';
+  try {
+    const searchTerm = req.query.q || '';
 
-        const usuarios = await usuarioServices.buscarUsuarios(searchTerm);
+    const usuarios = await usuarioServices.buscarUsuarios(searchTerm);
 
-        res.json(usuarios);
-
-    } catch (error) {
-        console.error('Error en el controlador al buscar usuarios:', error);
-        res.status(500).json({ message: 'Error interno del servidor al realizar la búsqueda.' });
-    }
+    res.json(usuarios);
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno del servidor al realizar la búsqueda.' });
+  }
 };
