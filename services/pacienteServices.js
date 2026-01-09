@@ -128,9 +128,9 @@ exports.buscarPacientes = async (searchTerm) => {
                 { activo: true },
                 {
                     [Op.or]: [
-                        { nombre: { [Op.like]: `%${searchTerm}%` } },
-                        { apellido: { [Op.like]: `%${searchTerm}%` } },
-                        { '$identificaciones.nro_doc$': { [Op.like]: `%${searchTerm}%` } }
+                        { nombre: { [Op.iLike]: `%${searchTerm}%` } },
+                        { apellido: { [Op.iLike]: `%${searchTerm}%` } },
+                        { '$identificaciones.nro_doc$': { [Op.iLike]: `%${searchTerm}%` } }
                     ]
                 }
             ]
@@ -142,7 +142,8 @@ exports.buscarPacientes = async (searchTerm) => {
         }],
         limit: 10,
         subQuery: false,
-        attributes: ['id', 'nombre', 'apellido']
+        attributes: ['id', 'nombre', 'apellido'],
+        order: [['apellido', 'ASC'], ['nombre', 'ASC']]
     });
 
     return pacientes;
