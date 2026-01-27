@@ -11,31 +11,30 @@ block content
     .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1
       //- Encabezado de la Tarjeta
       .card-header.bg-light.d-flex.justify-content-between.align-items-center.py-3
-
-          div
-            h4.mb-1
-              | #{title}
-            if pacienteFiltro
-              h5.text-muted Paciente: #{pacienteFiltro.nombre} #{pacienteFiltro.apellido}
-              div.d-flex.align-items-center.text-muted
-                i.bi.bi-person-vcard.me-1
-                if pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0
-                  span= `${pacienteFiltro.identificaciones[0].tipo_doc} ${pacienteFiltro.identificaciones[0].nro_doc}`
-                  if pacienteFiltro.identificaciones.length > 1
-                    - const otrasIdentificaciones = pacienteFiltro.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
-                    span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content=otrasIdentificaciones)
-                      | +#{pacienteFiltro.identificaciones.length - 1}
-                else
-                  h2.mb-1
-                    i.bi.bi-journal-medical.me-1.text-primary
-                    | #{title}
-          div.d-flex.justify-content-center.align-items-center.h-100
-            button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
-              i.bi.bi-funnel.me-2
-              | Filtros
-            a.btn.btn-primary(href=`/admisiones/registrar?modo=guardia` title="Limpiar Filtros") 
-              i.bi.bi-plus-lg.me-2
-              | Nueva Admision
+        div
+          h4.mb-1
+            | #{title}
+          if pacienteFiltro
+            h5.text-muted Paciente: #{pacienteFiltro.nombre} #{pacienteFiltro.apellido}
+            div.d-flex.align-items-center.text-muted
+              i.bi.bi-person-vcard.me-1
+              if pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0
+                span= `${pacienteFiltro.identificaciones[0].tipo_doc} ${pacienteFiltro.identificaciones[0].nro_doc}`
+                if pacienteFiltro.identificaciones.length > 1
+                  - const otrasIdentificaciones = pacienteFiltro.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
+                  span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content=otrasIdentificaciones)
+                    | +#{pacienteFiltro.identificaciones.length - 1}
+              else
+                h2.mb-1
+                  i.bi.bi-journal-medical.me-1.text-primary
+                  | #{title}
+        div.d-flex.justify-content-center.align-items-center.h-100
+          button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
+            i.bi.bi-funnel.me-2
+            | Filtros
+          button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarAdmision")
+            i.bi.bi-plus-lg.me-2
+            | Nueva Admision
 
       //- Filtro
       .collapse#filtrosCollapse
@@ -123,7 +122,7 @@ block content
               tbody 
                   each admision in admisiones
                     tr
-                      td.text-center #{admision.fecha_hora_ingreso}
+                      td.text-center #{admision.fecha_hora_ingreso.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})} - #{new Date(admision.fecha_hora_ingreso).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
                       td.text-start.ps-4
                         div
                           a.text-decoration-none.fw-bold(href=`/pacientes/${admision.paciente.id}`) 
@@ -133,13 +132,14 @@ block content
                             span #{admision.paciente.identificaciones[0].tipo_doc} #{admision.paciente.identificaciones[0].nro_doc}
                             if admision.paciente.identificaciones.length > 1
                               - const otrasIdentificaciones = admision.paciente.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
-                              span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" title="Otras Identificaciones" data-bs-content=otrasIdentificaciones)
+                              span.badge.bg-secondary.ms-2(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content=otrasIdentificaciones)
                                 | +#{admision.paciente.identificaciones.length - 1}
-                      td.text-start
-                        if admision.medico_atencion
+                      if admision.medico_atencion
+                        td.text-start
                           a.text-decoration-none(href=`/usuarios/${admision.medico_atencion.id}`) 
                             | #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
-                        else
+                      else
+                        td.text-center
                           span.text-muted -
                       td.text-start.text-truncate(style="max-width: 200px;" title=admision.motivo_internacion) #{admision.motivo_internacion}
                       td.text-center
@@ -155,9 +155,11 @@ block content
                         .btn-group
                           a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}` title="Gestionar")
                             i.bi.bi-pencil-square.me-1
-                            | Gestionar
                           if admision.medico_atencion
                             a.btn.btn-sm.btn-outline-info(href=`/medicos/${admision.medico_atencion.id}` title="Ver Médico")
+                              i.bi.bi-person-badge
+                          else
+                            button.btn.btn-sm.btn-outline-secondary(type="button" disabled title="Sin Médico Asignado")
                               i.bi.bi-person-badge
                           a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente.id}` title="Ver Paciente")
                             i.bi.bi-person
@@ -167,6 +169,8 @@ block content
                       td.text-center &nbsp;
                       td.text-center &nbsp;
                       td &nbsp;
+                      td.text-center &nbsp;
+                      td.text-center &nbsp;
                       td.text-center &nbsp;
                       td.text-center &nbsp;
                       td.text-center &nbsp;
@@ -185,7 +189,27 @@ block content
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
           include ../Shared/Paginacion.pug
 
-
+  #modalRegistrarAdmision.modal.fade(tabindex="-1" aria-labelledby="modalRegistrarAdmisionLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5#modalRegistrarAdmisionLabel.modal-title Nueva Admision
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        form#formRegistrarAdmision(autocomplete="off" novalidate)
+          .modal-body
+              input(type="hidden", name="via_ingreso_id" value=viaIngresoModal.id)
+              .mb-3
+                label.form-label(for="modal-select-paciente") Buscar Paciente
+                select#modal-select-paciente.form-select(name="paciente_id" required style="width: 100%;")
+                .invalid-feedback#error-paciente_id El paciente es obligatorio.
+              .mb-3
+                label.form-label(for="motivo_internacion") Motivo
+                textarea.form-control(name="motivo_internacion" rows="2")
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+            button.btn.btn-primary(type="submit")
+              i.bi.bi-save-fill.me-2
+              | Guardar
 
 block scripts
   //- jQuery y Select2 JS
@@ -194,6 +218,7 @@ block scripts
 
   script(src="/js/admision/buscarMedico.js")
   script(src="/js/admision/buscarPaciente.js")
+  script(src="/js/admision/modalRegistrar.js")
 
   script.
     // Inicializar todos los popovers en la página
