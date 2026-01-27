@@ -5,4 +5,6 @@ const admisionController = require('../../controllers/views/admisionViewsControl
 
 router.get('/', admisionController.getAdmisiones);
 
+router.get('/registrar', admisionController.getRegistrar)
+
 module.exports = router;

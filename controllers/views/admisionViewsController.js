@@ -1,4 +1,4 @@
-const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion } = require('../../db/models');
+const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getAdmisiones = async (req, res, next) => {
@@ -29,7 +29,7 @@ exports.getAdmisiones = async (req, res, next) => {
         model: Paciente,
         as: 'paciente',
         attributes: ['id', 'nombre', 'apellido'],
-        include: [{ model: Identificacion, as: 'identificaciones', attributes: ['nro_doc'] }]
+        include: [{ model: Identificacion, as: 'identificaciones', attributes: ['tipo_doc', 'nro_doc'] }]
       },
       { model: ViaIngreso, as: 'via_ingreso', attributes: ['id', 'nombre'] }
     ]
@@ -86,6 +86,9 @@ exports.getAdmisiones = async (req, res, next) => {
       });
     }
 
+    // Via de Ingreso 
+    let viaIngersoGD = await ViaIngreso.findOne({ where: { nombre: 'Guardia' } })
+
     let viaIngresoFiltro = await ViaIngreso.findAll();
 
     const totalPaginas = Math.ceil(count / registrosPorPagina);
@@ -105,6 +108,7 @@ exports.getAdmisiones = async (req, res, next) => {
       medicoFiltro: medicoFiltro,
       pacienteFiltro: pacienteFiltro,
       viaIngresoFiltro: viaIngresoFiltro,
+      viaIngresoModal: viaIngersoGD,
       paginacion: {
         totalRegistros: count,
         totalPaginas: totalPaginas,
@@ -115,6 +119,23 @@ exports.getAdmisiones = async (req, res, next) => {
     });
 
   } catch (error) {
+    next(error);
+  }
+};
+
+
+
+exports.getRegistrar = async (req, res, next) => {
+  try {
+    let viaIngresoFiltro = await ViaIngreso.findOne({ where: { nombre: 'Emergencia', activo: true } });
+    const alas = await Ala.findAll({ where: { activo: true } });
+    res.render('./Admision/RegistrarEmergencia.pug', {
+      title: 'Listado de Admisiones',
+      viaIngresoFiltro,
+      alas
+    });
+  } catch (error) {
+    console.error(error)
     next(error);
   }
 };
