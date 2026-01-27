@@ -18,6 +18,7 @@ const turnoApiRouter = require('./routes/api/turnosApiRouter');
 const fuentesInformacionApiRouter = require('./routes/api/fuentesInformacionApiRouter');
 const tipoAntecedentesApiRouter = require('./routes/api/tipoAntecedentesApiRouter');
 const antecedentePacienteApiRouter = require('./routes/api/antecedentePacienteApiRouter');
+const admisionApiRouter = require('./routes/api/admisionApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -29,6 +30,7 @@ const seguroViewsRouter = require('./routes/views/seguroViewsRouter');
 const turnoViewsRouter = require('./routes/views/turnosViewsRouter');
 const tipoAntecedentesViewsRouter = require('./routes/views/tipoAntecendentesViewsRouter');
 const fuentesInformacionViewsRouter = require('./routes/views/fuentesInformacionViewsRouter');
+const admisionViewsRouter = require('./routes/views/admisionViewsRouter');
 
 const app = express();
 
@@ -58,6 +60,7 @@ app.use('/api/turnos', protegerRuta, turnoApiRouter);
 app.use('/api/fuentes', protegerRuta, fuentesInformacionApiRouter);
 app.use('/api/tipo-antecedente', protegerRuta, tipoAntecedentesApiRouter);
 app.use('/api/antecentes-paciente', protegerRuta, antecedentePacienteApiRouter);
+app.use('/api/admisiones', protegerRuta, admisionApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
@@ -70,7 +73,7 @@ app.use('/seguros', protegerRuta, seguroViewsRouter);
 app.use('/turnos', protegerRuta, turnoViewsRouter);
 app.use('/tipos-antecedentes', protegerRuta, tipoAntecedentesViewsRouter);
 app.use('/funtes-informacion', protegerRuta, fuentesInformacionViewsRouter);
-
+app.use('/admisiones', protegerRuta, admisionViewsRouter);
 
 // --- MANEJO DE ERRORES ---
 // Middleware para capturar rutas no encontradas (404)
