@@ -216,3 +216,15 @@ exports.getCama = async (id) => {
     if (!cama) throw new Error('Cama no encontrada');
     return cama;
 }
+
+exports.getCamas = async (habitacion_id = null, estado = null) => {
+  const where = {
+    activo: true
+  };
+
+  if (habitacion_id) where.habitacion_id = habitacion_id;
+  if (estado) where.estado = estado;
+
+  const camas = await Cama.findAll({ where: where });
+  return camas;
+}

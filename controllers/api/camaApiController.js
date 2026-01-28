@@ -149,3 +149,14 @@ exports.getCama = async (req, res) => {
         }
     }
 }
+
+exports.getCamas = async (req, res) => {
+  try {
+      const { habitacion_id, estado } = req.query;
+      const camas = await camaServices.getCamas(habitacion_id, estado);
+
+      res.status(200).json(camas);
+  } catch (error) {
+      res.status(500).json({ message: 'Error interno del servidor al obtener las camas' });
+  }
+};

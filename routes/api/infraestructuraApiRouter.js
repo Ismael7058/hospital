@@ -80,5 +80,8 @@ router.patch('/cama/:id/activo', setActivoCamaValidation(), camaApiController.se
 // GET /api/infraestructura/cama/:id
 router.get('/cama/:id', getCamaValidation(),camaApiController.getCama);
 
+// GET /api/infraestructura/cama
+router.get('/cama', camaApiController.getCamas);
+
 
 module.exports = router;
