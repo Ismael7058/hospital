@@ -23,10 +23,9 @@ block content
               .row.g-3
                 .col-12
                   label.form-label.fw-bold(for="select-medico") Médico Responsable
-                  select#select-medico.form-select(name="medico_id" required style="width: 100%;")
+                  select#select-medico.form-select(name="medico_id" style="width: 100%;")
                     if medicoPreseleccionado
                       option(value=medicoPreseleccionado.id selected) #{medicoPreseleccionado.nombre} #{medicoPreseleccionado.apellido} (DNI: #{medicoPreseleccionado.dni})
-                  .invalid-feedback#error-medico_id El médico es obligatorio.
 
           .p-4.border.rounded.bg-white.shadow-sm.flex-grow-1
               //- Sección: Motivo
@@ -36,7 +35,7 @@ block content
               
               div
                 label.form-label.fw-bold(for="emergencia-motivo") Motivo de Consulta / Observaciones
-                textarea#emergencia-motivo.form-control(name="motivo" rows="5" placeholder="Describa brevemente el motivo de la urgencia...")
+                textarea#emergencia-motivo.form-control(name="motivo_internacion" rows="5" placeholder="Describa brevemente el motivo de la urgencia...")
 
 
 
@@ -124,3 +123,4 @@ block scripts
   script(src="/js/admision/buscarMedico.js")
   script(src="/js/admision/buscarPaciente.js")
   script(src="/js/admision/ubicacion.js") 
+  script(src="/js/admision/registroEmergencia.js")
