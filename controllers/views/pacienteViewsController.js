@@ -9,8 +9,8 @@ const buildWhereClause = (filtros) => {
 
     if (nombre) {
         whereClause[Op.or] = [
-            { nombre: { [Op.like]: `%${nombre}%` } },
-            { apellido: { [Op.like]: `%${nombre}%` } }
+            { nombre: { [Op.iLike]: `%${nombre}%` } },
+            { apellido: { [Op.iLike]: `%${nombre}%` } }
         ];
     }
     if (email) whereClause.email = { [Op.like]: `%${email}%` };
