@@ -45,7 +45,7 @@ const registrarPorGuardia = async (data) => {
 const registrarPorEmergencia = async (data) => {
   const t = await sequelize.transaction();
   try {
-    let { paciente_id, via_ingreso_id, motivo_internacion, usuario_agenda, nombre, apellido, sexo, fecha_nacimiento, nro_doc, tipo_doc } = data;
+    let { medico_atencion_id, paciente_id, via_ingreso_id, motivo_internacion, usuario_agenda, nombre, apellido, sexo, fecha_nacimiento, nro_doc, tipo_doc } = data;
     
     if (!paciente_id) {
       const timestamp = Date.now();
@@ -60,18 +60,18 @@ const registrarPorEmergencia = async (data) => {
         estado_identidad: 'Temporal',
         activo: true
       }, { transaction: t });
-
+      
       // Crear identificacion del paciente
       if (nro_doc && tipo_doc) {
         const idntExiste = await Identificacion.findOne({
           where: { tipo_doc, nro_doc },
           transaction: t
         });
-
+        
         if (idntExiste) {
           throw new Error('La identificacion ya se encuentra registrada');
         }
-
+        
         await Identificacion.create({
           tipo_doc,
           nro_doc,
@@ -83,7 +83,7 @@ const registrarPorEmergencia = async (data) => {
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
         const numero = `EMG-${year}${month}${day}-`;
-
+        
         const ultAdmEmgHoy = await Identificacion.findOne({
           where: {
             nro_doc: { [Op.like]: `${numero}%` }
@@ -91,29 +91,31 @@ const registrarPorEmergencia = async (data) => {
           order: [['nro_doc', 'DESC']],
           transaction: t
         });
-
+        
         const numAdmEmgHoy = ultAdmEmgHoy ? parseInt(ultAdmEmgHoy.nro_doc.split('-')[2]) + 1 : 1;
         const nro_doc_temp = `${numero}${String(numAdmEmgHoy).padStart(4, '0')}`;
-
+        
         await Identificacion.create({
           tipo_doc: 'Temporal',
           nro_doc: nro_doc_temp,
           paciente_id: nuevoPaciente.id
         }, { transaction: t });
       }
-
+      
       paciente_id = nuevoPaciente.id;
     }
-
+    
     const nuevaAdmision = await Admision.create({
       paciente_id,
       via_ingreso_id,
-      fecha_ingreso: new Date(),
-      motivo: motivo_internacion || 'Ingreso por Emergencia',
+      fecha_hora_ingreso: new Date(),
+      motivo_internacion: motivo_internacion || 'Ingreso por Emergencia',
+      estado_atencion: "En Atencion",
+      estado: "Activo",
       activo: true,
-      usuario_id: usuario_agenda
+      usuario_registro_id: usuario_agenda,
+      medico_atencion_id: medico_atencion_id || null
     }, { transaction: t });
-
     await t.commit();
     return nuevaAdmision;
   } catch (error) {
