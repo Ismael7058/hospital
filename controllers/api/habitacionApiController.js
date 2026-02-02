@@ -128,3 +128,13 @@ exports.getHabitaciones = async (req, res) => {
         res.status(500).json({ message: error || 'Error interno del servidor.' });
     }
 }
+
+exports.habitacionesDisponibles = async (req, res) => {
+  try {
+    const { ala_id, sexo } = req.query;
+    const habitaciones = await habitacionServices.habitacionesDisponibles(ala_id, sexo);
+    res.status(200).json(habitaciones);
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno del servidor al obtener las habitaciones' });
+  }
+}

@@ -178,3 +178,48 @@ exports.getHabitaciones = async (numero, ala_id = null) => {
         throw new Error('Error al realizar la búsqueda de las habitaciones.');
     }
 }
+
+exports.habitacionesDisponibles = async (ala_id = null, sexo = null) => {
+  const where = {
+    activo: true
+  }
+
+  if (ala_id) where.ala_id = ala_id;
+
+  const op_and = [];
+
+  op_and.push(sequelize.literal(
+    `
+    EXISTS (
+      SELECT 1
+      FROM "Camas" AS "Cama"
+      WHERE "Cama"."habitacion_id" = "Habitacion"."id"
+      AND "Cama"."activo" = true
+      AND "Cama"."estado" = 'Libre'
+    )
+    `
+  ))
+
+  if (sexo) {
+    op_and.push(sequelize.literal(
+    `
+      NOT EXISTS (
+        SELECT 1
+        FROM "Camas" AS "CamaOcupada"
+        INNER JOIN "Ubicaciones_Internacion" AS "UI" ON "UI"."cama_id" = "CamaOcupada"."id"
+        INNER JOIN "Admisiones" AS "Admision" ON "UI"."admision_id" = "Admision"."id"
+        INNER JOIN "Pacientes" AS "Paciente" ON "Admision"."paciente_id" = "Paciente"."id"
+        WHERE "CamaOcupada"."habitacion_id" = "Habitacion"."id"
+        AND "CamaOcupada"."estado" != 'Libre'
+        AND "UI"."fecha_hora_liberacion" IS NULL
+        AND "Paciente"."sexo" != '${sexo}'
+      )
+    `
+  ))
+  }
+
+  where[Op.and] = op_and;
+
+  const habitaciones = await Habitacion.findAll({ where: where });
+  return habitaciones;
+};

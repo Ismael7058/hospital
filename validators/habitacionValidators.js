@@ -1,4 +1,4 @@
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const { Ala } = require('../db/models');
 
 exports.registerHabitacionValidation = () => {
@@ -72,5 +72,13 @@ exports.setActivoHabitacionValidation = () => {
 exports.getHabitacionValidation = () => {
     return [
         param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    ];
+};
+
+exports.habitacionesDisponibles = () => {
+    return [
+      query('ala_id').optional({ checkFalsy: true }).isInt().withMessage('El ID debe ser un número entero.'),
+      query('sexo').optional({ checkFalsy: true })
+        .isIn(['Masculino', 'Femenino']).withMessage('El sexo debe ser Masculino o Femenino.'),
     ];
 };
