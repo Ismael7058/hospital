@@ -25,6 +25,7 @@ const FuentesInformacionModel = require('./fuente_informacion');
 const AdmisionModel = require('./admision');
 const AdmisionEnfermeroModel = require('./admision_enfermero');
 const ViaIngresoModel = require('./via_ingreso');
+const UbicacionInternacionModel = require('./ubicacion_internacion');
 
 const Rol = RolModel(sequelize, DataTypes);
 const Usuario = UsuarioModel(sequelize, DataTypes);
@@ -50,6 +51,7 @@ const FuentesInformacion = FuentesInformacionModel(sequelize,DataTypes);
 const Admision = AdmisionModel(sequelize, DataTypes);
 const AdmisionEnfermero = AdmisionEnfermeroModel(sequelize, DataTypes);
 const ViaIngreso = ViaIngresoModel(sequelize, DataTypes);
+const UbicacionInternacion = UbicacionInternacionModel(sequelize, DataTypes);
 
 const db = {
     sequelize,
@@ -76,7 +78,8 @@ const db = {
     AntecedentePaciente,
     Admision,
     AdmisionEnfermero,
-    ViaIngreso
+    ViaIngreso,
+    UbicacionInternacion
 };
 
 // Un Rol tiene muchos Usuarios
@@ -485,6 +488,64 @@ db.AdmisionEnfermero.belongsTo(db.Usuario, {
 db.Usuario.hasMany(db.AdmisionEnfermero, {
   foreignKey: 'enfermero_id'
 });
+
+
+
+
+// Una Admision tiene muchas Ubicaciones de Internacion
+db.Admision.hasMany(db.UbicacionInternacion, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'ubicaciones'
+});
+
+// Una Ubicacion de Internacion pertenece a una Admision
+db.UbicacionInternacion.belongsTo(db.Admision, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'admision'
+});
+
+// Una Cama tiene muchas Ubicaciones de Internacion (Historial)
+db.Cama.hasMany(db.UbicacionInternacion, {
+    foreignKey: {
+        name: 'cama_id',
+        allowNull: false
+    },
+    as: 'ubicaciones'
+});
+
+// Una Ubicacion de Internacion pertenece a una Cama
+db.UbicacionInternacion.belongsTo(db.Cama, {
+    foreignKey: {
+        name: 'cama_id',
+        allowNull: false
+    },
+    as: 'cama'
+});
+
+// Un Usuario (quien asigna) tiene muchas Ubicaciones de Internacion
+db.Usuario.hasMany(db.UbicacionInternacion, {
+    foreignKey: {
+        name: 'usuario_asignacion',
+        allowNull: false
+    },
+    as: 'asignaciones_ubicacion'
+});
+
+// Una Ubicacion de Internacion pertenece a un Usuario (quien asigna)
+db.UbicacionInternacion.belongsTo(db.Usuario, {
+    foreignKey: {
+        name: 'usuario_asignacion',
+        allowNull: false
+    },
+    as: 'usuario_asignador'
+});
+
 
 
 module.exports = db;
