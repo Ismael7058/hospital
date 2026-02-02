@@ -7,12 +7,12 @@ block styles
 
 block content
   .container-fluid.d-flex.flex-column.h-100.p-4
-    form#registroPacienteForm.row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1(novalidate autocomplete="off")
-      h4.text-center.my-4
+    form#registroPacienteForm.row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1.justify-content-between(novalidate autocomplete="off")
+      h4.text-center.mt-4
         i.bi.bi-exclamation-circle-fill.me-2
         | Registrar Emergencia
-
-      .row.g-4
+      input(type="hidden" name="via_ingreso_id" value=viaIngresoFiltro.id)
+      .row.g-4.mt-0
         .col-lg-6.d-flex.flex-column.gap-4
           .p-4.border.rounded.bg-white.shadow-sm
               //- Sección: Datos de Ingreso
@@ -27,11 +27,7 @@ block content
                     if medicoPreseleccionado
                       option(value=medicoPreseleccionado.id selected) #{medicoPreseleccionado.nombre} #{medicoPreseleccionado.apellido} (DNI: #{medicoPreseleccionado.dni})
                   .invalid-feedback#error-medico_id El médico es obligatorio.
-                
-                .col-12
-                  label.form-label.fw-bold(for="via_ingreso_id") Vía de Ingreso
-                  select.form-select(name="via_ingreso_id" readonly)
-                    option(value=viaIngresoFiltro.id selected) #{viaIngresoFiltro.nombre}
+
           .p-4.border.rounded.bg-white.shadow-sm.flex-grow-1
               //- Sección: Motivo
               h6.text-muted.text-uppercase.fw-bold.mb-3 
@@ -79,8 +75,8 @@ block content
                         label.form-label.small(for="sexo") Sexo *
                         select.form-select.form-select-sm(name="sexo")
                           option(value="" selected disabled) Seleccionar
-                          option(value="M") Masculino
-                          option(value="F") Femenino
+                          option(value="Masculino") Masculino
+                          option(value="Femenino") Femenino
                       .col-md-4
                         label.form-label.small(for="fecha_nacimiento") Fecha Nac.
                         input.form-control.form-control-sm(type="date" name="fecha_nacimiento")
