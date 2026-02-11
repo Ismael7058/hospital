@@ -138,15 +138,20 @@ const registrarPorTurno = async (data) => {
     if (turno.estado !== 'Pendiente') {
       throw new Error('El turno ya fue utilizado');
     }
-    if(turno.fecha != adaptarFecha(new Date())){
+
+    let fechaTurno = new Date(turno.fecha);
+    if (typeof turno.fecha === 'string' && !turno.fecha.includes('T')) {
+      fechaTurno = new Date(turno.fecha + 'T00:00:00');
+    }
+    if(fechaTurno.toDateString() != new Date().toDateString()){
       throw new Error('El turno no era para la fecha de hoy');
     }
 
-    if ((new Date).setMinutes(turno.hora_inicio + 5) < (new Date).getTime() )  {
+    if ((new Date).setMinutes(turno.hora_inicio + 10) < (new Date).getTime() ) {
       throw new Error('El turno esta vencido por la fecha y hora');
     }
 
-    const medico = await Usuario.findByPk(id, {
+    const medico = await Usuario.findByPk(turno.medico_id, {
       include: [{ model: Rol, where: { nombre: 'Medico' } }]
     });
 
@@ -156,15 +161,17 @@ const registrarPorTurno = async (data) => {
 
     const nuevaAdmision = await Admision.create({
       paciente_id: turno.paciente_id,
-      medico_id: turno.medico_id,
+      medico_atencion_id: turno.medico_id,
       via_ingreso_id,
-      fecha_ingreso: new Date(),
-      motivo: motivo_internacion || turno.motivo,
+      fecha_hora_ingreso: new Date(),
+      motivo_internacion: motivo_internacion || 'Ingreso por Turno',
+      estado: "Activo",
       activo: true,
-      usuario_id: usuario_agenda
+      usuario_registro_id: usuario_agenda,
     }, { transaction: t });
 
     turno.estado = 'Confirmado';
+    turno.admision_id = nuevaAdmision.id;
     await turno.save({ transaction: t });
 
     await t.commit();
