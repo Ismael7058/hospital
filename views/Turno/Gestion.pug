@@ -30,9 +30,15 @@ block content
               i.bi.bi-person-fill.me-2
               | Ver Paciente
             //- Hacer una Admisión
-            a.btn.btn-outline-primary(href=`/admisiones/registrar?turno_id=${turno.id}`)
-              i.bi.bi-clipboard-data.me-2
-              | Admisión
+            if turno.admision_id
+              a.btn.btn-outline-primary(href=`/admisiones/${turno.admision_id}`)
+                i.bi.bi-clipboard-data.me-2
+                | Admisión
+            else 
+              button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAdmicion")
+                i.bi.bi-file-medical.me-2
+                | Atender Paciente
+
 
           .btn-group(role="group")
             //- Cancelar Turno
@@ -71,7 +77,7 @@ block content
                         | Médico
                     select#select-medico.form-select(name="medico_id" required style="width: 100%;")
                         if turno.medico
-                            option(value=turno.medico.id selected) #{turno.medico.nombre} #{turno.medico.apellido}
+                            option(value=turno.medico.id selected) #{turno.medico.nombre} #{turno.medico.apellido} - DNI:#{turno.medico.dni}
                     .invalid-feedback#error-medico_id
                 
                 .col-md-6
@@ -79,8 +85,11 @@ block content
                         i.bi.bi-person-fill.me-2
                         | Paciente
                     select#select-paciente.form-select(name="paciente_id" required style="width: 100%;")
-                        if turno.paciente
-                            option(value=turno.paciente.id selected) #{turno.paciente.nombre} #{turno.paciente.apellido}
+                      if turno.paciente
+                        - let labelPaciente = `${turno.paciente.nombre} ${turno.paciente.apellido} -`
+                        if turno.paciente.identificaciones && turno.paciente.identificaciones.length > 0
+                          - labelPaciente += ` ${turno.paciente.identificaciones[0].tipo_doc}:${turno.paciente.identificaciones[0].nro_doc}`
+                        option(value=turno.paciente.id selected) #{labelPaciente}
                     .invalid-feedback#error-paciente_id
 
                 //- Fecha
@@ -178,7 +187,26 @@ block content
             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
             button#btnEliminarTurno.btn.btn-danger(type="button") Eliminar
 
+    //- estado atencion
+    #modalAdmicion.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Sala de espera
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          form#admitirPorTurno(novalidate autocomplete="off")
+            input(type="hidden" name="turno_id" value=turno.id)
+            input(type="hidden" name="paciente_id" value=turno.paciente_id)
+            input(type="hidden" name="via_ingreso_id" value=viaIngreso.id)
+            .modal-body
+              p ¿Está seguro de ingresar este paciente?
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button#btnConfirmar.btn.btn-primary(type="submit") Confirmar
+
 block scripts
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")
   script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
   script(src="/js/turno/formTurnoGestion.js")
+
+  script(src="/js/admision/admisionTurno.js")

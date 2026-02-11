@@ -1,4 +1,4 @@
-const { Turno, Usuario, Paciente, Rol, Identificacion } = require('../../db/models');
+const { Turno, Usuario, Paciente, Rol, Identificacion, ViaIngreso } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getTurnos = async (req, res, next) => {
@@ -129,8 +129,8 @@ exports.getTurno = async (req, res, next) => {
         const { id } = req.params;
         const turno = await Turno.findByPk(id, {
             include: [
-                { model: Usuario, as: 'medico', attributes: ['id', 'nombre', 'apellido'] },
-                { model: Paciente, as: 'paciente', attributes: ['id', 'nombre', 'apellido'] }
+                { model: Usuario, as: 'medico', attributes: ['id', 'nombre', 'apellido', 'dni'] },
+                { model: Paciente, as: 'paciente', attributes: ['id', 'nombre', 'apellido'], include: [{ model: Identificacion, as: 'identificaciones' }] }
             ]
         });
 
@@ -138,9 +138,12 @@ exports.getTurno = async (req, res, next) => {
             throw new Error('Turno no encontrado');
         }
 
+        const viaIngreso = await ViaIngreso.findOne({ where: { nombre: 'Turno'}, attributes: ['id'] })
+
         res.render('./Turno/Gestion.pug', {
             title: 'Gestionar Turno',
-            turno
+            turno,
+            viaIngreso
         });
     } catch (error) {
         next(error);
