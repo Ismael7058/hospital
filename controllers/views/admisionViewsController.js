@@ -1,4 +1,4 @@
-const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala } = require('../../db/models');
+const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala, UbicacionInternacion, Cama, Habitacion, Especialidad } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getAdmisiones = async (req, res, next) => {
@@ -139,3 +139,73 @@ exports.getRegistrar = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAdmision = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const admision = await Admision.findByPk(id, {
+      include: [
+        {
+          model: ViaIngreso,
+          as: 'via_ingreso',
+          attributes: ['nombre']
+        },
+        {
+          model: Paciente,
+          as: 'paciente',
+          include: [{ model: Identificacion, as: 'identificaciones' }]
+        },
+        {
+          model: Usuario,
+          as: 'medico_atencion',
+          attributes: ['id', 'nombre', 'apellido'],
+          include: [{
+            model: Especialidad,
+            attributes: ['nombre'],
+            through: { attributes: [] }
+          }]
+        },
+        {
+          model: Usuario,
+          as: 'usuario_registro',
+          attributes: ['id', 'nombre', 'apellido']
+        },
+        {
+          model: UbicacionInternacion,
+          as: 'ubicaciones',
+          order: [['fecha_hora_asignacion', 'DESC']],
+          limit: 1,
+          separate: true,
+          include: [
+            {
+              model: Cama,
+              as: 'cama',
+              include: [
+                {
+                  model: Habitacion,
+                  as: 'habitacion',
+                  include: [
+                    {
+                      model: Ala,
+                      as: 'ala'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const alas = await Ala.findAll({ where: { activo: true } });
+
+    res.render('./Admision/Gestion.pug', {
+      title: 'Gestionar Admision',
+      admision,
+      alas
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
+} ;

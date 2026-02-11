@@ -1,0 +1,344 @@
+extends ../layout
+
+block styles
+  //- Select2 CSS para Bootstrap 5
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css")
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css")
+
+
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1
+      div
+        h3.text-center.mt-4 Gestionar Admisión
+        .btn-toolbar.justify-content-center.mt-3.gap-3(role="toolbar")
+          .btn-group(role="group")
+            a.btn.btn-outline-secondary(href="/admisiones")
+              i.bi.bi-arrow-left-circle.me-2
+              | Volver
+          .btn-group(role="group")
+            a.btn.btn-outline-primary(href=`/admisiones/${admision.id}/estadia`)
+              i.bi.bi-clipboard2-pulse.me-2
+              | Estudios y Acciones
+
+          .btn-group(role="group")
+            button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAtencion")
+              i.bi.bi-file-medical.me-2
+              | Atender Paciente
+            button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Alta Médica" data-mensaje="¿Confirma que desea dar el Alta Médica al paciente?" data-accion="alta" data-clase="btn-success")
+              i.bi.bi-file-medical.me-2
+              | Alta Médica
+            button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Cancelar Admisión" data-mensaje="¿Confirma que desea Cancelar la admisión?" data-accion="cancelar" data-clase="btn-warning")
+              i.bi.bi-file-medical.me-2
+              | Cancelar Admisión
+
+          .btn-group(role="group")
+            if admision.activo
+              button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="false" data-accion="dar de baja" data-clase="btn-warning")
+                i.bi.bi-eye-slash-fill.me-2
+                | Dar de Baja
+            else
+              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="true" data-accion="dar de alta" data-clase="btn-success")
+                i.bi.bi-eye-fill.me-2
+                | Dar de Alta
+
+      .row.g-4.pb-4.flex-grow-1
+        .col-lg-4.d-flex.flex-column.gap-4
+          //- Paciente
+          .card.border-0.shadow-sm
+            .card-header.bg-white.border-bottom.py-3.d-flex.justify-content-between.align-items-center
+              h5.card-title.mb-0.text-primary
+                i.bi.bi-person-vcard.me-2
+                | Paciente
+              button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalReasignar")
+                i.bi.bi-person-gear.me-2
+                | Reasignar
+            .card-body
+              .d-flex.align-items-center.mb-3
+                .bg-primary.bg-opacity-10.text-primary.rounded-circle.py-2.px-3.me-3
+                  i.bi.bi-person.fs-3
+                div
+                  h4.mb-0 #{admision.paciente.nombre} #{admision.paciente.apellido}
+                  if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
+                    small.text-muted
+                      | #{admision.paciente.identificaciones[0].tipo_doc}: #{admision.paciente.identificaciones[0].nro_doc}
+                      if admision.paciente.identificaciones.length > 1
+                        - const otrasIdentificaciones = admision.paciente.identificaciones.slice(1).map(id => `<div>${id.tipo_doc} ${id.nro_doc}</div>`).join('');
+                        span.badge.bg-secondary.ms-1(style="cursor: pointer;" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content=otrasIdentificaciones) +#{admision.paciente.identificaciones.length - 1}
+                a.btn.btn-outline-info.ms-auto(href=`/pacientes/${admision.paciente.id}`)
+                  i.bi.bi-eye-fill.me-1
+                  | Ver
+              hr.my-3
+
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Estado del Registro
+                if admision.activo
+                  span.badge.bg-success.bg-opacity-10.text-success.border.border-success.px-3.py-2 Activo
+                else
+                  span.badge.bg-danger.bg-opacity-10.text-danger.border.border-danger.px-3.py-2 Inactivo
+
+          //- Ubicacion
+          .card.border-0.shadow-sm.flex-grow-1
+            .card-header.bg-white.border-bottom.py-3.d-flex.justify-content-between.align-items-center
+              h5.card-title.mb-0.text-info
+                i.bi.bi-geo-alt.me-2
+                | Ultima Ubicacion
+              button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
+                i.bi.bi-arrow-left-right.me-2
+                | Trasladar
+            .card-body
+              if admision.ubicaciones && admision.ubicaciones.length > 0
+                - const ubicacion = admision.ubicaciones[0]
+                .d-flex.justify-content-center.mb-4
+                  .mb-2
+                    i.bi.bi-hospital.display-6.text-info
+                  .ms-4
+                    span.text-muted Sector
+                    h5.fw-bold #{ubicacion.ala.nombre}
+                
+                .row.g-3
+                  .col-6
+                    .p-3.border.rounded.bg-light.text-center
+                      small.text-muted.text-uppercase.fw-bold Habitación
+                      div.fs-4.text-dark #{ubicacion.habitacion.numero}
+                  .col-6
+                    .p-3.border.rounded.bg-light.text-center
+                      small.text-muted.text-uppercase.fw-bold Cama
+                      div.fs-4.text-dark #{ubicacion.cama.codigo}
+              else
+                .d-flex.flex-column.h-100.text-center.justify-content-center
+                  i.bi.bi-geo-alt.display-6.text-muted.mb-3
+                  h6.text-muted.mb-3 Sin ubicación asignada
+
+        .col-lg-8.d-flex.flex-column.gap-4
+          .card.border-0.shadow-sm
+            .card-header.bg-white.border-bottom.py-3
+              h5.card-title.mb-0.text-secondary
+                i.bi.bi-info-circle.me-2
+                | Detalles de la Admisión
+            .card-body
+              .row.g-4
+                .col-md-3
+                  label.form-label.text-muted.small.fw-bold.text-uppercase Fecha de Ingreso
+                  div.fs-5.fw-medium
+                    | #{admision.fecha_hora_ingreso.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})} 
+                    small.text-muted #{new Date(admision.fecha_hora_ingreso).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+
+                .col-md-3
+                  label.form-label.text-muted.small.fw-bold.text-uppercase Via de Ingreso
+                  div.fs-5.fw-medium
+                    | #{admision.via_ingreso.nombre}
+                .col-md-3
+                  label.form-label.text-muted.small.fw-bold.text-uppercase Estado Admisión
+                  div
+                    - const estado = (admision.estado || '').trim().toLowerCase()
+                    case estado
+                      when 'activa'
+                        span.badge.bg-primary.px-3.py-2 ACTIVA
+                      when 'cancelado'
+                        span.badge.bg-secondary.px-3.py-2 CANCELADO
+                      when 'dado de alta'
+                        span.badge.bg-success.px-3.py-2 DADO DE ALTA
+                      default
+                        span.badge.bg-light.text-dark.border.px-3.py-2 #{admision.estado || 'Sin estado'}
+                
+                .col-md-3
+                  label.form-label.text-muted.small.fw-bold.text-uppercase Estado Atención
+                  div
+                    - const estado_atencion = (admision.estado_atencion || '').trim().toLowerCase()
+                    case estado_atencion
+                      when 'en espera'
+                        span.badge.bg-warning.text-dark.px-3.py-2 #{admision.estado_atencion}
+                      when 'llamado'
+                        span.badge.bg-info.text-dark.px-3.py-2 #{admision.estado_atencion}
+                      when 'en atencion'
+                        span.badge.bg-primary.px-3.py-2 #{admision.estado_atencion}
+                      when 'finalizado'
+                        span.badge.bg-success.px-3.py-2 #{admision.estado_atencion}
+                      default
+                        span.badge.bg-light.text-dark.border.px-3.py-2 #{admision.estado_atencion || 'Sin estado'}
+
+          //- medicos y enfermeros
+          .card.border-0.shadow-sm.flex-grow-1
+            .card-header.bg-white.border-bottom.py-3
+              h5.card-title.mb-0.text-success
+                i.bi.bi-people.me-2
+                | Equipo Médico
+            .card-body.p-0
+              if admision.medico_atencion || (admision.enfermeros && admision.enfermeros.length > 0)
+                .table-responsive
+                  table.table.table-hover.align-middle.mb-0
+                    thead.bg-light
+                      tr
+                        th.ps-4 Rol
+                        th Nombre
+                        th.pe-4 Especialidad / Detalles
+                        th Accion
+                    tbody
+                      if admision.medico_atencion
+                        tr
+                          td.ps-4
+                            span.badge.bg-primary.bg-opacity-10.text-primary Médico
+                          td.fw-bold #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
+                          td.pe-4
+                            if admision.medico_atencion.especialidades && admision.medico_atencion.especialidades.length > 0
+                              | #{admision.medico_atencion.especialidades.map(e => e.nombre).join(', ')}
+                            else
+                              span.text-muted N/A
+                          td
+                            a.btn.btn-outline-info.ms-auto.btn-sm(href=`/usuarios/${admision.medico_atencion.id}`)
+                              i.bi.bi-eye-fill.me-1
+                              | Ver
+
+                      if admision.enfermeros
+                        each enfermero in admision.enfermeros
+                          tr
+                            td.ps-4
+                              span.badge.bg-success.bg-opacity-10.text-success Enfermero/a
+                            td.fw-bold #{enfermero.nombre} #{enfermero.apellido}
+                            td.pe-4
+                              span.text-muted -
+              else
+                .text-center.py-5
+                  .mb-3.text-muted
+                    i.bi.bi-person-plus.display-4
+                  h6.text-muted No hay profesionales asignados
+                  p.small.text-muted Asigne un médico o enfermero para comenzar la atención.
+
+    //- alta/baja logica
+    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Confirmar Acción
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          .modal-body
+            p ¿Está seguro de realizar esta acción?
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button#btnConfirmarEstado.btn(type="button") Confirmar
+
+    //- reasignar admision
+    #modalReasignar.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Reasignar Paciente
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          form#formReasignarPaciente(autocomplete="off" novalidate)
+            .modal-body
+              input(type="hidden", name="admision_id" value=admision.id)
+              .mb-3
+                label.form-label(for="select-paciente") Buscar Paciente
+                select#select-paciente.form-select(name="paciente_id" required style="width: 100%;" data-dropdown-parent="#modalReasignar")
+                .invalid-feedback#error-paciente_id El paciente es obligatorio.
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-save.me-2
+                | Reasignar Paciente
+            
+    //- trasladar paciente
+    #modalTraslado.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Trasladar Paciente
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          form#formTrasladoPaciente(autocomplete="off" novalidate)
+            .modal-body
+              input(type="hidden", name="admision_id" value=admision.id)
+              .row.g-3.justify-content-center
+                .col-md-12
+                  label.form-label(for="ala_id") Ala / Sector
+                  select.form-select(id="ala_id" name="ala_id" required)
+                    option(value="") Seleccionar Ala
+                    if alas
+                      each ala in alas
+                        option(value=ala.id) #{ala.nombre}
+                .col-md-12
+                  label.form-label(for="habitacion_id") Habitación
+                  select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
+                    option(value="") Seleccione Ala primero
+                .col-md-12
+                  label.form-label(for="cama_id") Cama
+                  select.form-select(id="cama_id" name="cama_id" disabled required)
+                    option(value="") Seleccione Habitación primero
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-save.me-2
+                | Trasladar
+    
+
+    //- estado atencion
+    #modalEstadoAtencion.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Atender Paciente
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          .modal-body
+            p ¿Está seguro de realizar de atender este paciente?
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button#btnConfirmarEstado.btn.btn-primary(type="button") Confirmar
+
+    //- estado admision
+    #modalEstadoAdmision.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Confirmar Acción
+            button.btn-close(type="button" data-bs-dismiss="modal")
+          form#formEstadoAdmision(method="POST" action="/admisiones/cambiar-estado")
+            .modal-body
+              p#mensajeEstadoAdmision.mb-3 ¿Está seguro?
+              input#inputEstadoAdmisionId(type="hidden" name="admision_id")
+              input#inputEstadoAdmisionAccion(type="hidden" name="accion")
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+              button#btnConfirmarEstadoAdmision.btn(type="submit") Confirmar
+
+block scripts
+  //- jQuery y Select2 JS
+  script(src="https://code.jquery.com/jquery-3.6.0.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
+
+  script(src="/js/admision/buscarPaciente.js")
+  script(src="/js/admision/ubicacion.js") 
+
+  script.
+    // Inicializar todos los popovers en la página
+    document.addEventListener('DOMContentLoaded', function () {
+      var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+      });
+
+      // Lógica para el modal de Estado Admisión (Alta/Cancelar)
+      const modalEstado = document.getElementById('modalEstadoAdmision');
+      if (modalEstado) {
+        modalEstado.addEventListener('show.bs.modal', function (event) {
+          const button = event.relatedTarget;
+          
+          // Extraer info de los atributos data-*
+          const titulo = button.getAttribute('data-titulo');
+          const mensaje = button.getAttribute('data-mensaje');
+          const accion = button.getAttribute('data-accion');
+          const claseBtn = button.getAttribute('data-clase');
+          const id = button.getAttribute('data-id');
+
+          // Actualizar el contenido del modal
+          modalEstado.querySelector('.modal-title').textContent = titulo;
+          modalEstado.querySelector('#mensajeEstadoAdmision').textContent = mensaje;
+          modalEstado.querySelector('#inputEstadoAdmisionId').value = id;
+          modalEstado.querySelector('#inputEstadoAdmisionAccion').value = accion;
+          
+          // Configurar el botón de confirmación
+          const btnConfirmar = modalEstado.querySelector('#btnConfirmarEstadoAdmision');
+          btnConfirmar.className = 'btn ' + claseBtn;
+        });
+      }
+    });
