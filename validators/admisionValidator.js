@@ -1,4 +1,4 @@
-const { body, query } = require('express-validator');
+const { body, query, param } = require('express-validator');
 const { Paciente, ViaIngreso, Turno, } = require('../db/models');
 
 exports.registrarAdmisionValidation = () => {
@@ -78,5 +78,12 @@ exports.registrarAdmisionValidation = () => {
     body('nro_doc').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true }).trim(),
     body('tipo_doc').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true })
       .isIn(['DNI', 'Pasaporte', 'Cédula']).withMessage('Tipo de documento no válido.'),
+  ];
+};
+
+exports.setActivoAdmisionValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('activo').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
   ];
 };

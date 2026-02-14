@@ -181,3 +181,22 @@ const registrarPorTurno = async (data) => {
     throw error;
   }
 };
+
+exports.setActivo = async (id, activo) => {
+  const admision = await Admision.findByPk(id);
+  if (!admision) {
+    throw new Error('Admision no encontrada');
+  }
+
+  if (admision.activo === activo) {
+    throw new Error(`La admision ya se encuentra ${activo ? 'activa' : 'inactiva'}.`);
+  }
+
+  if (admision.estado_atencion != 'En Espera') {
+    throw new Error('La admision no puede cambiar su estado activo');
+  }
+
+  admision.activo = activo;
+
+  await admision.save();
+}
