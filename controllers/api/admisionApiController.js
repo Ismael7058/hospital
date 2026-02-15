@@ -84,3 +84,30 @@ exports.setEstado = async (req, res) => {
     }
   }
 }
+
+exports.cambiarCama = async (req, res) => {
+  console.log('Validacion para cambiar de cama')
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    const { id } = req.params;
+    const { cama_id } = req.body;
+    await admisionServices.cambiarCama(id, cama_id, req.usuario.id);
+    res.status(200).json({ message: 'Cama asignada correctamente' });
+  } catch (error) {
+    switch (error.message) {
+      case 'Admision no encontrada':
+      case 'Cama no encontrada':
+        return res.status(404).json({ message: error.message });
+      case 'No se puede asignar la cama a esta admision':
+      case 'El paciente ocupa esta cama actualmente':
+      case 'La cama seleccionada no está libre':
+      case 'La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion':
+      return res.status(409).json({ message: error.message });
+      default:
+        res.status(500).json({ message: 'Error interno del servidor al cambiar la cama de la admision' });
+    }
+  }
+};
