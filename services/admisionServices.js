@@ -1,6 +1,5 @@
-const { Admision, Turno, Paciente, Identificacion, sequelize, Usuario, Rol } = require('../db/models');
+const { Admision, Turno, Paciente, Identificacion, sequelize, Usuario, Rol, UbicacionInternacion, Cama, Habitacion, Ala } = require('../db/models');
 const { Op } = require('sequelize');
-const { adaptarFecha } = require('../helper/fecha');
 
 exports.registrarAdmision = async (admisionData) => {
   const { modo } = admisionData;
@@ -199,4 +198,85 @@ exports.setActivo = async (id, activo) => {
   admision.activo = activo;
 
   await admision.save();
+}
+
+exports.setEstado = async (id, estado) => {
+  const t = await sequelize.transaction();
+  try {
+    const admision = await Admision.findByPk(
+      id, 
+      { 
+        include: [
+        {
+          model: UbicacionInternacion,
+          as: 'ubicaciones',
+          order: [['fecha_hora_asignacion', 'DESC']],
+          limit: 1,
+          include: [
+            {
+              model: Cama,
+              as: 'cama',
+              include: [
+                {
+                  model: Habitacion,
+                  as: 'habitacion',
+                  include: [
+                    {
+                      model: Ala,
+                      as: 'ala'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      transaction: t 
+    });
+
+    if (!admision) {
+      throw new Error('Admision no encontrada');
+    }
+
+    if (!admision.activo) {
+      throw new Error('La admision no puede cambiar su estado');
+    }
+
+    if (admision.estado === estado) {
+      throw new Error(`La admision ya se encuentra con el estado ${estado}`);
+    }
+
+    if (estado === 'Alta Medica') {
+      if (admision.estado_atencion != 'En Atencion') {
+        throw new Error('La admision no puede recibir un alta medica');
+      }
+
+      if (admision.ubicaciones && admision.ubicaciones.length > 0) {
+        const ubicacionActual = admision.ubicaciones[0];
+
+        ubicacionActual.fecha_hora_liberacion = new Date();
+        await ubicacionActual.save({ transaction: t });
+
+        if (ubicacionActual.cama) {
+          ubicacionActual.cama.estado = 'Higienizando';
+          await ubicacionActual.cama.save({ transaction: t });
+        }
+      }
+    }
+
+    if (estado === 'Cancelada') {
+      if (admision.estado_atencion != 'En Espera') {
+        throw new Error('La admision no puede ser cancelada');
+      }
+    }
+
+    admision.estado = estado;
+    await admision.save({ transaction: t });
+
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
 }

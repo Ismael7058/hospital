@@ -87,3 +87,13 @@ exports.setActivoAdmisionValidation = () => {
     body('activo').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
   ];
 };
+
+exports.setEstadoAdmisionValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('estado')
+      .notEmpty().withMessage('El estado de admisión es obligatorio')
+      .isIn(['Alta Medica', 'Cancelada']).withMessage('El estado de admisión no es valido'),
+  ];
+};
+
