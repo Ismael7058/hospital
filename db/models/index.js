@@ -26,6 +26,12 @@ const AdmisionModel = require('./admision');
 const AdmisionEnfermeroModel = require('./admision_enfermero');
 const ViaIngresoModel = require('./via_ingreso');
 const UbicacionInternacionModel = require('./ubicacion_internacion');
+const EvolucionMedicaModel = require('./evolucion_medica');
+const EstudioSolicitadoModel = require('./estudio_solicitado');
+const SignosVitalesModel = require('./signos_vitales');
+const CuidadoPreliminarModel = require('./cuidado');
+const MedicacionModel = require('./medicacion');
+const ViaAdministracionModel = require('./via_administracion');
 
 const Rol = RolModel(sequelize, DataTypes);
 const Usuario = UsuarioModel(sequelize, DataTypes);
@@ -52,6 +58,12 @@ const Admision = AdmisionModel(sequelize, DataTypes);
 const AdmisionEnfermero = AdmisionEnfermeroModel(sequelize, DataTypes);
 const ViaIngreso = ViaIngresoModel(sequelize, DataTypes);
 const UbicacionInternacion = UbicacionInternacionModel(sequelize, DataTypes);
+const EvolucionMedica = EvolucionMedicaModel(sequelize, DataTypes);
+const EstudioSolicitado = EstudioSolicitadoModel(sequelize, DataTypes);
+const SignosVitales = SignosVitalesModel(sequelize, DataTypes);
+const CuidadoPreliminar = CuidadoPreliminarModel(sequelize, DataTypes);
+const Medicacion = MedicacionModel(sequelize, DataTypes);
+const ViaAdministracion = ViaAdministracionModel(sequelize, DataTypes);
 
 const db = {
     sequelize,
@@ -79,7 +91,13 @@ const db = {
     Admision,
     AdmisionEnfermero,
     ViaIngreso,
-    UbicacionInternacion
+    UbicacionInternacion,
+    EvolucionMedica,
+    EstudioSolicitado,
+    SignosVitales,
+    CuidadoPreliminar,
+    Medicacion,
+    ViaAdministracion
 };
 
 // Un Rol tiene muchos Usuarios
@@ -546,6 +564,103 @@ db.UbicacionInternacion.belongsTo(db.Usuario, {
     as: 'usuario_asignador'
 });
 
+// Una Admision tiene muchas Evoluciones Medicas
+db.Admision.hasMany(db.EvolucionMedica, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'evoluciones_medicas'
+});
 
+// Una Evolucion Medica pertenece a una Admision
+db.EvolucionMedica.belongsTo(db.Admision, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'admision'
+});
+
+// Una Admision tiene muchos Estudios Solicitados
+db.Admision.hasMany(db.EstudioSolicitado, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'estudios_solicitados'
+});
+
+// Un Estudio Solicitado pertenece a una Admision
+db.EstudioSolicitado.belongsTo(db.Admision, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'admision'
+});
+
+// Una Admision tiene muchos Signos Vitales
+db.Admision.hasMany(db.SignosVitales, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'signos_vitales'
+});
+
+// Un Signo Vitale pertenece a una Admision
+db.SignosVitales.belongsTo(db.Admision, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'admision'
+});
+
+// Una Admision tiene muchos Cuidados Preliminares
+db.Admision.hasMany(db.CuidadoPreliminar, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'cuidados_preliminares'
+});
+
+// Un Cuidado Preliminar pertenece a una Admision
+db.CuidadoPreliminar.belongsTo(db.Admision, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'admision'
+});
+
+// Una Admision tiene muchas Medicaciones
+db.Admision.hasMany(db.Medicacion, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'medicaciones'
+});
+
+// Una Medicacion pertenece a una Admision
+db.Medicacion.belongsTo(db.Admision, {
+    foreignKey: {
+        name: 'admision_id',
+        allowNull: false
+    },
+    as: 'admision'
+});
+
+// Una Medicacion pertenece a una Via de Admistracion
+db.Medicacion.belongsTo(db.ViaAdministracion, {
+  foreignKey: {
+      name: 'via_administracion_id',
+      allowNull: false
+  },
+  as: 'via_administracion'
+});
 
 module.exports = db;

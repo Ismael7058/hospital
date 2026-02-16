@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        estado_identidad: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'Validado'
+        },
         activo: {
             type: DataTypes.BOOLEAN,
             defaultValue: true
