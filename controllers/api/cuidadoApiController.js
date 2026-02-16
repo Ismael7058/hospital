@@ -26,3 +26,26 @@ exports.registrarCuidado = async (req, res) => {
     }
   }
 }
+
+exports.setActivo = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+  }
+  const { activo } = req.body;
+  try {
+    const { id } = req.params;
+    await cuidadoServices.setActivo(id, activo);
+    res.status(200).json({ message: `Cuidado preeliminar ${activo ? 'activado' : 'desactivado'} exitosamente.` });
+  } catch (error) {
+    switch (error.message) {
+      case 'Cuidado preeliminar no encontrada':
+        return res.status(404).json({ message: error.message });
+      case 'El cuidado preeliminar no puede cambiar su estado activo':
+      case `El cuidado preeliminar ya se encuentra ${activo ? 'activa' : 'inactiva'}.`:
+        return res.status(409).json({ message: error.message });
+      default:
+        res.status(500).json({ message: 'Error interno del servidor al cambiar el estado activo del cuidado preeliminar' });
+    }
+  }
+}
