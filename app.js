@@ -19,6 +19,7 @@ const fuentesInformacionApiRouter = require('./routes/api/fuentesInformacionApiR
 const tipoAntecedentesApiRouter = require('./routes/api/tipoAntecedentesApiRouter');
 const antecedentePacienteApiRouter = require('./routes/api/antecedentePacienteApiRouter');
 const admisionApiRouter = require('./routes/api/admisionApiRouter');
+const evolucionMedicaApiRouter = require('./routes/api/evolucionMedicaApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -61,6 +62,7 @@ app.use('/api/fuentes', protegerRuta, fuentesInformacionApiRouter);
 app.use('/api/tipo-antecedente', protegerRuta, tipoAntecedentesApiRouter);
 app.use('/api/antecentes-paciente', protegerRuta, antecedentePacienteApiRouter);
 app.use('/api/admisiones', protegerRuta, admisionApiRouter);
+app.use('/api/evoluciones-medicas', protegerRuta, evolucionMedicaApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
