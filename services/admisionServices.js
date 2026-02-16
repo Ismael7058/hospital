@@ -527,3 +527,65 @@ const atenderMedico = async (id, cama_id, medico_id) => {
     throw error;
   }
 };
+
+exports.cambiarPaciente = async (id, paciente_id) => {
+  const t = await sequelize.transaction();
+  try {
+    const admision = await Admision.findByPk(
+      id, 
+      { 
+        include: [
+        {
+          model: Paciente,
+          as: 'paciente',
+          attributes: ['id', 'sexo', 'estado_identidad']          
+        }
+      ],
+      transaction: t 
+    });
+    if (!admision) {
+      throw new Error('Admision no encontrada');
+    }
+
+    const paciente = await Paciente.findByPk(paciente_id, { 
+      include: [
+        {
+          model: Admision,
+          as: 'admisiones',
+          where: {
+            activo: true,
+            estado_atencion: 'En Atencion',
+            estado: 'Activa'
+          },
+          limit: 1
+        }
+      ],
+      transaction: t 
+    });
+    if (!paciente) {
+      throw new Error('Paciente no encontrado');
+    }
+    if (admision.paciente.id == paciente.id){
+      throw new Error('El paciente seleccionado es el mismo de la admision');
+    }
+    if (admision.paciente.sexo != paciente.sexo){
+      throw new Error('El genero del paciente registrado no es el mismo del paciente admitido');
+    }
+    if (admision.paciente.estado_identidad == 'Validado' || !admision.activo){
+      throw new Error('No se puede cambiar el paciente a esta admision');
+    }
+    if(paciente.admisiones.length > 0){
+      throw new Error('El paciente esta admitido en el hospital');
+    }
+
+    const pacienteAnterior = admision.paciente;
+    admision.paciente_id = paciente_id;
+
+    await admision.save({ transaction: t });
+    await pacienteAnterior.destroy({ transaction: t });
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};

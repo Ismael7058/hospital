@@ -8,6 +8,7 @@ const {
   setEstadoAdmisionValidation,
   cambiarCamaValidation,
   atenderAdmisionValidation,
+  cambiarPacienteValidation,
  } = require('../../validators/admisionValidator')
 
 // POST /api/admisiones/registrar
@@ -24,5 +25,8 @@ router.post('/:id/cama', cambiarCamaValidation(), admisionController.cambiarCama
 
 // POST /api/admisiones/:id/atender
 router.post('/:id/atender', atenderAdmisionValidation(), admisionController.atenderAdmision);
+
+// PATCH /api/admisiones/:id/cambiar-paciente
+router.patch('/:id/cambiar-paciente', cambiarPacienteValidation(), admisionController.cambiarPaciente)
 
 module.exports = router;

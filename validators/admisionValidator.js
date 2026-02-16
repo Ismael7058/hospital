@@ -126,3 +126,20 @@ exports.atenderAdmisionValidation = () => {
 
   ];
 };
+
+exports.cambiarPacienteValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('paciente_id')
+      .notEmpty().withMessage('El ID del paciente es obligatorio.')
+      .isInt().withMessage('El ID del paciente debe ser un número entero')
+      .custom(async (value, { req }) => {
+        const paciente = await Paciente.findByPk(value);
+        if (!paciente) {
+          return Promise.reject('El paciente seleccionado no existe');
+        } else if (!paciente.activo) {
+          return Promise.reject('El paciente no esta disponible para esta accion');
+        }
+      }),
+  ];
+};

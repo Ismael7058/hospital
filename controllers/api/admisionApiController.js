@@ -139,3 +139,29 @@ exports.atenderAdmision = async (req, res) => {
     }
   }
 };
+
+exports.cambiarPaciente = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+  }
+  try {
+    const { id } = req.params;
+    const { paciente_id } = req.body;
+    await admisionServices.cambiarPaciente(id, paciente_id);
+    res.status(200).json({ message: 'Paciente reasignado correctamente' });
+  } catch (error) {
+    switch (error.message) {
+      case 'Admision no encontrada':
+      case 'Paciente no encontrado':
+        return res.status(404).json({ message: error.message });
+      case 'El paciente seleccionado es el mismo de la admision':
+      case 'El genero del paciente registrado no es el mismo del paciente admitido':
+      case 'No se puede cambiar el paciente a esta admision':
+      case 'El paciente esta admitido en el hospital':
+        return res.status(409).json({ message: error.message });
+      default:
+        res.status(500).json({ message: 'Error interno del servidor al reasignar el paciente de la admision' });
+    }
+  }
+};
