@@ -6,7 +6,8 @@ const {
   registrarAdmisionValidation,
   setActivoAdmisionValidation,
   setEstadoAdmisionValidation,
-  cambiarCamaValidation
+  cambiarCamaValidation,
+  atenderAdmisionValidation,
  } = require('../../validators/admisionValidator')
 
 // POST /api/admisiones/registrar
@@ -20,5 +21,8 @@ router.patch('/:id/estado', setEstadoAdmisionValidation(), admisionController.se
 
 // POST /api/admisiones/:id/cama
 router.post('/:id/cama', cambiarCamaValidation(), admisionController.cambiarCama);
+
+// POST /api/admisiones/:id/atender
+router.post('/:id/atender', atenderAdmisionValidation(), admisionController.atenderAdmision);
 
 module.exports = router;

@@ -111,3 +111,18 @@ exports.cambiarCamaValidation = () => {
 
   ];
 };
+
+exports.atenderAdmisionValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('cama_id')
+      .notEmpty().withMessage('El ID de la cama es obligatorio.')
+      .isInt().withMessage('El ID de la cama debe ser un número entero.')
+      .custom(async (value, { req }) => {
+        const cama = await Cama.findByPk(value);
+        if (!cama) return Promise.reject('La cama seleccionado no existe.');
+        if (!cama.activo) return Promise.reject('La cama no esta disponible');
+      }),
+
+  ];
+};
