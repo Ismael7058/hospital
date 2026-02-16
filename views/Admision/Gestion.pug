@@ -22,24 +22,29 @@ block content
               i.bi.bi-clipboard2-pulse.me-2
               | Estudios y Acciones
 
+              
           .btn-group(role="group")
-            button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAtencion")
-              i.bi.bi-file-medical.me-2
-              | Atender Paciente
-            button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Alta Médica" data-mensaje="¿Confirma que desea dar el Alta Médica al paciente?" data-accion="alta" data-clase="btn-success")
-              i.bi.bi-file-medical.me-2
-              | Alta Médica
-            button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Cancelar Admisión" data-mensaje="¿Confirma que desea Cancelar la admisión?" data-accion="cancelar" data-clase="btn-warning")
-              i.bi.bi-file-medical.me-2
-              | Cancelar Admisión
+            if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa' && admision.activo
+              button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAtenderAdmision")
+                i.bi.bi-file-medical.me-2
+                | Atender Paciente
+
+            if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa'
+              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Alta Médica" data-mensaje="¿Confirma que desea dar el Alta Médica al paciente?" data-estado="Alta Medica" data-clase="btn-success")
+                i.bi.bi-file-medical.me-2
+                | Alta Médica
+            if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
+              button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Cancelar Admisión" data-mensaje="¿Confirma que desea Cancelar la admisión?" data-estado="Cancelada" data-clase="btn-warning")
+                i.bi.bi-file-medical.me-2
+                | Cancelar Admisión
 
           .btn-group(role="group")
             if admision.activo
-              button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="false" data-accion="dar de baja" data-clase="btn-warning")
+              button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="false" data-accion="dar de baja" data-clase="btn-danger" data-titulo="Dar de Baja" data-mensaje="¿Confirma que desea dar de baja la admisión?")
                 i.bi.bi-eye-slash-fill.me-2
                 | Dar de Baja
             else
-              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="true" data-accion="dar de alta" data-clase="btn-success")
+              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="true" data-accion="dar de alta" data-clase="btn-success" data-titulo="Dar de Alta" data-mensaje="¿Confirma que desea dar de alta la admisión?")
                 i.bi.bi-eye-fill.me-2
                 | Dar de Alta
 
@@ -84,24 +89,25 @@ block content
               h5.card-title.mb-0.text-info
                 i.bi.bi-geo-alt.me-2
                 | Ultima Ubicacion
-              button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
-                i.bi.bi-arrow-left-right.me-2
-                | Trasladar
+              if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
+                  i.bi.bi-arrow-left-right.me-2
+                  | Trasladar
             .card-body
               if admision.ubicaciones && admision.ubicaciones.length > 0
                 - const ubicacion = admision.ubicaciones[0]
-                .d-flex.justify-content-center.mb-4
-                  .mb-2
-                    i.bi.bi-hospital.display-6.text-info
-                  .ms-4
-                    span.text-muted Sector
-                    h5.fw-bold #{ubicacion.ala.nombre}
+                .row.justify-content-center.mb-4
+                  .d-flex.mb-2.justify-content-center
+                    i.bi.bi-hospital.display-3.text-info
+                  .row.justify-content-center
+                    span.text-muted.text-center Sector
+                    h5.fw-bold.text-center #{ubicacion.cama.habitacion.ala.nombre}
                 
                 .row.g-3
                   .col-6
                     .p-3.border.rounded.bg-light.text-center
                       small.text-muted.text-uppercase.fw-bold Habitación
-                      div.fs-4.text-dark #{ubicacion.habitacion.numero}
+                      div.fs-4.text-dark #{ubicacion.cama.habitacion.numero}
                   .col-6
                     .p-3.border.rounded.bg-light.text-center
                       small.text-muted.text-uppercase.fw-bold Cama
@@ -213,11 +219,14 @@ block content
           .modal-header
             h5.modal-title Confirmar Acción
             button.btn-close(type="button" data-bs-dismiss="modal")
-          .modal-body
-            p ¿Está seguro de realizar esta acción?
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button#btnConfirmarEstado.btn(type="button") Confirmar
+          form#formEstado(autocomplete="off" novalidate)
+            .modal-body
+              p#mensajeConfirmarEstado.mb-3 ¿Está seguro?
+              input#inputConfirmarEstadoId(type="hidden" name="admision_id")
+              input#inputConfirmarEstadoAccion(type="hidden" name="activo" value=admision.activo)
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+              button#btnConfirmarEstado.btn(type="submit") Confirmar
 
     //- reasignar admision
     #modalReasignar.modal.fade(tabindex="-1" aria-hidden="true")
@@ -240,66 +249,87 @@ block content
                 | Reasignar Paciente
             
     //- trasladar paciente
-    #modalTraslado.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Trasladar Paciente
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          form#formTrasladoPaciente(autocomplete="off" novalidate)
-            .modal-body
-              input(type="hidden", name="admision_id" value=admision.id)
-              .row.g-3.justify-content-center
-                .col-md-12
-                  label.form-label(for="ala_id") Ala / Sector
-                  select.form-select(id="ala_id" name="ala_id" required)
-                    option(value="") Seleccionar Ala
-                    if alas
-                      each ala in alas
-                        option(value=ala.id) #{ala.nombre}
-                .col-md-12
-                  label.form-label(for="habitacion_id") Habitación
-                  select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
-                    option(value="") Seleccione Ala primero
-                .col-md-12
-                  label.form-label(for="cama_id") Cama
-                  select.form-select(id="cama_id" name="cama_id" disabled required)
-                    option(value="") Seleccione Habitación primero
-            .modal-footer
-              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-              button.btn.btn-primary(type="submit")
-                i.bi.bi-save.me-2
-                | Trasladar
-    
+    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+      #modalTraslado.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Trasladar Paciente
+              button.btn-close(type="button" data-bs-dismiss="modal")
+            form#formTrasladoPaciente(autocomplete="off" novalidate)
+              .modal-body
+                input(type="hidden", name="admision_id" value=admision.id)
+                .row.g-3.justify-content-center
+                  .col-md-12
+                    label.form-label(for="ala_id") Ala / Sector
+                    select.form-select(id="ala_id" name="ala_id" required)
+                      option(value="") Seleccionar Ala
+                      if alas
+                        each ala in alas
+                          option(value=ala.id) #{ala.nombre}
+                  .col-md-12
+                    label.form-label(for="habitacion_id") Habitación
+                    select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
+                      option(value="") Seleccione Ala primero
+                  .col-md-12
+                    label.form-label(for="cama_id") Cama
+                    select.form-select(id="cama_id" name="cama_id" disabled required)
+                      option(value="") Seleccione Habitación primero
+              .modal-footer
+                button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+                button.btn.btn-primary(type="submit")
+                  i.bi.bi-save.me-2
+                  | Trasladar
 
-    //- estado atencion
-    #modalEstadoAtencion.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Atender Paciente
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          .modal-body
-            p ¿Está seguro de realizar de atender este paciente?
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button#btnConfirmarEstado.btn.btn-primary(type="button") Confirmar
+    //- atender paciente
+    if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
+      #modalAtenderAdmision.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Atender Paciente
+              button.btn-close(type="button" data-bs-dismiss="modal")
+            form#formAtenderAdmision(autocomplete="off" novalidate)
+              .modal-body
+                input(type="hidden", name="admision_id" value=admision.id)
+                .row.g-3.justify-content-center
+                  .col-md-12
+                    label.form-label(for="ala_id") Ala / Sector
+                    select.form-select(id="ala_id" name="ala_id" required)
+                      option(value="") Seleccionar Ala
+                      if alas
+                        each ala in alas
+                          option(value=ala.id) #{ala.nombre}
+                  .col-md-12
+                    label.form-label(for="habitacion_id") Habitación
+                    select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
+                      option(value="") Seleccione Ala primero
+                  .col-md-12
+                    label.form-label(for="cama_id") Cama
+                    select.form-select(id="cama_id" name="cama_id" disabled required)
+                      option(value="") Seleccione Habitación primero
+              .modal-footer
+                button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+                button.btn.btn-primary(type="submit")
+                  i.bi.bi-save.me-2
+                  | Atender
 
     //- estado admision
-    #modalEstadoAdmision.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Confirmar Acción
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          form#formEstadoAdmision(method="POST" action="/admisiones/cambiar-estado")
-            .modal-body
-              p#mensajeEstadoAdmision.mb-3 ¿Está seguro?
-              input#inputEstadoAdmisionId(type="hidden" name="admision_id")
-              input#inputEstadoAdmisionAccion(type="hidden" name="accion")
-            .modal-footer
-              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-              button#btnConfirmarEstadoAdmision.btn(type="submit") Confirmar
+    if (admision.estado_atencion == 'En Atencion' || admision.estado_atencion == 'En Espera') && admision.estado == 'Activa'
+      #modalEstadoAdmision.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Confirmar Acción
+              button.btn-close(type="button" data-bs-dismiss="modal")
+            form#formEstadoAdmision(novalidate)
+              .modal-body
+                p#mensajeEstadoAdmision.mb-3 ¿Está seguro?
+                input#inputEstadoAdmisionId(type="hidden" name="admision_id")
+                input#inputEstadoAdmisionAccion(type="hidden" name="estado")
+              .modal-footer
+                button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+                button#btnConfirmarEstadoAdmision.btn(type="submit") Confirmar
 
 block scripts
   //- jQuery y Select2 JS
@@ -308,6 +338,10 @@ block scripts
 
   script(src="/js/admision/buscarPaciente.js")
   script(src="/js/admision/ubicacion.js") 
+  script(src="/js/admision/setActivoAdmision.js") 
+  script(src="/js/admision/setEstadoAdmision.js") 
+  script(src="/js/admision/trasladar.js")
+  script(src="/js/admision/atender.js")
 
   script.
     // Inicializar todos los popovers en la página
@@ -316,29 +350,4 @@ block scripts
       var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
       });
-
-      // Lógica para el modal de Estado Admisión (Alta/Cancelar)
-      const modalEstado = document.getElementById('modalEstadoAdmision');
-      if (modalEstado) {
-        modalEstado.addEventListener('show.bs.modal', function (event) {
-          const button = event.relatedTarget;
-          
-          // Extraer info de los atributos data-*
-          const titulo = button.getAttribute('data-titulo');
-          const mensaje = button.getAttribute('data-mensaje');
-          const accion = button.getAttribute('data-accion');
-          const claseBtn = button.getAttribute('data-clase');
-          const id = button.getAttribute('data-id');
-
-          // Actualizar el contenido del modal
-          modalEstado.querySelector('.modal-title').textContent = titulo;
-          modalEstado.querySelector('#mensajeEstadoAdmision').textContent = mensaje;
-          modalEstado.querySelector('#inputEstadoAdmisionId').value = id;
-          modalEstado.querySelector('#inputEstadoAdmisionAccion').value = accion;
-          
-          // Configurar el botón de confirmación
-          const btnConfirmar = modalEstado.querySelector('#btnConfirmarEstadoAdmision');
-          btnConfirmar.className = 'btn ' + claseBtn;
-        });
-      }
     });
