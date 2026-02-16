@@ -272,6 +272,7 @@ exports.setEstado = async (id, estado) => {
     }
 
     admision.estado = estado;
+    admision.estado_atencion = "Finalizado"
     await admision.save({ transaction: t });
 
     await t.commit();
