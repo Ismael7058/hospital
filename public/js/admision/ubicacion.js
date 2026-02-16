@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (error) {
       console.error('Error cargando habitaciones:', error);
-      alert('Hubo un problema al cargar las habitaciones disponibles.');
+      mostrarAlerta('Hubo un problema al cargar las habitaciones disponibles.', 'danger');
     }
   });
 

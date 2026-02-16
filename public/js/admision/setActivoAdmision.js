@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalEstado = document.getElementById('confirmarEstadoModal');
   if (!modalEstado) return;
 
-  const confirmarBtn = document.getElementById('btnConfirmarEstadoAdmision');
+  const confirmarBtn = document.getElementById('btnConfirmarEstado');
   const modalTitle = modalEstado.querySelector('.modal-title');
   const modalBody = modalEstado.querySelector('#mensajeEstadoAdmision');
 
