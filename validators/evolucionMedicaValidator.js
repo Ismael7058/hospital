@@ -16,3 +16,10 @@ exports.registrarEvolucionMedicaValidation = () => {
       .isLength({ min: 3 }).withMessage('El tratamiento debe tener al menos 3 caracteres.'),
   ];
 };
+
+exports.setActivoValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('activo').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
+  ];
+};
