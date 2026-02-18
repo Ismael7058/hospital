@@ -19,14 +19,6 @@ nav#sidebarMenu.bg-dark.sidebar.h-100(aria-label="Navegación principal" data-bs
           span Nuevo Paciente
 
     h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
-      span Registros Rápidos
-    ul.nav.flex-column.mb-2
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admision/registrar?emergencia=true" data-bs-toggle="tooltip" data-bs-placement="right" title="Emergencia")
-          i.bi.bi-heart-pulse.me-2
-          span Emergencia
-
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
       span Gestión de Admisión
     ul.nav.flex-column.mb-2
       li.nav-item
@@ -34,9 +26,10 @@ nav#sidebarMenu.bg-dark.sidebar.h-100(aria-label="Navegación principal" data-bs
           i.bi.bi-people.me-2
           span Lista de Admisiones
       li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admision/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Admisión")
-          i.bi.bi-person-plus.me-2
-          span Nuevo Admisión
+        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones/registrar?emergencia=true" data-bs-toggle="tooltip" data-bs-placement="right" title="Emergencia")
+          i.bi.bi-heart-pulse.me-2
+          span Emergencia
+
 
     h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
       span Gestión de Turnos
