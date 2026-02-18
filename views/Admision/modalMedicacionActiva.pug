@@ -1,0 +1,60 @@
+#modalMedicacionActiva.modal.fade(tabindex="-1" aria-hidden="true")
+  .modal-dialog.modal-dialog-centered(style="max-width: 540px;")
+    .modal-content.border-0.shadow-lg.rounded-3
+      .modal-header.border-bottom.bg-light.bg-opacity-50.py-3.px-4.align-items-center
+        .d-flex.align-items-center.gap-3
+          .d-flex.align-items-center.justify-content-center.bg-primary.bg-opacity-10.text-primary.rounded-3(style="width: 40px; height: 40px;")
+            i.bi.bi-file-medical.fs-4
+          div
+            h5.modal-title.fw-bold.text-dark.text-uppercase.fs-6.mb-0 Registrar Nueva Medicación
+            p.small.fw-bold.text-muted.text-uppercase.mb-0(style="font-size: 10px;") Formulario de Prescripción Médica
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+      form#formMedicacionActiva(autocomplete="off" novalidate)
+        .modal-body.p-4
+          input(type="hidden", name="admision_id" value=admision.id)
+          
+          .mb-3
+            label.form-label.small.fw-bold.text-muted.text-uppercase(for="medicamento" style="font-size: 10px; letter-spacing: 0.5px;") Fármaco (Nombre Genérico o Comercial)
+            .input-group
+              span.input-group-text.bg-light.border-end-0
+                i.bi.bi-search.text-muted
+              input.form-control.border-start-0.bg-light(type="text" id="medicamento" name="medicamento" placeholder="Ej: Amoxicilina, Propofol..." required)
+
+          .row.g-3.mb-3
+            .col-6
+              label.form-label.small.fw-bold.text-muted.text-uppercase(for="dosis" style="font-size: 10px; letter-spacing: 0.5px;") Dosis
+              .input-group
+                input.form-control.bg-light(type="text" id="dosis" name="dosis" placeholder="0.00" required)
+                select.form-select.bg-light.fw-bold.text-secondary(style="max-width: 80px;")
+                  option mg
+                  option g
+                  option ml
+                  option UI
+            
+            .col-6
+              label.form-label.small.fw-bold.text-muted.text-uppercase(for="via_administracion_id" style="font-size: 10px; letter-spacing: 0.5px;") Vía de Administración
+              select.form-select.bg-light(id="via_administracion_id" name="via_administracion_id" required)
+                option(value="") Seleccionar vía...
+                if vias
+                  each via in vias
+                    option(value=via.id) #{via.nombre}
+
+          .row.g-3.mb-3
+            .col-6
+              label.form-label.small.fw-bold.text-muted.text-uppercase(for="intervalo_horas" style="font-size: 10px; letter-spacing: 0.5px;") Frecuencia
+              input.form-control.bg-light(type="time" id="intervalo_horas" name="intervalo_horas" required)
+            
+            .col-6
+              label.form-label.small.fw-bold.text-muted.text-uppercase(for="fecha_inicio" style="font-size: 10px; letter-spacing: 0.5px;") Fecha y Hora de Inicio
+              input.form-control.bg-light(type="datetime-local" id="fecha_inicio" name="fecha_inicio" required)
+
+          .mb-0
+            label.form-label.small.fw-bold.text-muted.text-uppercase(for="indicaciones" style="font-size: 10px; letter-spacing: 0.5px;") Indicaciones Adicionales
+            textarea.form-control.bg-light(id="indicaciones" name="indicaciones" placeholder="Ej: Administrar con las comidas, diluir en 100cc de SF..." rows="3" style="resize: none;")
+
+        .modal-footer.bg-light.bg-opacity-50.border-top.px-4.py-3
+          button.btn.btn-light.text-muted.fw-bold.text-uppercase.small(type="button" data-bs-dismiss="modal" style="font-size: 12px;") Cancelar
+          button.btn.btn-primary.fw-bold.text-uppercase.small.d-flex.align-items-center.gap-2(type="submit" style="font-size: 12px;")
+            i.bi.bi-capsule
+            | Confirmar Prescripción
