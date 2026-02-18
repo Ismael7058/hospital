@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 
 
 exports.registrarSignosVitalesValidation = () => {
@@ -17,5 +17,12 @@ exports.registrarSignosVitalesValidation = () => {
     body('temperatura') 
       .notEmpty().withMessage('La temperatura es obligatoria.')
       .isFloat().withMessage('La temperatura debe ser un número válido.'),
+  ];
+};
+
+exports.setActivoValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('activo').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
   ];
 };

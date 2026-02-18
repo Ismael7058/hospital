@@ -27,3 +27,28 @@ exports.registrarSignosVitales = async (datoSignos) => {
 
   return nuevaMedicacion;
 };
+
+exports.setActivo = async (id, activo) => {
+  const signosVitales = await SignosVitales.findByPk(id, {
+    include: [
+      {
+        model: Admision,
+        as: 'admision'
+      }
+    ]
+  });
+  if (!signosVitales) {
+    throw new Error('Signos vitales no encontrados');
+  }
+
+  if (signosVitales.activo === activo) {
+    throw new Error(`Los signos vitales ya se encuentra ${activo ? 'activos' : 'inactivos'}.`);
+  }
+
+  if (signosVitales.admision.estado_atencion != 'En Espera') {
+    throw new Error('Los signos vitales no puede cambiar su estado activo');
+  }
+
+  signosVitales.activo = activo;
+  await signosVitales.save();
+}
