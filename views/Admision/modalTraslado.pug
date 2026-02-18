@@ -1,13 +1,20 @@
 #modalTraslado.modal.fade(tabindex="-1" aria-hidden="true")
-  .modal-dialog.modal-dialog-centered
-    .modal-content
-      .modal-header
-        h5.modal-title Trasladar Paciente
-        button.btn-close(type="button" data-bs-dismiss="modal")
+  .modal-dialog.modal-dialog-centered(style="max-width: 540px;" )
+    .modal-content.border-0.shadow-lg.rounded-3
+      .modal-header.border-bottom.bg-light.bg-opacity-50.py-3.px-4.align-items-center
+        .d-flex.align-items-center.gap-3
+          .d-flex.align-items-center.justify-content-center.bg-primary.bg-opacity-10.text-primary.rounded-3(style="width: 40px; height: 40px;")
+            i.bi.bi-heart-pulse.fs-4
+          div
+            h5.modal-title.fw-bold.text-dark.text-uppercase.fs-6.mb-0 Nuevo Cuidado Realizados
+            p.small.fw-bold.text-muted.text-uppercase.mb-0(style="font-size: 10px;") Formulario de Cuidado Realizados
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
       form#formTrasladoPaciente(autocomplete="off" novalidate)
-        .modal-body
+        .modal-body.p-4
           input(type="hidden", name="admision_id" value=admision.id)
-          .row.g-3.justify-content-center
+
+          .row.g-3.justify-content-center.mb-3
             .col-md-12
               label.form-label(for="ala_id") Ala / Sector
               select.form-select(id="ala_id" name="ala_id" required)
@@ -23,8 +30,9 @@
               label.form-label(for="cama_id") Cama
               select.form-select(id="cama_id" name="cama_id" disabled required)
                 option(value="") Seleccione Habitación primero
-        .modal-footer
-          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-          button.btn.btn-primary(type="submit")
-            i.bi.bi-save.me-2
-            | Trasladar
+
+        .modal-footer.bg-light.bg-opacity-50.border-top.px-4.py-3
+          button.btn.btn-light.text-muted.fw-bold.text-uppercase.small(type="button" data-bs-dismiss="modal" style="font-size: 12px;") Cancelar
+          button.btn.btn-primary.fw-bold.text-uppercase.small.d-flex.align-items-center.gap-2(type="submit" style="font-size: 12px;")
+            i.bi.bi-arrow-left-right
+            | Confirmar Traslado
