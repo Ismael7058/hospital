@@ -113,8 +113,9 @@ block content
                   i.bi.bi-bar-chart-line-fill.text-primary.fs-5
                   h6.fw-bold.mb-0.text-secondary Signos Vitales
                 .btn-group.d-flex.align-items-center(role="group")
-                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalSignosVitales")
-                    i.bi.bi-plus-lg
+                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalSignosVitales")
+                      i.bi.bi-plus-lg
                   a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/signos-vitales`)
                     | Todo
 
@@ -126,34 +127,40 @@ block content
                         div
                           span.text-muted.text-uppercase.fw-bold.small.d-block Frec. Cardíaca
                           i.bi.bi-heart-pulse-fill.text-danger.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.frecuencia_cardiaca}
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].frecuencia_cardiaca}
                           span.fs-6.ms-1.text-muted LPM
                     .col-6
                       .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
                         div
                           span.text-muted.text-uppercase.fw-bold.small.d-block Pres. Arterial
                           i.bi.bi-activity.text-danger.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.presion_arterial}
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].presion_arterial}
                           span.fs-6.ms-1.text-muted mmHg
                     .col-6
                       .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
                         div
                           span.text-muted.text-uppercase.fw-bold.small.d-block Sat. Oxigeno
                           i.bi.bi-lungs-fill.text-primary.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.saturacion_oxigeno}
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].saturacion_oxigeno}
                           span.fs-6.ms-1.text-muted %
                     .col-6
                       .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
                         div
                           span.text-muted.text-uppercase.fw-bold.small.d-block Temperatura
                           i.bi.bi-thermometer-half.text-danger.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.temperatura}
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].temperatura}
                           span.fs-6.ms-1.text-muted °C
                 else 
                   .text-center.text-muted.h-100.row.justify-content-center.align-items-center
                     div
                       i.bi.bi-folder2-open.fs-1.mb-3
                       p.ps-2 Signos vitales no registrados.
+
+
+          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+            include modalSignosVitales
+            block scripts
+              script(src="/js/admision/registrarSignosVitales.js") 
 
           //- Cuidados Realizados
           .col-12.col-md-6.col-xl-4
@@ -163,8 +170,9 @@ block content
                   i.bi.bi-heart-pulse.text-primary.fs-5
                   h6.fw-bold.mb-0.text-secondary Cuidados Realizados
                 .btn-group.d-flex.align-items-center(role="group")
-                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalCuidadosRealizados")
-                    i.bi.bi-plus-lg
+                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalCuidadosRealizados")
+                      i.bi.bi-plus-lg
                   a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/cuidados`)
                     | Todo
               .card-body.p-0
