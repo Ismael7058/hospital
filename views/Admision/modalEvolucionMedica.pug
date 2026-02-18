@@ -1,0 +1,29 @@
+#modalEvolucionMedica.modal.fade(tabindex="-1" aria-hidden="true")
+  .modal-dialog.modal-dialog-centered(style="max-width: 540px;" )
+    .modal-content.border-0.shadow-lg.rounded-3
+      .modal-header.border-bottom.bg-light.bg-opacity-50.py-3.px-4.align-items-center
+        .d-flex.align-items-center.gap-3
+          .d-flex.align-items-center.justify-content-center.bg-primary.bg-opacity-10.text-primary.rounded-3(style="width: 40px; height: 40px;")
+            i.bi.bi-journal-medical.fs-4
+          div
+            h5.modal-title.fw-bold.text-dark.text-uppercase.fs-6.mb-0 Registrar Evolución Médica
+            p.small.fw-bold.text-muted.text-uppercase.mb-0(style="font-size: 10px;") Formulario de Evolución Clínica
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+      form#formEvolucionMedica(autocomplete="off" novalidate)
+        .modal-body.p-4
+          input(type="hidden", name="admision_id" value=admision.id)
+
+          .mb-3
+            label.form-label.small.fw-bold.text-muted.text-uppercase(for="diagnostico" style="font-size: 10px; letter-spacing: 0.5px;") Diagnóstico Actual / Evolutivo
+            textarea.form-control.bg-light(id="diagnostico" name="diagnostico" placeholder="Ej: Paciente estable, febril, dolor abdominal..." rows="3" style="resize: none;  min-height: 50px;")
+
+          .mb-0
+            label.form-label.small.fw-bold.text-muted.text-uppercase(for="tratamiento_ajuste" style="font-size: 10px; letter-spacing: 0.5px;") Tratamiento / Plan de Acción
+            textarea.form-control.bg-light(id="tratamiento_ajuste" name="tratamiento_ajuste" placeholder="Ej: Continuar antibióticos, solicitar interconsulta..." rows="3" style="resize: none;  min-height: 150px;")
+
+        .modal-footer.bg-light.bg-opacity-50.border-top.px-4.py-3
+          button.btn.btn-light.text-muted.fw-bold.text-uppercase.small(type="button" data-bs-dismiss="modal" style="font-size: 12px;") Cancelar
+          button.btn.btn-primary.fw-bold.text-uppercase.small.d-flex.align-items-center.gap-2(type="submit" style="font-size: 12px;")
+            i.bi.bi-journal-plus
+            | Guardar Evolución

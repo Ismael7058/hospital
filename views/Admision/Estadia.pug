@@ -54,7 +54,7 @@ block content
                   h6.fw-bold.mb-0.text-secondary Evolución Médica
                 .btn-group.d-flex.align-items-center(role="group")
                   if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAtenderAdmision")
+                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEvolucionMedica")
                       i.bi.bi-plus-lg
                   a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/evolucion-medica`)
                     | Todo
@@ -63,8 +63,8 @@ block content
                   each evoluciones in admision.evoluciones_medicas
                     .d-flex.align-items-start.gap-3
                       .mt-2.rounded-circle.bg-primary(style="width: 8px; height: 8px; flex-shrink: 0;")
-                      div
-                        p.fw-bold.small.mb-0 #{evoluciones.diagnostico}
+                      div(style="min-width: 0;")
+                        p.fw-bold.small.mb-0.text-truncate(title=evoluciones.diagnostico data-bs-toggle="tooltip") #{evoluciones.diagnostico}
                         p.small.text-muted.mb-0  
                           | Diagnosticado el #{evoluciones.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}. #{evoluciones.tratamiento}
                 else 
@@ -73,6 +73,10 @@ block content
                       i.bi.bi-folder2-open.fs-1.mb-3
                       p.ps-2 No se encontraron evoluciones medicas.
 
+          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+            include modalEvolucionMedica
+            block scripts
+              script(src="/js/admision/registrarEvolucionMedica.js") 
 
           //- Estudios Solicitados
           .col-12.col-md-6.col-xl-4
@@ -91,13 +95,12 @@ block content
               .card-body.d-flex.flex-column.gap-3
                 if admision.estudios_solicitados.length > 0
                   each estudio in admision.estudios_solicitados
-                    .d-flex.align-items-center.justify-content-between
-                      .d-flex.align-items-center.gap-3
-                        .rounded-circle.bg-primary.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 32px; height: 32px;")
-                          i.bi.bi-check-circle-fill.text-primary.small
-                        div
-                          p.small.fw-bold.mb-0 #{estudio.estudio}
-                          p.text-muted.text-uppercase.fw-bold.mb-0(style="font-size: 10px;") #{estudio.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}
+                    .d-flex.align-items-center.gap-3
+                      .rounded-circle.bg-primary.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 32px; height: 32px; flex-shrink: 0;")
+                        i.bi.bi-check-circle-fill.text-primary.small
+                      div(style="min-width: 0;")
+                        p.fw-bold.small.mb-0.text-truncate(title=estudio.estudio data-bs-toggle="tooltip") #{estudio.estudio}
+                        p.text-muted.text-uppercase.fw-bold.mb-0(style="font-size: 10px;") #{estudio.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}
 
                 else 
                   .text-center.text-muted.h-100.row.justify-content-center.align-items-center
@@ -309,5 +312,11 @@ block scripts
       var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
       var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
+      });
+
+      // Inicializar todos los tooltips en la página
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
       });
     });
