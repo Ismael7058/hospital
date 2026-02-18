@@ -14,7 +14,7 @@ exports.registrarEstudioSolicitado = async (admision_id, estudio, descripcion) =
     throw new Error('La admision no permite nuevos registros de estudios solicitados');
   }
 
-  const nuevoEstudio = await EstudioSolicitado.crete({
+  const nuevoEstudio = await EstudioSolicitado.create({
     estudio: estudio,
     descripcion: descripcion,
     fecha_hora: new Date(),
