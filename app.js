@@ -23,6 +23,7 @@ const evolucionMedicaApiRouter = require('./routes/api/evolucionMedicaApiRouter'
 const cuidadoApiRouter = require('./routes/api/cuidadoApiRouter');
 const estudioApiRouter = require('./routes/api/estudioApiRouter');
 const medicacionApiRouter = require('./routes/api/medicacionApiRouter');
+const signosVitalesApiRouter = require('./routes/api/signosVitalesApiRouter');
 
 const authViewsRouter = require('./routes/views/authViewsRouter');
 const userViewsRouter = require('./routes/views/usuariosViewsRouter');
@@ -69,6 +70,7 @@ app.use('/api/evoluciones-medicas', protegerRuta, evolucionMedicaApiRouter);
 app.use('/api/cuidados-preeliminares', protegerRuta, cuidadoApiRouter);
 app.use('/api/estudios-solicitados', protegerRuta, estudioApiRouter);
 app.use('/api/medicaciones', protegerRuta, medicacionApiRouter);
+app.use('/api/signos-vitales', protegerRuta, signosVitalesApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
