@@ -250,36 +250,7 @@ block content
             
     //- trasladar paciente
     if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-      #modalTraslado.modal.fade(tabindex="-1" aria-hidden="true")
-        .modal-dialog.modal-dialog-centered
-          .modal-content
-            .modal-header
-              h5.modal-title Trasladar Paciente
-              button.btn-close(type="button" data-bs-dismiss="modal")
-            form#formTrasladoPaciente(autocomplete="off" novalidate)
-              .modal-body
-                input(type="hidden", name="admision_id" value=admision.id)
-                .row.g-3.justify-content-center
-                  .col-md-12
-                    label.form-label(for="ala_id") Ala / Sector
-                    select.form-select(id="ala_id" name="ala_id" required)
-                      option(value="") Seleccionar Ala
-                      if alas
-                        each ala in alas
-                          option(value=ala.id) #{ala.nombre}
-                  .col-md-12
-                    label.form-label(for="habitacion_id") Habitación
-                    select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
-                      option(value="") Seleccione Ala primero
-                  .col-md-12
-                    label.form-label(for="cama_id") Cama
-                    select.form-select(id="cama_id" name="cama_id" disabled required)
-                      option(value="") Seleccione Habitación primero
-              .modal-footer
-                button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-                button.btn.btn-primary(type="submit")
-                  i.bi.bi-save.me-2
-                  | Trasladar
+      include modalTraslado
 
     //- atender paciente
     if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
