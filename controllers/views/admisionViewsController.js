@@ -447,3 +447,58 @@ exports.getEstudiosSolicitados = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getCuidadosPreeliminares = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const pagina = parseInt(req.query.pagina, 10) || 1;
+    const { activo } = req.query;
+    const registrosPorPagina = 10;
+    const offset = (pagina - 1) * registrosPorPagina;
+
+    const admision = await Admision.findByPk(id, {
+      include: [
+        {
+          model: Paciente,
+          as: 'paciente',
+          include: [{ model: Identificacion, as: 'identificaciones' }]
+        },
+      ]
+    });
+
+    if (!admision) {
+      return res.redirect('/admisiones');
+    }
+
+    const whereClause = { admision_id: id };
+    if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+
+    const { count, rows: cuidados } = await CuidadoPreliminar.findAndCountAll({
+      where: whereClause,
+      order: [['fecha_hora', 'DESC']],
+      limit: registrosPorPagina,
+      offset: offset
+    });
+
+    admision.cuidados_preliminares = cuidados;
+
+    const totalPaginas = Math.ceil(count / registrosPorPagina);
+    const filtros = { activo };
+
+    res.render('./Estadia/CuidadoPreliminar.pug', {
+      title: 'Gestionar Cuidados Preeliminares',
+      admision,
+      filtros,
+
+      paginacion: {
+        totalRegistros: count,
+        totalPaginas: totalPaginas,
+        paginaActual: pagina,
+        registrosPorPagina: registrosPorPagina
+      },
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
+};

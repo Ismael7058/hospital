@@ -13,6 +13,8 @@ router.get('/:id/evolucion-medica', admisionController.getEvolucionMedica);
 
 router.get('/:id/estudios-solicitados', admisionController.getEstudiosSolicitados);
 
+router.get('/:id/cuidados', admisionController.getCuidadosPreeliminares);
+
 router.get('/:id', admisionController.getAdmision);
 
 module.exports = router;
