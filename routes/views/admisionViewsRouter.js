@@ -17,6 +17,8 @@ router.get('/:id/cuidados', admisionController.getCuidadosPreeliminares);
 
 router.get('/:id/medicaciones', admisionController.getMedicaciones);
 
+router.get('/:id/signos-vitales', admisionController.getSignosVitales);
+
 router.get('/:id', admisionController.getAdmision);
 
 module.exports = router;

@@ -563,3 +563,58 @@ exports.getMedicaciones = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getSignosVitales = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const pagina = parseInt(req.query.pagina, 10) || 1;
+    const { activo } = req.query;
+    const registrosPorPagina = 10;
+    const offset = (pagina - 1) * registrosPorPagina;
+
+    const admision = await Admision.findByPk(id, {
+      include: [
+        {
+          model: Paciente,
+          as: 'paciente',
+          include: [{ model: Identificacion, as: 'identificaciones' }]
+        },
+      ]
+    });
+
+    if (!admision) {
+      return res.redirect('/admisiones');
+    }
+
+    const whereClause = { admision_id: id };
+    if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+
+    const { count, rows: signos } = await SignosVitales.findAndCountAll({
+      where: whereClause,
+      order: [['fecha_hora', 'DESC']],
+      limit: registrosPorPagina,
+      offset: offset
+    });
+
+    admision.signos_vitales = signos;
+
+    const totalPaginas = Math.ceil(count / registrosPorPagina);
+    const filtros = { activo };
+
+    res.render('./Estadia/SignosVitales.pug', {
+      title: 'Gestionar Signos Vitales',
+      admision,
+      filtros,
+
+      paginacion: {
+        totalRegistros: count,
+        totalPaginas: totalPaginas,
+        paginaActual: pagina,
+        registrosPorPagina: registrosPorPagina
+      },
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
+};
