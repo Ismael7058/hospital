@@ -114,9 +114,9 @@ exports.setEstadoCama = async (req, res) => {
 
     try {
         const { id } = req.params;
-        const { usuario_id, estado } = req.body;
+        const { estado } = req.body;
 
-        await camaServices.setEstado(id, usuario_id, estado);
+        await camaServices.setEstado(id, req.usuario.id, estado);
 
         res.status(200).json({ message: 'Cama actualizada correctamente' });
     } catch (error) {
