@@ -15,7 +15,7 @@ exports.registrarSignosVitales = async (datoSignos) => {
     throw new Error('La admision no permite nuevos registros de signos vitales');
   }
 
-  const nuevaMedicacion = await SignosVitales.crete({
+  const nuevaMedicacion = await SignosVitales.create({
     frecuencia_cardiaca: frecuencia_cardiaca,
     presion_arterial: presion_arterial,
     saturacion_oxigeno: saturacion_oxigeno,
