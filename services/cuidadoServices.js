@@ -14,7 +14,7 @@ exports.registrarCuidado = async (admision_id, descripcion) => {
     throw new Error('La admision no permite nuevos registros de evolucion medica');
   }
 
-  const nuevoCuidado = await CuidadoPreliminar.crete({
+  const nuevoCuidado = await CuidadoPreliminar.create({
     descripcion: descripcion,
     fecha_hora: new Date(),
     activo: true,
