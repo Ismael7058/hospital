@@ -9,17 +9,25 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        descripcion: {
+        dosis: {
             type: DataTypes.STRING,
             allowNull: false,
         },
         intervalo_horas : {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        fecha_inicio: {
+            type: DataTypes.DATE,
             allowNull: false
         },
         fecha_hora: {
             type: DataTypes.DATE,
             allowNull: false
+        },
+        indicaciones: {
+            type: DataTypes.TEXT,
+            allowNull: true,
         },
         estado: {
             type: DataTypes.STRING,
