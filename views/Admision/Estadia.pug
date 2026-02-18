@@ -226,8 +226,9 @@ block content
                   i.bi.bi-capsule.text-primary.fs-5
                   h6.fw-bold.mb-0.text-secondary Historial de Ubicaciones
                 .btn-group.d-flex.align-items-center(role="group")
-                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
-                    i.bi.bi-plus-lg
+                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
+                      i.bi.bi-plus-lg
                   a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/traslados`)
                     | Todo
               .card-body.p-0
@@ -253,7 +254,16 @@ block content
                       i.bi.bi-folder2-open.fs-1.mb-3
                       p.ps-2 No se encontraron cuidados realizados.
 
+    //- trasladar paciente
+    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+      include modalTraslado
+
+
+
 block scripts
+  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+    script(src="/js/admision/trasladar.js")
+    script(src="/js/admision/ubicacion.js") 
   script.
     // Inicializar todos los popovers en la página
     document.addEventListener('DOMContentLoaded', function () {
