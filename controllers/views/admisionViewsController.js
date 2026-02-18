@@ -618,3 +618,76 @@ exports.getSignosVitales = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getUbicacionesInternaciones = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const pagina = parseInt(req.query.pagina, 12) || 1;
+    const registrosPorPagina = 11;
+    const offset = (pagina - 1) * registrosPorPagina;
+
+    const admision = await Admision.findByPk(id, {
+      include: [
+        {
+          model: Paciente,
+          as: 'paciente',
+          include: [{ model: Identificacion, as: 'identificaciones' }]
+        },
+      ]
+    });
+
+    if (!admision) {
+      return res.redirect('/admisiones');
+    }
+
+    const whereClause = { admision_id: id };
+
+    const { count, rows: ubicaciones } = await UbicacionInternacion.findAndCountAll({
+      where: whereClause,
+      order: [['fecha_hora_asignacion', 'DESC']],
+      limit: registrosPorPagina,
+      offset: offset,
+      include: [
+        {
+          model: Cama,
+          as: 'cama',
+          include: [
+            {
+              model: Habitacion,
+              as: 'habitacion',
+              include: [
+                {
+                  model: Ala,
+                  as: 'ala'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          model: Usuario,
+          as: 'usuario_asignador',
+          attributes: ['nombre', 'apellido']
+        }
+      ]
+    });
+
+    admision.ubicaciones = ubicaciones;
+
+    const totalPaginas = Math.ceil(count / registrosPorPagina);
+
+    res.render('./Admision/UbicacionesInternaciones.pug', {
+      title: 'Historial de Ubicaciones',
+      admision,
+      paginacion: {
+        totalRegistros: count,
+        totalPaginas: totalPaginas,
+        paginaActual: pagina,
+        registrosPorPagina: registrosPorPagina
+      },
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
+};

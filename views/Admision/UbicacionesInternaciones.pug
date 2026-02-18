@@ -1,0 +1,151 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.overflow-hidden
+      //- Header Paciente
+      .bg-dark.text-white.p-4.flex-shrink-0
+        .d-flex.align-items-center.gap-4
+          .rounded-circle.bg-white.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 60px; height: 60px;")
+            i.bi.bi-person-fill.fs-2.text-white
+          .flex-grow-1.row.g-4
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Nombre Completo
+              p.h5.fw-bold.mb-0.text-light #{admision.paciente.nombre} #{admision.paciente.apellido}
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Edad
+              -
+                const fechaNac = new Date(admision.paciente.fecha_nacimiento);
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - fechaNac.getFullYear();
+                const m = hoy.getMonth() - fechaNac.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edad--;
+                }
+              p.fw-semibold.text-white.mb-0 #{edad} años
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Sexo
+              p.fw-semibold.text-white.mb-0 #{admision.paciente.sexo}
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Identificación
+              if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
+                .d-flex.flex-wrap.gap-1
+                  each ident in admision.paciente.identificaciones
+                    span.badge.bg-white.text-dark.bg-opacity-75 #{ident.tipo_doc}: #{ident.nro_doc}
+              else
+                p.fw-semibold.text-white.mb-0 --
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 ID Paciente
+              p.font-monospace.fw-semibold.text-white.mb-0 ##{admision.paciente.id}
+
+      //- Filtros
+      .bg-light.border-bottom.p-3.flex-shrink-0.d-flex.justify-content-end
+        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/estadia`)
+          i.bi.bi-arrow-left.me-2
+          | Volver
+
+      //- Tabla
+      .card-body.p-0.flex-grow-1.overflow-auto.position-relative
+        table.table.table-hover.table-striped.align-middle.mb-0
+          thead.table-light.sticky-top
+            tr
+              th.py-3.ps-4(style="width: 20%;") Sector (Ala)
+              th.py-3(style="width: 15%;") Habitación
+              th.py-3(style="width: 15%;") Cama
+              th.py-3(style="width: 20%;") Fecha Asignación
+              th.py-3(style="width: 20%;") Fecha Liberación
+              th.py-3.text-center(style="width: 10%;") Acciones
+
+          tbody
+            if admision.ubicaciones && admision.ubicaciones.length > 0
+              each ubicacion in admision.ubicaciones
+                tr
+                  td.ps-4.text-muted.fw-semibold #{ubicacion.cama.habitacion.ala.nombre}
+                  td.text-muted N° #{ubicacion.cama.habitacion.numero}
+                  td.text-muted #{ubicacion.cama.codigo}
+                  td.text-muted #{new Date(ubicacion.fecha_hora_asignacion).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })} hs
+                  td.text-muted #{ubicacion.fecha_hora_liberacion ? new Date(ubicacion.fecha_hora_liberacion).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' hs' : 'Actual'}
+                  td.text-center
+                    button.btn.btn-outline-primary.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalVerUbicacion" data-ubicacion=JSON.stringify(ubicacion) title="Ver Detalles")
+                      i.bi.bi-eye
+              
+              - const filasVacias = (paginacion.registrosPorPagina || 11) - admision.ubicaciones.length;
+              if filasVacias > 0
+                - for (let i = 0; i < filasVacias; i++)
+                  tr
+                    td(colspan="6") &nbsp;
+            
+        if !admision.ubicaciones || admision.ubicaciones.length === 0
+          .d-flex.flex-column.align-items-center.justify-content-center.h-100.text-muted
+             i.bi.bi-pin-map.display-1.mb-3.opacity-25
+             h5.fw-light No hay ubicaciones registradas
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.bg-white.border-top.py-3.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
+
+    #modalVerUbicacion.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content.border-0.shadow-lg
+          .modal-header.bg-primary.text-white
+            h5.modal-title
+              i.bi.bi-pin-map-fill.me-2
+              | Detalle de Ubicación
+            button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body.p-4
+            .row.g-3.mb-3
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Sector (Ala)
+                p#modalAla.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Habitación
+                p#modalHabitacion.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Cama
+                p#modalCama.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Asignado por
+                p#modalUsuario.text-secondary.mb-0
+            .row.g-3
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Fecha Asignación
+                p#modalFechaAsignacion.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Fecha Liberación
+                p#modalFechaLiberacion.text-secondary.mb-0
+          .modal-footer.bg-light
+            button.btn.btn-secondary.px-4(type="button" data-bs-dismiss="modal") Cerrar
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function () {
+      var modalVerUbicacion = document.getElementById('modalVerUbicacion');
+      if (modalVerUbicacion) {
+        modalVerUbicacion.addEventListener('show.bs.modal', function (event) {
+          var button = event.relatedTarget;
+          var ubicacion = JSON.parse(button.getAttribute('data-ubicacion'));
+
+          var modalAla = modalVerUbicacion.querySelector('#modalAla');
+          var modalHabitacion = modalVerUbicacion.querySelector('#modalHabitacion');
+          var modalCama = modalVerUbicacion.querySelector('#modalCama');
+          var modalUsuario = modalVerUbicacion.querySelector('#modalUsuario');
+          var modalFechaAsignacion = modalVerUbicacion.querySelector('#modalFechaAsignacion');
+          var modalFechaLiberacion = modalVerUbicacion.querySelector('#modalFechaLiberacion');
+
+          modalAla.textContent = ubicacion.cama.habitacion.ala.nombre;
+          modalHabitacion.textContent = 'N° ' + ubicacion.cama.habitacion.numero;
+          modalCama.textContent = ubicacion.cama.codigo;
+          modalUsuario.textContent = ubicacion.usuario_asignador.nombre + ' ' + ubicacion.usuario_asignador.apellido;
+          modalFechaAsignacion.textContent = new Date(ubicacion.fecha_hora_asignacion).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' hs';
+          modalFechaLiberacion.textContent = ubicacion.fecha_hora_liberacion ? new Date(ubicacion.fecha_hora_liberacion).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' hs' : 'Ubicación Actual';
+        });
+      }
+      
+      // Re-initialize tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });

@@ -217,7 +217,7 @@ block content
                   if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
                     button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalMedicacionActiva")
                       i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/medicacion`)
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/medicaciones`)
                     | Todo
               .card-body.p-0
                 if admision.medicaciones.length > 0
@@ -271,7 +271,7 @@ block content
                   if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
                     button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
                       i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/traslados`)
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/ubicaciones`)
                     | Todo
               .card-body.p-0
                 if admision.ubicaciones.length > 0
