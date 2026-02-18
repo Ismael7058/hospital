@@ -1,7 +1,7 @@
 const { Admision, Medicacion } = require('../db/models');
 
 exports.registrarMedicacion = async (datosMedicacion) => {
-  const { admision_id, medicamento, descripcion, intervalo_horas, via_administracion_id } = datosMedicacion;
+  const { admision_id, medicamento, dosis, fecha_inicio, indicaciones, intervalo_horas, via_administracion_id } = datosMedicacion;
   const admision = await Admision.findByPk(admision_id);
   if (!admision) {
     throw new Error('Admision no encontrado');
@@ -15,11 +15,13 @@ exports.registrarMedicacion = async (datosMedicacion) => {
     throw new Error('La admision no permite nuevos registros de medicaciones');
   }
 
-  const nuevaMedicacion = await Medicacion.crete({
+  const nuevaMedicacion = await Medicacion.create({
     medicamento: medicamento,
-    descripcion: descripcion,
+    dosis: dosis,
     intervalo_horas: intervalo_horas,
+    fecha_inicio: fecha_inicio,
     fecha_hora: new Date(),
+    indicaciones: indicaciones,
     activo: true,
     estado: 'Suministrar',
     admision_id: admision_id,
