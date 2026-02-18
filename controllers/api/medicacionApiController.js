@@ -47,3 +47,26 @@ exports.setActivo = async (req, res) => {
     }
   }
 }
+
+exports.setEstado = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+  }
+  const { estado } = req.body;
+  try {
+    const { id } = req.params;
+    await medicacionServices.setEstado(id, estado);
+    res.status(200).json({ message: `Medicacion cambio su estado a '${ estado }' exitosamente.` });
+  } catch (error) {
+    switch (error.message) {
+      case 'Medicacion no encontrada':
+        return res.status(404).json({ message: error.message });
+      case 'La medicacion no puede cambiar su estado':
+      case `La medicacion ya se encuentra con el estado '${estado}'.`:
+        return res.status(409).json({ message: error.message });
+      default:
+        res.status(500).json({ message: 'Error interno del servidor al cambiar el estado de la medicacion' });
+    }
+  }
+}

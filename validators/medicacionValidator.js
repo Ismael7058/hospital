@@ -39,3 +39,11 @@ exports.setActivoValidation = () => {
   ];
 };
 
+exports.setEstadoValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('estado')
+      .notEmpty().withMessage('El estado de admisión es obligatorio')
+      .isIn(['Suministrar', 'Suspendido', 'Cancelado']).withMessage('El estado de la medicacion no es valido'),
+  ];
+};
