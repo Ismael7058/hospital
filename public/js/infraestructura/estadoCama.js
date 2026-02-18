@@ -76,11 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
     button.setAttribute('data-activo', String(esActivo));
     const icon = button.querySelector('i');
     if (esActivo) {
-      icon.className = 'bi bi-toggle-off me-1';
-      button.innerHTML = `${icon.outerHTML} Desactivar`;
+      icon.className = 'bi bi-toggle-off';
+      button.innerHTML = `${icon.outerHTML}`;
     } else {
-      icon.className = 'bi bi-toggle-on me-1';
-      button.innerHTML = `${icon.outerHTML} Activar`;
+      icon.className = 'bi bi-toggle-on';
+      button.innerHTML = `${icon.outerHTML}`;
     }
   }
 });

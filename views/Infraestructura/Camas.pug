@@ -108,7 +108,7 @@ block content
                             data-nuevo-estado="Higienizando",
                             data-accion-texto="iniciar la higienización de esta cama",
                             data-titulo="Confirmar Higienización",
-                            data-btn-clase="btn-warning text-dark",
+                            data-btn-clase="btn-outline-warning",
                             title="Higienizar Cama"
                           )
                             i.bi.bi-droplet
@@ -121,11 +121,19 @@ block content
                             data-nuevo-estado="Libre",
                             data-accion-texto="finalizar la higienización y marcar la cama como libre",
                             data-titulo="Confirmar Finalización",
-                            data-btn-clase="btn-success",
+                            data-btn-clase="btn-outline-success",
                             title="Finalizar Higienización"
                           )
-                            i.bi.bi-check-circle.me-1
-                        button.btn.btn-sm.btn-outline-info.btn-toggle-activo(type="button" data-id=cama.id data-activo=String(cama.activo) title="Activar/Desactivar" data-bs-toggle="tooltip")
+                            i.bi.bi-check-circle
+                        else
+                          button.btn.btn-sm.btn-outline-secondary(
+                            type="button",
+                            disabled,
+                            title="Acción no disponible",
+                            data-bs-toggle="tooltip"
+                          )
+                            i.bi.bi-droplet
+                        button.btn.btn-sm.btn-outline-dark.btn-toggle-activo(type="button" data-id=cama.id data-activo=String(cama.activo) title="Activar/Desactivar" data-bs-toggle="tooltip")
                           if cama.activo
                             i.bi.bi-toggle-off
                           else
@@ -204,6 +212,7 @@ block scripts
   script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
   script(src="/js/infraestructura/modalCama.js")
   script(src="/js/infraestructura/setEstadoCama.js")
+  script(src="/js/infraestructura/estadoCama.js")
   script.
     // Inicializar tooltips
     // Se seleccionan elementos con data-bs-toggle="tooltip" O elementos modales que tengan título

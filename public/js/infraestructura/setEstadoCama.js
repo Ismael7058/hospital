@@ -72,27 +72,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const newButton = document.createElement('button');
     newButton.type = 'button';
-    newButton.className = 'btn btn-sm me-2';
+    newButton.className = 'btn btn-sm';
     newButton.setAttribute('data-bs-toggle', 'modal');
     newButton.setAttribute('data-bs-target', '#confirmarCambioEstadoCamaModal');
     newButton.setAttribute('data-cama-id', camaId);
 
     if (nuevoEstado === 'Higienizando') {
-      newButton.classList.add('btn-success');
+      newButton.classList.add('btn-outline-success');
       newButton.setAttribute('data-nuevo-estado', 'Libre');
       newButton.setAttribute('data-accion-texto', 'finalizar la higienización y marcar la cama como libre');
       newButton.setAttribute('data-titulo', 'Confirmar Finalización');
-      newButton.setAttribute('data-btn-clase', 'btn-success');
+      newButton.setAttribute('data-btn-clase', 'btn-outline-success');
       newButton.title = 'Finalizar Higienización';
-      newButton.innerHTML = '<i class="bi bi-check-circle me-1"></i> Finalizar';
+      newButton.innerHTML = '<i class="bi bi-check-circle"></i>';
     } else if (nuevoEstado === 'Libre') {
-      newButton.classList.add('btn-warning', 'text-dark');
+      newButton.classList.add('btn-outline-warning');
       newButton.setAttribute('data-nuevo-estado', 'Higienizando');
       newButton.setAttribute('data-accion-texto', 'iniciar la higienización de esta cama');
       newButton.setAttribute('data-titulo', 'Confirmar Higienización');
-      newButton.setAttribute('data-btn-clase', 'btn-warning text-dark');
+      newButton.setAttribute('data-btn-clase', 'btn-outline-warning');
       newButton.title = 'Higienizar Cama';
-      newButton.innerHTML = '<i class="bi bi-droplet-fill me-1"></i> Higienizar';
+      newButton.innerHTML = '<i class="bi bi-droplet-fill"></i>';
     }
 
     button.replaceWith(newButton);
