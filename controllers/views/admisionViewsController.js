@@ -1,4 +1,4 @@
-const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala, UbicacionInternacion, Cama, Habitacion, Especialidad } = require('../../db/models');
+const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala, UbicacionInternacion, Cama, Habitacion, Especialidad, EvolucionMedica, EstudioSolicitado, SignosVitales, CuidadoPreliminar, Medicacion, ViaAdministracion } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getAdmisiones = async (req, res, next) => {
@@ -209,3 +209,129 @@ exports.getAdmision = async (req, res, next) => {
     next(error);
   }
 } ;
+
+
+exports.getEstadia = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const admision = await Admision.findByPk(id, {
+      include: [
+        {
+          model: ViaIngreso,
+          as: 'via_ingreso',
+          attributes: ['nombre']
+        },
+        {
+          model: EvolucionMedica,
+          as: 'evoluciones_medicas',
+          where: {
+            activo: true
+          },
+          order: [['fecha_hora', 'DESC']],
+          limit: 4,
+          separate: true
+        },
+        {
+          model: EstudioSolicitado,
+          as: 'estudios_solicitados',
+          where: {
+            activo: true
+          },
+          order: [['fecha_hora', 'DESC']],
+          limit: 4,
+          separate: true
+        },
+        {
+          model: SignosVitales,
+          as: 'signos_vitales',
+          where: {
+            activo: true
+          },
+          order: [['fecha_hora', 'DESC']],
+          limit: 1,
+          separate: true
+        },
+        {
+          model: CuidadoPreliminar,
+          as: 'cuidados_preliminares',
+          where: {
+            activo: true
+          },
+          order: [['fecha_hora', 'DESC']],
+          limit: 4,
+          separate: true
+        },
+        {
+          model: Medicacion,
+          as: 'medicaciones',
+          where: {
+            activo: true,
+            estado: 'Suministrar'
+          },
+          order: [['fecha_hora', 'DESC']],
+          limit: 3,
+          separate: true,
+          include: [{
+            model: ViaAdministracion,
+            as: 'via_administracion'
+          }]
+        },
+        {
+          model: Paciente,
+          as: 'paciente',
+          include: [{ model: Identificacion, as: 'identificaciones' }]
+        },
+        {
+          model: Usuario,
+          as: 'medico_atencion',
+          attributes: ['id', 'nombre', 'apellido'],
+          include: [{
+            model: Especialidad,
+            attributes: ['nombre'],
+            through: { attributes: [] }
+          }]
+        },
+        {
+          model: Usuario,
+          as: 'usuario_registro',
+          attributes: ['id', 'nombre', 'apellido']
+        },
+        {
+          model: UbicacionInternacion,
+          as: 'ubicaciones',
+          order: [['fecha_hora_asignacion', 'DESC']],
+          limit: 4,
+          separate: true,
+          include: [
+            {
+              model: Cama,
+              as: 'cama',
+              include: [
+                {
+                  model: Habitacion,
+                  as: 'habitacion',
+                  include: [
+                    {
+                      model: Ala,
+                      as: 'ala'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const alas = await Ala.findAll({ where: { activo: true } });
+
+    res.render('./Admision/Estadia.pug', {
+      title: 'Gestionar Estadia',
+      admision,
+      alas
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
+};

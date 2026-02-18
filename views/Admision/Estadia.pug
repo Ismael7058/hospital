@@ -1,0 +1,264 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.p-4
+    .row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1
+      .d-flex.align-items-center.justify-content-between.mt-4
+        a.btn.btn-outline-secondary.ms-3(href=`/admisiones/${admision.id}`)
+          i.bi.bi-arrow-left.me-2
+          | Volver
+        h3.m-0 Gestionar Estadia
+        div(style="width: 100px")
+      .flex-grow-1.overflow-auto.p-4
+        //- Datos Paciente
+        .card.border-0.shadow-sm.mb-4.rounded-3
+          .card-body.p-4.d-flex.align-items-center.gap-4
+            i.bi.bi-person-fill.fs-1.text-primary-emphasis
+            .flex-grow-1.row.g-4
+              .col-md-3
+                p.small.text-muted.text-uppercase.fw-bold.mb-1 Nombre Completo
+                p.h5.fw-bold.mb-0 #{admision.paciente.nombre} #{admision.paciente.apellido}
+              .col-md-2
+                p.small.text-muted.text-uppercase.fw-bold.mb-1 Edad
+                -
+                  const fechaNac = new Date(admision.paciente.fecha_nacimiento);
+                  const hoy = new Date();
+                  let edad = hoy.getFullYear() - fechaNac.getFullYear();
+                  const m = hoy.getMonth() - fechaNac.getMonth();
+                  if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
+                    edad--;
+                  }
+                p.fw-semibold.text-secondary.mb-0 #{edad} años
+              .col-md-2
+                p.small.text-muted.text-uppercase.fw-bold.mb-1  Sexo
+                p.fw-semibold.text-secondary.mb-0 #{admision.paciente.sexo}
+              .col-md-3
+                p.small.text-muted.text-uppercase.fw-bold.mb-1 Identificación
+                if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
+                  .d-flex.flex-wrap.gap-1
+                    each ident in admision.paciente.identificaciones
+                      span.badge.bg-light.text-secondary.border #{ident.tipo_doc}: #{ident.nro_doc}
+                else
+                  p.fw-semibold.text-secondary.mb-0 --
+              .col-md-2
+                p.small.text-muted.text-uppercase.fw-bold.mb-1 ID Paciente
+                p.font-monospace.fw-semibold.text-secondary.mb-0 ##{admision.paciente.id}
+
+        .row.g-4
+          //- Evolución Médica
+          .col-12.col-md-6.col-xl-4
+            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
+              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
+                .d-flex.align-items-center.gap-2
+                  i.bi.bi-bar-chart-line-fill.text-primary.fs-5
+                  h6.fw-bold.mb-0.text-secondary Evolución Médica
+                .btn-group.d-flex.align-items-center(role="group")
+                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAtenderAdmision")
+                    i.bi.bi-plus-lg
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/evolucion-medica`)
+                    | Todo
+              .card-body.d-flex.flex-column.gap-3
+                if admision.evoluciones_medicas.length > 0
+                  each evoluciones in admision.evoluciones_medicas
+                    .d-flex.align-items-start.gap-3
+                      .mt-2.rounded-circle.bg-primary(style="width: 8px; height: 8px; flex-shrink: 0;")
+                      div
+                        p.fw-bold.small.mb-0 #{evoluciones.diagnostico}
+                        p.small.text-muted.mb-0  
+                          | Diagnosticado el #{evoluciones.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}. #{evoluciones.tratamiento}
+                else 
+                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
+                    div
+                      i.bi.bi-folder2-open.fs-1.mb-3
+                      p.ps-2 No se encontraron evoluciones medicas.
+
+
+          //- Estudios Solicitados
+          .col-12.col-md-6.col-xl-4
+            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
+              .card-header.bg-light-subtle.border-bottom.py-3.d-flex.justify-content-between.align-items-center
+                .d-flex.align-items-center.gap-2
+                  i.bi.bi-shield-check.text-primary.fs-5
+                  h6.fw-bold.mb-0.text-secondary Estudios Solicitados
+                .btn-group.d-flex.align-items-center(role="group")
+                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEstudiosSolicitados")
+                    i.bi.bi-plus-lg
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/estudios`)
+                    | Todo
+
+              .card-body.d-flex.flex-column.gap-3
+                if admision.estudios_solicitados.length > 0
+                  each estudio in admision.estudios_solicitados
+                    .d-flex.align-items-center.justify-content-between
+                      .d-flex.align-items-center.gap-3
+                        .rounded-circle.bg-primary.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 32px; height: 32px;")
+                          i.bi.bi-check-circle-fill.text-primary.small
+                        div
+                          p.small.fw-bold.mb-0 #{estudio.estudio}
+                          p.text-muted.text-uppercase.fw-bold.mb-0(style="font-size: 10px;") #{estudio.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}
+
+                else 
+                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
+                    div
+                      i.bi.bi-folder2-open.fs-1.mb-3
+                      p.ps-2 No se encontraron estudios solicitados.
+
+
+
+          //- Signos Vitales
+          .col-12.col-md-6.col-xl-4
+            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
+              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
+                .d-flex.align-items-center.gap-2
+                  i.bi.bi-bar-chart-line-fill.text-primary.fs-5
+                  h6.fw-bold.mb-0.text-secondary Signos Vitales
+                .btn-group.d-flex.align-items-center(role="group")
+                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalSignosVitales")
+                    i.bi.bi-plus-lg
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/signos-vitales`)
+                    | Todo
+
+              .card-body
+                if admision.signos_vitales.length == 1
+                  .row.g-3
+                    .col-6
+                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
+                        div
+                          span.text-muted.text-uppercase.fw-bold.small.d-block Frec. Cardíaca
+                          i.bi.bi-heart-pulse-fill.text-danger.fs-5
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.frecuencia_cardiaca}
+                          span.fs-6.ms-1.text-muted LPM
+                    .col-6
+                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
+                        div
+                          span.text-muted.text-uppercase.fw-bold.small.d-block Pres. Arterial
+                          i.bi.bi-activity.text-danger.fs-5
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.presion_arterial}
+                          span.fs-6.ms-1.text-muted mmHg
+                    .col-6
+                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
+                        div
+                          span.text-muted.text-uppercase.fw-bold.small.d-block Sat. Oxigeno
+                          i.bi.bi-lungs-fill.text-primary.fs-5
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.saturacion_oxigeno}
+                          span.fs-6.ms-1.text-muted %
+                    .col-6
+                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
+                        div
+                          span.text-muted.text-uppercase.fw-bold.small.d-block Temperatura
+                          i.bi.bi-thermometer-half.text-danger.fs-5
+                        .fs-4.text-dark.fw-bold #{admision.signos_vitales.temperatura}
+                          span.fs-6.ms-1.text-muted °C
+                else 
+                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
+                    div
+                      i.bi.bi-folder2-open.fs-1.mb-3
+                      p.ps-2 Signos vitales no registrados.
+
+          //- Cuidados Realizados
+          .col-12.col-md-6.col-xl-4
+            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
+              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
+                .d-flex.align-items-center.gap-2
+                  i.bi.bi-capsule.text-primary.fs-5
+                  h6.fw-bold.mb-0.text-secondary Cuidados Realizados
+                .btn-group.d-flex.align-items-center(role="group")
+                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalCuidadosRealizados")
+                    i.bi.bi-plus-lg
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/cuidados`)
+                    | Todo
+              .card-body.p-0
+                if admision.cuidados_preliminares.length > 0
+                  table.table.table-hover.table-last-row-no-border
+                    thead.table-light.border-light-subtle.bg-light-subtle
+                      tr
+                        th.text-start.text-secondary.bg-light-subtle Descripcion
+                        th.text-start.text-secondary.bg-light-subtle Hora
+                    tbody
+                      each cuidados in admision.cuidados_preliminares
+                        tr
+                          td.text-muted.fw-bold #{cuidados.descripcion}
+                          td.text-muted.fw-bold #{new Date(cuidados.fecha_hora).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+                else
+                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
+                    div
+                      i.bi.bi-folder2-open.fs-1.mb-3
+                      p.ps-2 No se encontraron cuidados realizados.
+
+          //- Medicacion Activa
+          .col-12.col-md-6.col-xl-4
+            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
+              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
+                .d-flex.align-items-center.gap-2
+                  i.bi.bi-capsule.text-primary.fs-5
+                  h6.fw-bold.mb-0.text-secondary Medicacion Activa
+                .btn-group.d-flex.align-items-center(role="group")
+                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalMedicacionActiva")
+                    i.bi.bi-plus-lg
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/medicacion`)
+                    | Todo
+              .card-body.p-0
+                if admision.medicaciones.length > 0
+                  table.table.table-hover.table-last-row-no-border
+                    thead.table-light.border-light-subtle
+                      tr
+                        th.text-start.text-secondary.bg-light-subtle Farmaco
+                        th.text-start.text-secondary.bg-light-subtle Dosis
+                    tbody
+                      each medicacion in admision.medicaciones
+                        tr
+                          td
+                            p.fw-bold.m-0 #{medicacion.medicamento}
+                            p.small.text-muted.mb-0 #{medicacion.via_administracion.nombre}
+                          td
+                            p.text-muted.fw-bold #{medicacion.dosis}/#{new Date(medicacion.intervalo_horas).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+                else
+                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
+                    div
+                      i.bi.bi-folder2-open.fs-1.mb-3
+                      p.ps-2 No se encontraron cuidados realizados.
+
+          //- Historial de Ubicaciones
+          .col-12.col-md-6.col-xl-4
+            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
+              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
+                .d-flex.align-items-center.gap-2
+                  i.bi.bi-capsule.text-primary.fs-5
+                  h6.fw-bold.mb-0.text-secondary Historial de Ubicaciones
+                .btn-group.d-flex.align-items-center(role="group")
+                  button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
+                    i.bi.bi-plus-lg
+                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/traslados`)
+                    | Todo
+              .card-body.p-0
+                if admision.ubicaciones.length > 0
+                  table.table.table-hover.table-last-row-no-border
+                    thead.table-light.border-light-subtle
+                      tr
+                      th.text-start.text-secondary.bg-light-subtle Sector
+                      th.text-start.text-secondary.bg-light-subtle Habitacion
+                      th.text-start.text-secondary.bg-light-subtle Cama
+                    tbody
+                      each ubicacion in admision.ubicaciones
+                        tr
+                          td
+                            p.text-muted.fw-bold #{ubicacion.cama.habitacion.ala.nombre}
+                          td
+                            p.text-muted.fw-bold N° #{ubicacion.cama.habitacion.numero}
+                          td
+                            p.text-muted.fw-bold #{ubicacion.cama.codigo}
+                else
+                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
+                    div
+                      i.bi.bi-folder2-open.fs-1.mb-3
+                      p.ps-2 No se encontraron cuidados realizados.
+
+block scripts
+  script.
+    // Inicializar todos los popovers en la página
+    document.addEventListener('DOMContentLoaded', function () {
+      var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+      });
+    });
