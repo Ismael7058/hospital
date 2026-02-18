@@ -1,5 +1,4 @@
-const { body } = require('express-validator');
-const { Admision } = require('../db/models');
+const { body, param } = require('express-validator');
 
 exports.registrarEvolucionMedicaValidation = () => {
   return [
