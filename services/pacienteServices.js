@@ -110,6 +110,10 @@ exports.editIdentificacion = async (id, identificaciones) => {
         }));
         await Identificacion.bulkCreate(identificacionesParaCrear, { transaction: t });
 
+        if (paciente.estado_identidad !== 'Validado') {
+            paciente.estado_identidad = 'Validado';
+            await paciente.save({ transaction: t });
+        }
         await t.commit();
         return paciente;
     } catch (error) {
