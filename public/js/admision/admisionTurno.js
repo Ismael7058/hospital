@@ -20,10 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(data)
         });
 
+        const result = await response.json();
+
         if (response.ok) {
-          window.location.href = '/admisiones';
+          window.location.href = `/admisiones/${result.admision.id}`;
         } else {
-          const result = await response.json();
           mostrarAlerta(result.message || 'Ocurrió un error al registrar la admisión.', 'danger');
         }
       } catch (error) {
