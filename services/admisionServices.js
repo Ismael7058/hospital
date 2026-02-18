@@ -110,7 +110,7 @@ const registrarPorEmergencia = async (data) => {
       fecha_hora_ingreso: new Date(),
       motivo_internacion: motivo_internacion || 'Ingreso por Emergencia',
       estado_atencion: "En Atencion",
-      estado: "Activo",
+      estado: "Activa",
       activo: true,
       usuario_registro_id: usuario_agenda,
       medico_atencion_id: medico_atencion_id || null
@@ -164,7 +164,7 @@ const registrarPorTurno = async (data) => {
       via_ingreso_id,
       fecha_hora_ingreso: new Date(),
       motivo_internacion: motivo_internacion || 'Ingreso por Turno',
-      estado: "Activo",
+      estado: "Activa",
       activo: true,
       usuario_registro_id: usuario_agenda,
     }, { transaction: t });
