@@ -28,3 +28,28 @@ exports.registrarMedicacion = async (datosMedicacion) => {
 
   return nuevaMedicacion;
 };
+
+exports.setActivo = async (id, activo) => {
+  const medicacion = await Medicacion.findByPk(id, {
+    include: [
+      {
+        model: Admision,
+        as: 'admision'
+      }
+    ]
+  });
+  if (!medicacion) {
+    throw new Error('Medicacion no encontrada');
+  }
+
+  if (medicacion.activo === activo) {
+    throw new Error(`La medicacion ya se encuentra ${activo ? 'activa' : 'inactiva'}.`);
+  }
+
+  if (medicacion.admision.estado_atencion != 'En Espera') {
+    throw new Error('La medicacion no puede cambiar su estado activo');
+  }
+
+  medicacion.activo = activo;
+  await medicacion.save();
+}

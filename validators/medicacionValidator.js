@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const { ViaAdministracion} = require('../db/models');
 
 
@@ -31,3 +31,11 @@ exports.registrarMedicacionValidation = () => {
       })
   ];
 };
+
+exports.setActivoValidation = () => {
+  return [
+    param('id').isInt().withMessage('El ID debe ser un número entero.'),
+    body('activo').isBoolean().withMessage('El estado debe ser un valor booleano (true o false).'),
+  ];
+};
+
