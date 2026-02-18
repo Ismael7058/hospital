@@ -54,8 +54,8 @@ block content
                 option(value="true" selected=(filtros.activo === 'true')) Activo
                 option(value="false" selected=(filtros.activo === 'false')) Inactivo
             .col-12.text-end
-              a.btn.btn-secondary(href="/infraestructura/camas") Limpiar
-              button.btn.btn-primary.ms-2(type="submit") Filtrar
+              a.btn.btn-outline-secondary(href="/infraestructura/camas") Limpiar
+              button.btn.btn-outline-primary.ms-2(type="submit") Filtrar
 
       .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
         .table-responsive.table-fixed-height.rounded
@@ -92,17 +92,44 @@ block content
                       else
                         span.badge.bg-danger No
                     td.text-center
-                      button.btn.btn-primary.btn-sm.me-2.btn-editar-cama(type="button" data-bs-toggle="modal" data-bs-target="#modalCama" data-id=cama.id data-url=`/api/infraestructura/cama/${cama.id}` title="Gestionar Cama")
-                        i.bi.bi-pencil-square
-                      button.btn.btn-secondary.btn-sm.me-2(type="button" data-bs-toggle="modal" data-bs-target="#modalHistorial" data-id=cama.id title="Ver Historial de Higienización")
-                        i.bi.bi-clock-history
-                      button.btn.btn-sm.btn-info.btn-toggle-activo(type="button" data-id=cama.id data-activo=String(cama.activo))
-                        if cama.activo
-                          i.bi.bi-toggle-off.me-2
-                          | Desactivar
-                        else
-                          i.bi.bi-toggle-on.me-2
-                          | Activar
+                      .btn-group
+                        button.btn.btn-sm.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalCama" data-id=cama.id data-url=`/api/infraestructura/cama/${cama.id}` title="Gestionar Cama")
+                          i.bi.bi-pencil-square
+                        a.btn.btn-sm.btn-outline-info(href=`/infraestructura/camas/${cama.id}/higienizaciones` title="Ver Historial de Higienización")
+                          i.bi.bi-clock-history
+
+                        //- Botones de cambio de estado (Higienizar/Finalizar)
+                        if cama.estado === 'Libre'
+                          button.btn.btn-sm.btn-outline-warning(
+                            type="button",
+                            data-bs-toggle="modal",
+                            data-bs-target="#confirmarCambioEstadoCamaModal",
+                            data-cama-id=cama.id,
+                            data-nuevo-estado="Higienizando",
+                            data-accion-texto="iniciar la higienización de esta cama",
+                            data-titulo="Confirmar Higienización",
+                            data-btn-clase="btn-warning text-dark",
+                            title="Higienizar Cama"
+                          )
+                            i.bi.bi-droplet
+                        else if cama.estado === 'Higienizando'
+                          button.btn.btn-sm.btn-outline-success(
+                            type="button",
+                            data-bs-toggle="modal",
+                            data-bs-target="#confirmarCambioEstadoCamaModal",
+                            data-cama-id=cama.id,
+                            data-nuevo-estado="Libre",
+                            data-accion-texto="finalizar la higienización y marcar la cama como libre",
+                            data-titulo="Confirmar Finalización",
+                            data-btn-clase="btn-success",
+                            title="Finalizar Higienización"
+                          )
+                            i.bi.bi-check-circle.me-1
+                        button.btn.btn-sm.btn-outline-info.btn-toggle-activo(type="button" data-id=cama.id data-activo=String(cama.activo) title="Activar/Desactivar" data-bs-toggle="tooltip")
+                          if cama.activo
+                            i.bi.bi-toggle-off
+                          else
+                            i.bi.bi-toggle-on
                 - const filasVacias = 13 - camas.length;
                 if filasVacias > 0
                   - for (let i = 0; i < filasVacias; i++)
@@ -145,6 +172,18 @@ block content
           button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
           button.btn.btn-primary(type="submit" form="formCama") Guardar
 
+  //- Modal para higienizar
+  #confirmarCambioEstadoCamaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarCambioEstadoCamaModalLabel" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered
+      .modal-content
+        .modal-header
+          h5.modal-title#confirmarCambioEstadoCamaModalLabel Confirmar Acción
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          p#confirmarCambioEstadoCamaModalBody ¿Estás seguro?
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+          button.btn.btn-primary#confirmarCambioEstadoCamaBtn(type="button") Confirmar
 
   //- Modal para Confirmar Activación/Desactivación
   #confirmarEstadoCamaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoCamaModalLabel" aria-hidden="true")
@@ -164,4 +203,11 @@ block scripts
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")
   script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
   script(src="/js/infraestructura/modalCama.js")
-  script(src="/js/infraestructura/estadoCama.js")
+  script(src="/js/infraestructura/setEstadoCama.js")
+  script.
+    // Inicializar tooltips
+    // Se seleccionan elementos con data-bs-toggle="tooltip" O elementos modales que tengan título
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"], [data-bs-toggle="modal"][title]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
