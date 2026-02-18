@@ -96,8 +96,8 @@ const db = {
     EstudioSolicitado,
     SignosVitales,
     CuidadoPreliminar,
-    Medicacion,
-    ViaAdministracion
+    ViaAdministracion,
+    Medicacion
 };
 
 // Un Rol tiene muchos Usuarios
@@ -184,20 +184,24 @@ db.Habitacion.belongsTo(db.Ala, {
     as: 'habitacion'
 });
 
-// Una Cama puede tener muchos Historial de Higienizacion
-db.Cama.belongsToMany(db.Usuario, {
-    through: db.HistorialHigienizacion,
-    foreignKey: 'cama_id',
-    otherKey: 'usuario_id',
-    timestamps: false
+// Una Cama tiene muchos Historiales de Higienizacion
+db.Cama.hasMany(db.HistorialHigienizacion, {
+    foreignKey: 'cama_id'
 });
 
-// Un Usuaio puede tener muchos Historiales de Higienizacion
-db.Usuario.belongsToMany(db.Cama, {
-    through: db.HistorialHigienizacion,
-    foreignKey: 'usuario_id',
-    otherKey: 'cama_id',
-    timestamps: false
+// Un Usuario tiene muchos Historiales de Higienizacion
+db.Usuario.hasMany(db.HistorialHigienizacion, {
+    foreignKey: 'usuario_id'
+});
+
+// Un Historial de Higienizacion pertenece a una Cama
+db.HistorialHigienizacion.belongsTo(db.Cama, {
+    foreignKey: 'cama_id',
+});
+
+// Un Historial de Higienizacion pertenece a un Usuario
+db.HistorialHigienizacion.belongsTo(db.Usuario, {
+    foreignKey: 'usuario_id'
 });
 
 // Un Paciente tiene muchas Identificaciones
