@@ -1,4 +1,4 @@
-const { Ala, Habitacion, Cama, sequelize } = require('../../db/models');
+const { Ala, Habitacion, Cama, HistorialHigienizacion, Usuario } = require('../../db/models');
 const { Op } = require('sequelize');
 const camaServices = require('../../services/camaServices');
 const alaServices = require('../../services/alaServices');
@@ -139,4 +139,62 @@ exports.getListarCamas = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+exports.getHistorialHigienizaciones = async (req, res, next) => { 
+  try {
+    const { id } = req.params;
+    const pagina = parseInt(req.query.pagina, 13) || 1;
+    const registrosPorPagina = 13;
+    const offset = (pagina - 1) * registrosPorPagina;
+
+    const cama = await Cama.findByPk(id, {
+      include: [
+        {
+          model: Habitacion,
+          as: 'habitacion',
+          include: [
+            {
+              model: Ala,
+              as: 'ala'
+            }
+          ]
+        }
+      ]
+    });
+    if (!cama) {
+      return res.redirect('/infraestructura/camas');
+    }
+
+    const whereClause = { cama_id: id };
+
+    const { count, rows: historiales } = await HistorialHigienizacion.findAndCountAll({
+      where: whereClause,
+      order: [['fecha_hora', 'DESC']],
+      limit: registrosPorPagina,
+      offset: offset,
+      include: [
+        {
+          model: Usuario
+        }
+      ]
+    });
+
+    const totalPaginas = Math.ceil(count / registrosPorPagina);
+
+    res.render('./Infraestructura/HistorialesHigienizaciones.pug', {
+      title: 'Historial de Higinizaciones',
+      cama,
+      historiales,
+      paginacion: {
+        totalRegistros: count,
+        totalPaginas: totalPaginas,
+        paginaActual: pagina,
+        registrosPorPagina: registrosPorPagina
+      },
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
 };

@@ -1,0 +1,66 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.overflow-hidden
+      //- Cama
+      .bg-dark.text-white.p-4.flex-shrink-0
+        .d-flex.align-items-center.gap-4
+          .rounded-circle.bg-white.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 60px; height: 60px;")
+            i.bi.bi-hospital.fs-2.text-white
+          .flex-grow-1.row.g-4
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Código Cama
+              p.h5.fw-bold.mb-0.text-light #{cama.codigo}
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Sector (Ala)
+              p.fw-semibold.text-white.mb-0 #{cama.habitacion.ala.nombre}
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Habitación
+              p.fw-semibold.text-white.mb-0 N° #{cama.habitacion.numero}
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Estado Actual
+              span.badge(class=`${cama.estado === 'Libre' ? 'bg-success' : cama.estado === 'Ocupado' ? 'bg-danger' : 'bg-warning text-dark'}`) #{cama.estado}
+
+      .bg-light.border-bottom.p-3.flex-shrink-0.d-flex.justify-content-end
+        a.btn.btn-sm.btn-outline-secondary(href="/infraestructura/camas")
+          i.bi.bi-arrow-left.me-2
+          | Volver
+
+      //- Tabla
+      .card-body.p-0.flex-grow-1.overflow-auto.position-relative
+        table.table.table-hover.table-striped.align-middle.mb-0
+          thead.table-light.sticky-top
+            tr
+              th.py-3.ps-4 Fecha
+              th.py-3 Hora
+              th.py-3 Realizado Por
+
+          tbody
+            if historiales && historiales.length > 0
+              each historial in historiales
+                tr
+                  td.ps-4.text-muted.fw-semibold #{new Date(historial.fecha_hora).toLocaleDateString('es-AR')}
+                  td.text-muted #{new Date(historial.fecha_hora).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs
+                  td.text-muted
+                    if historial.Usuario
+                      | #{historial.Usuario.nombre} #{historial.Usuario.apellido}
+                    else
+                      span.text-muted.fst-italic Usuario desconocido
+              
+              - const filasVacias = (paginacion.registrosPorPagina || 13) - historiales.length;
+              if filasVacias > 0
+                - for (let i = 0; i < filasVacias; i++)
+                  tr
+                    td(colspan="3") &nbsp;
+            
+        if !historiales || historiales.length === 0
+          .d-flex.flex-column.align-items-center.justify-content-center.h-100.text-muted
+             i.bi.bi-clock-history.display-1.mb-3.opacity-25
+             h5.fw-light No hay higienizaciones registradas
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.bg-white.border-top.py-3.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
