@@ -204,6 +204,7 @@ block content
                       tr
                         th.text-start.text-secondary.bg-light-subtle Farmaco
                         th.text-start.text-secondary.bg-light-subtle Dosis
+                        th.text-start.text-secondary.bg-light-subtle Proxima
                     tbody
                       each medicacion in admision.medicaciones
                         tr
@@ -211,7 +212,20 @@ block content
                             p.fw-bold.m-0 #{medicacion.medicamento}
                             p.small.text-muted.mb-0 #{medicacion.via_administracion.nombre}
                           td
-                            p.text-muted.fw-bold #{medicacion.dosis}/#{new Date(medicacion.intervalo_horas).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+                            p.text-muted.fw-bold #{medicacion.dosis}
+                          td
+                            -
+                              const inicio = new Date(medicacion.fecha_inicio);
+                              const ahora = new Date();
+                              const [horas, minutos] = medicacion.intervalo_horas.split(':');
+                              const intervaloMs = (parseInt(horas) * 3600000) + (parseInt(minutos) * 60000);
+                              let proxima = inicio;
+                              if (ahora > inicio && intervaloMs > 0) {
+                                const diff = ahora - inicio;
+                                const pasados = Math.floor(diff / intervaloMs);
+                                proxima = new Date(inicio.getTime() + ((pasados + 1) * intervaloMs));
+                              }
+                            p.text-muted.fw-bold #{proxima.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
                 else
                   .text-center.text-muted.h-100.row.justify-content-center.align-items-center
                     div
