@@ -44,7 +44,8 @@ block content
                   td.text-muted #{new Date(historial.fecha_hora).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs
                   td.text-muted
                     if historial.Usuario
-                      | #{historial.Usuario.nombre} #{historial.Usuario.apellido}
+                        a.text-decoration-none(href=`/usuarios/${historial.Usuario.id}`) 
+                          | #{historial.Usuario.nombre} #{historial.Usuario.apellido}
                     else
                       span.text-muted.fst-italic Usuario desconocido
               
