@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+
+const { restringirRol } = require('../../middlewares/authMiddleware');
+
 const infraestructuraController = require('../../controllers/views/infraestructuraViewsController');
 
 router.get('/', restringirRol('Administrador', 'Limpieza'), infraestructuraController.getDashboard);
