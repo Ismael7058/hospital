@@ -1,26 +1,28 @@
 const express = require('express');
 const router = express.Router();
+
+const { restringirRol } = require('../../middlewares/authMiddleware');
+
 const admisionController = require('../../controllers/views/admisionViewsController');
 
+router.get('/', restringirRol('Administrador', 'Medico', 'Enfermero', 'Recepcion'), admisionController.getAdmisiones);
 
-router.get('/', admisionController.getAdmisiones);
+router.get('/registrar',restringirRol('Administrador', 'Recepcion'), admisionController.getRegistrar)
 
-router.get('/registrar', admisionController.getRegistrar)
+router.get('/:id/estadia', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getEstadia);
 
-router.get('/:id/estadia', admisionController.getEstadia);
+router.get('/:id/evolucion-medica', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getEvolucionMedica);
 
-router.get('/:id/evolucion-medica', admisionController.getEvolucionMedica);
+router.get('/:id/estudios-solicitados', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getEstudiosSolicitados);
 
-router.get('/:id/estudios-solicitados', admisionController.getEstudiosSolicitados);
+router.get('/:id/cuidados', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getCuidadosPreeliminares);
 
-router.get('/:id/cuidados', admisionController.getCuidadosPreeliminares);
+router.get('/:id/medicaciones', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getMedicaciones);
 
-router.get('/:id/medicaciones', admisionController.getMedicaciones);
+router.get('/:id/signos-vitales', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getSignosVitales);
 
-router.get('/:id/signos-vitales', admisionController.getSignosVitales);
+router.get('/:id/ubicaciones', restringirRol('Administrador'), admisionController.getUbicacionesInternaciones);
 
-router.get('/:id/ubicaciones', admisionController.getUbicacionesInternaciones);
-
-router.get('/:id', admisionController.getAdmision);
+router.get('/:id', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getAdmision);
 
 module.exports = router;

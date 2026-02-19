@@ -1,7 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const { verificarAutenticacion, protegerRuta } = require('./middlewares/authMiddleware');
+const { verificarAutenticacion, protegerRuta, restringirRol } = require('./middlewares/authMiddleware');
 const { get403, get404, get500 } = require('./controllers/views/authViewsController');
 
 const authApiRouter = require('./routes/api/authApiRouter');
@@ -47,42 +47,42 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware global para verificar la autenticación en cada petición
+// Middleware para verificar la autenticación
 app.use(verificarAutenticacion);
 
 // Rutas de api
 app.use('/api/auth', authApiRouter);
 app.use('/api/usuarios', protegerRuta, usuarioApiRouter);
-app.use('/api/matriculas', protegerRuta, MatriculaApiRouter);
-app.use('/api/especialidades', protegerRuta, especialidadApiRouter);
+app.use('/api/matriculas', protegerRuta, restringirRol('Administrador'), MatriculaApiRouter);
+app.use('/api/especialidades', protegerRuta, restringirRol('Administrador'),especialidadApiRouter);
 app.use('/api/infraestructura', protegerRuta, infraestructuraApiRouter);
 app.use('/api/pacientes', protegerRuta, pacientesApiRouter);
-app.use('/api/agendas', protegerRuta, agendaApiRouter);
-app.use('/api/seguros', protegerRuta, seguroApiRouter);
+app.use('/api/agendas', protegerRuta, restringirRol('Administrador'), agendaApiRouter);
+app.use('/api/seguros', protegerRuta, restringirRol('Administrador'), seguroApiRouter);
 app.use('/api/paciente-seguros', protegerRuta, seguroPacienteApiRouter);
-app.use('/api/horarios', protegerRuta, horarioApiRouter);
+app.use('/api/horarios', protegerRuta, restringirRol('Administrador'), horarioApiRouter);
 app.use('/api/turnos', protegerRuta, turnoApiRouter);
-app.use('/api/fuentes', protegerRuta, fuentesInformacionApiRouter);
-app.use('/api/tipo-antecedente', protegerRuta, tipoAntecedentesApiRouter);
+app.use('/api/fuentes', protegerRuta, restringirRol('Administrador'), fuentesInformacionApiRouter);
+app.use('/api/tipo-antecedente', protegerRuta, restringirRol('Administrador'), tipoAntecedentesApiRouter);
 app.use('/api/antecentes-paciente', protegerRuta, antecedentePacienteApiRouter);
 app.use('/api/admisiones', protegerRuta, admisionApiRouter);
-app.use('/api/evoluciones-medicas', protegerRuta, evolucionMedicaApiRouter);
-app.use('/api/cuidados-preeliminares', protegerRuta, cuidadoApiRouter);
-app.use('/api/estudios-solicitados', protegerRuta, estudioApiRouter);
-app.use('/api/medicaciones', protegerRuta, medicacionApiRouter);
-app.use('/api/signos-vitales', protegerRuta, signosVitalesApiRouter);
+app.use('/api/evoluciones-medicas', protegerRuta, restringirRol('Medico'), evolucionMedicaApiRouter);
+app.use('/api/cuidados-preeliminares', protegerRuta, restringirRol('Medico'), cuidadoApiRouter);
+app.use('/api/estudios-solicitados', protegerRuta, restringirRol('Medico'), estudioApiRouter);
+app.use('/api/medicaciones', protegerRuta, restringirRol('Medico'), medicacionApiRouter);
+app.use('/api/signos-vitales', protegerRuta, restringirRol('Administrador'), signosVitalesApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
-app.use('/usuarios', protegerRuta, userViewsRouter);
-app.use('/matriculas', protegerRuta, matriculaViewsRouter);
-app.use('/especialidades', protegerRuta, especialidadViewsRouter);
+app.use('/usuarios', protegerRuta, restringirRol('Administrador'), userViewsRouter);
+app.use('/matriculas', protegerRuta, restringirRol('Administrador'), matriculaViewsRouter);
+app.use('/especialidades', protegerRuta, restringirRol('Administrador'), especialidadViewsRouter);
 app.use('/infraestructura', protegerRuta, infraestructuraViewsRouter);
 app.use('/pacientes', protegerRuta, pacienteViewsRouter);
-app.use('/seguros', protegerRuta, seguroViewsRouter);
-app.use('/turnos', protegerRuta, turnoViewsRouter);
-app.use('/tipos-antecedentes', protegerRuta, tipoAntecedentesViewsRouter);
-app.use('/funtes-informacion', protegerRuta, fuentesInformacionViewsRouter);
+app.use('/seguros', protegerRuta, restringirRol('Administrador'),seguroViewsRouter);
+app.use('/turnos', protegerRuta, restringirRol('Administrador', 'Recepcion'), turnoViewsRouter);
+app.use('/tipos-antecedentes', protegerRuta, restringirRol('Administrador'), tipoAntecedentesViewsRouter);
+app.use('/funtes-informacion', protegerRuta, restringirRol('Administrador'), fuentesInformacionViewsRouter);
 app.use('/admisiones', protegerRuta, admisionViewsRouter);
 
 
