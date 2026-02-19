@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const { verificarAutenticacion, protegerRuta } = require('./middlewares/authMiddleware');
-const { get404, get500 } = require('./controllers/views/authViewsController');
+const { get403, get404, get500 } = require('./controllers/views/authViewsController');
 
 const authApiRouter = require('./routes/api/authApiRouter');
 const usuarioApiRouter = require('./routes/api/usuarioApiRouter');
@@ -85,10 +85,14 @@ app.use('/tipos-antecedentes', protegerRuta, tipoAntecedentesViewsRouter);
 app.use('/funtes-informacion', protegerRuta, fuentesInformacionViewsRouter);
 app.use('/admisiones', protegerRuta, admisionViewsRouter);
 
-// --- MANEJO DE ERRORES ---
-// Middleware para capturar rutas no encontradas (404)
+
+// Rutas no encontrada (403)
+app.use(get403);
+
+// Rutas no encontrada (404)
 app.use(get404);
-// Middleware para manejar errores del servidor (500)
+
+// Errores del servidor (500)
 app.use(get500);
 
 module.exports = app;

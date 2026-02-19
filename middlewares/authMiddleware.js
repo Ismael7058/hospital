@@ -37,3 +37,23 @@ exports.protegerRuta = (req, res, next) => {
     // Si no está autenticado, redirigir al login
     res.redirect('/login');
 };
+
+exports.restringirRol = (...rolesPermitidos) => {
+    return (req, res, next) => {
+        if (!req.usuario) {
+            return res.redirect('/login');
+        }
+
+        if (!rolesPermitidos.includes(req.usuario.Rol.nombre)) {
+            if (req.originalUrl.startsWith('/api')) {
+                return res.status(403).json({ message: 'No tienes permisos para realizar esta acción.' });
+            }
+
+            return res.status(403).render('Forbidden', { 
+                title: 'Acceso Denegado',
+                message: 'No tienes los permisos necesarios para acceder a esta sección.'
+            });
+        }
+        next();
+    };
+};
