@@ -34,13 +34,20 @@ exports.get404 = (req, res) => {
     });
 };
 
+exports.get403 = (req, res) => {
+    res.status(403).render('Forbidden', {
+        title: 'Acceso Denegado',
+        message: 'No tienes los permisos necesarios para acceder a esta sección.'
+    });
+};
+
 exports.get500 = (error, req, res, next) => {
-    console.error('ERROR 500:', error.stack); // Log del error para depuración
+    console.error('ERROR 500:', error.stack);
     res.status(500).render('ServerError', {
         title: 'Error Interno del Servidor',
         message: 'Hemos detectado un problema y nuestro equipo técnico ha sido notificado. Por favor, intenta de nuevo más tarde.',
         statusCode: 500,
-        errorStack: error.stack, // Se pasará a la vista
-        process: process // Para acceder a NODE_ENV en la vista
+        errorStack: error.stack,
+        process: process
     });
 };
