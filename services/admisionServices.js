@@ -200,7 +200,7 @@ exports.setActivo = async (id, activo) => {
   await admision.save();
 }
 
-exports.setEstado = async (id, estado) => {
+exports.setEstado = async (id, estado, rol) => {
   const t = await sequelize.transaction();
   try {
     const admision = await Admision.findByPk(
@@ -248,6 +248,9 @@ exports.setEstado = async (id, estado) => {
     }
 
     if (estado === 'Alta Medica') {
+      if (rol !== 'Medico') {
+        throw new Error('El usuario no tiene acceso a esta funcion');
+      }
       if (admision.estado_atencion != 'En Atencion') {
         throw new Error('La admision no puede recibir un alta medica');
       }

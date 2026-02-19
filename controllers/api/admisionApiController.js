@@ -68,16 +68,18 @@ exports.setEstado = async (req, res) => {
   const { estado } = req.body;
   try {
     const { id } = req.params;
-    await admisionServices.setEstado(id, estado);
+    await admisionServices.setEstado(id, estado, req.usuario.Rol.nombre);
     res.status(200).json({ message: `El estado de la admision admision cambio a ${estado} exitosamente` });
   } catch (error) {
     switch (error.message) {
+      case 'El usuario no tiene acceso a esta funcion':
+        return res.status(403).json({ message: error.message });
       case 'Admision no encontrada':
         return res.status(404).json({ message: error.message });
-        case 'La admision no puede cambiar su estado':
-        case 'La admision no puede recibir un alta medica':
-        case 'La admision no puede ser cancelada':
-        case `La admision ya se encuentra con el estado ${estado}`:
+      case 'La admision no puede cambiar su estado':
+      case 'La admision no puede recibir un alta medica':
+      case 'La admision no puede ser cancelada':
+      case `La admision ya se encuentra con el estado ${estado}`:
         return res.status(409).json({ message: error.message });
       default:
         res.status(500).json({ message: 'Error interno del servidor al cambiar el estado de la admision' });
