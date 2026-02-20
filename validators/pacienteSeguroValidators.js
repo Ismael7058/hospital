@@ -1,11 +1,19 @@
 const { param, body } = require('express-validator');
+const { Paciente } = require('../db/models');
 
 exports.registrarPacienteSeguroValidation = () => {
     return [
         body('paciente_id')
             .notEmpty().withMessage('El ID del paciente es obligatorio')
-            .isInt().withMessage('El ID del paciente debe ser un número entero'),
-        
+            .isInt().withMessage('El ID del paciente debe ser un número entero')
+            .custom(async (value) => {
+              const paciente = await Paciente.findByPk(value);
+              if (!paciente) {
+                return Promise.reject('Paciente no encontrado');
+              } else if (!paciente.activo) {
+                return Promise.reject('Paciente no disponible, no puede recibir nuevos seguros medicos');
+              }
+            }),
         body('seguro_medico_id')
             .notEmpty().withMessage('El ID del seguro médico es obligatorio')
             .isInt().withMessage('El ID del seguro médico debe ser un número entero'),

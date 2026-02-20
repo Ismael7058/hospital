@@ -11,7 +11,6 @@ exports.registrarPacienteSeguro = async (datosPacienteSeguro) => {
             activo: true
         }
     });
-
     if (seguroExiste) {
         throw new Error ('El paciente ya tiene este seguro médico activo.');
     }

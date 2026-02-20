@@ -13,8 +13,6 @@ exports.registrarPacienteSeguro = async (req, res) => {
         res.status(201).json({ message: 'Seguro asignado correctamente', id: pacienteSeguroNuevo.id });
     } catch (error) {
         switch (error.message) {
-            case 'La fecha de expiracion debe ser mayor a la fecha de vigencia':
-                return res.status(400).json({ message: error.message });
             case 'El paciente ya tiene este seguro médico activo.':
                 return res.status(409).json({ message: error.message });
             default:
