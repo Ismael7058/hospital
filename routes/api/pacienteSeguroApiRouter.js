@@ -11,10 +11,10 @@ const {
 } = require('../../validators/pacienteSeguroValidators');
 
 // POST /api/paciente-seguros/register
-router.post('/register', restringirRol('Recepcionista','Administrador'), registrarPacienteSeguroValidation(), pacienteSeguroController.registrarPacienteSeguro);
+router.post('/register', restringirRol('Administrador', 'Recepcion'), registrarPacienteSeguroValidation(), pacienteSeguroController.registrarPacienteSeguro);
 
 // PATCH /api/paciente-seguros/:id
-router.patch('/:id', restringirRol('Recepcionista','Administrador'), renovarPacienteSeguroValidation(), pacienteSeguroController.renovarPacienteSeguro);
+router.patch('/:id', restringirRol('Administrador', 'Recepcion'), renovarPacienteSeguroValidation(), pacienteSeguroController.renovarPacienteSeguro);
 
 // PATCH /api/paciente-seguros/:id/activo
 router.patch('/:id/activo', restringirRol('Administrador'), setActivoPacienteSeguroValidation(), pacienteSeguroController.setActivo);
