@@ -3,32 +3,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!modalRegistrar) return;
 
   const form = document.getElementById('formRegistrarPacienteSeguro');
-  const errorContainer = document.getElementById('error-container-registrar');
-
-  // Limpiar el formulario y los errores cuando el modal se oculta
-  modalRegistrar.addEventListener('hidden.bs.modal', () => {
-    form.reset();
-    form.classList.remove('was-validated');
-    errorContainer.classList.add('d-none');
-    errorContainer.textContent = '';
-  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    event.stopPropagation();
 
-    errorContainer.classList.add('d-none');
-    form.classList.remove('was-validated');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
 
-    if (!form.checkValidity()) {
-      form.classList.add('was-validated');
-      return;
-    }
-
+    try {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
-    try {
       const response = await fetch('/api/paciente-seguros/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,12 +24,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const result = await response.json();
 
-      if (!response.ok) throw new Error(result.message || 'Error al registrar.');
-
-      window.location.reload(); 
+      if (!response.ok) {
+        if (result && Array.isArray(result.errors)) {
+          result.errors.forEach(err => mostrarAlerta(err.msg, 'danger'));
+        } else {
+          mostrarAlerta(result.message || 'Ocurrió un error al renovar el seguro.', 'danger');
+        }
+      } else {
+        mostrarAlerta(result.message, 'success');
+        setTimeout(() => window.location.reload(), 1000);
+      }
     } catch (error) {
-      errorContainer.textContent = error.message;
-      errorContainer.classList.remove('d-none');
+      mostrarAlerta('Error de conexión. No se pudo completar la solicitud.', 'danger');
+    } finally {
+      setTimeout(() => {
+        submitBtn.disabled = false
+        submitBtn.innerHTML = originalBtnText
+      }, 1000);
+
     }
   });
 });
