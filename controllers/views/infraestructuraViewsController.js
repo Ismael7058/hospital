@@ -6,14 +6,17 @@ const habitacionServices = require('../../services/habitacionServices');
 
 exports.getDashboard = async (req, res, next) => {
     try {
-        const totalAlas = await Ala.count();
-        const totalHabitaciones = await Habitacion.count();
-        const totalCamas = await Cama.count();
-        const camasOcupadas = await Cama.count({ where: { estado: 'Libre' } });
+        let stats = {};
+        if (req.usuario.Rol.nombre == 'Administrador'){
+          const totalAlas = await Ala.count();
+          const totalHabitaciones = await Habitacion.count();
+          const totalCamas = await Cama.count();
+          const camasOcupadas = await Cama.count({ where: { estado: 'Libre' } });
 
-        const camasDisponibles = totalCamas - camasOcupadas;
-        const tasaOcupacion = totalCamas > 0 ? ((camasOcupadas / totalCamas) * 100).toFixed(2) : 0;
-
+          const camasDisponibles = totalCamas - camasOcupadas;
+          const tasaOcupacion = totalCamas > 0 ? ((camasOcupadas / totalCamas) * 100).toFixed(2) : 0;
+          stats = { totalAlas, totalHabitaciones, totalCamas, camasDisponibles, tasaOcupacion };
+        }
         const alasConDetalles = await Ala.findAll({
             include: {
                 model: Habitacion,
@@ -27,7 +30,7 @@ exports.getDashboard = async (req, res, next) => {
 
         res.render('./Infraestructura/Dashboard.pug', {
             title: 'Gestión de Infraestructura',
-            stats: { totalAlas, totalHabitaciones, totalCamas, camasDisponibles, tasaOcupacion },
+            stats: stats,
             alas: alasConDetalles
         });
     } catch (error) {
