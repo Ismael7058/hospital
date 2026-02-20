@@ -23,12 +23,15 @@
     icon.className = 'bi bi-square-fill';
     icon.classList.add(newColorClass);
 
+    const tooltip = bootstrap.Tooltip.getInstance(button);
+    if (tooltip) tooltip.dispose();
+
     button.setAttribute('data-nuevo-estado', nextEstado);
     button.setAttribute('data-accion-texto', newAccionTexto);
     button.setAttribute('data-titulo', newTituloModal);
     button.setAttribute('title', newTitle);
+    button.blur();
 
-    const tooltip = bootstrap.Tooltip.getInstance(button);
-    if (tooltip) tooltip.dispose();
-    new bootstrap.Tooltip(button);
+
+    new bootstrap.Tooltip(button) ;
   }

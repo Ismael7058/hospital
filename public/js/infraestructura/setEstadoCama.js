@@ -47,9 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await response.json();
 
         if (response.ok) {
+          confirmarCambioEstadoModalEl.addEventListener('hidden.bs.modal', () => {
+            actualizarUI(activeStateButton, nuevoEstado, camaId);
+          }, { once: true });
+
           mostrarAlerta(result.message, 'success');
           confirmarCambioEstadoModal.hide();
-          actualizarUI(activeStateButton, nuevoEstado, camaId);
         } else {
           mostrarAlerta(result.message || 'Ocurrió un error al cambiar el estado.', 'danger');
         }
