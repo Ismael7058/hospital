@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const confirmarCambioEstadoModalEl = document.getElementById('confirmarCambioEstadoCamaModal');
-  if (confirmarCambioEstadoModalEl) {
+  if (!confirmarCambioEstadoModalEl) return;
+
     const confirmarCambioEstadoModal = new bootstrap.Modal(confirmarCambioEstadoModalEl);
     const modalTitle = document.getElementById('confirmarCambioEstadoCamaModalLabel');
     const modalBody = document.getElementById('confirmarCambioEstadoCamaModalBody');
@@ -16,12 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const nuevoEstado = button.getAttribute('data-nuevo-estado');
       const accionTexto = button.getAttribute('data-accion-texto');
       const titulo = button.getAttribute('data-titulo');
-      const btnClase = button.getAttribute('data-btn-clase');
+      const btnClase = button.getAttribute('data-btn-clase') || (nuevoEstado === 'Libre' ? 'btn-success' : 'btn-warning');
 
       modalTitle.textContent = titulo;
       modalBody.textContent = `¿Estás seguro de que deseas ${accionTexto}?`;
       
-      confirmarBtn.className = `btn ${btnClase}`;
+      confirmarBtn.className = 'btn fw-bold text-uppercase small';
+      const colorClass = btnClase.replace('btn-outline-', 'btn-');
+      confirmarBtn.classList.add(colorClass);
       confirmarBtn.setAttribute('data-cama-id', camaId);
       confirmarBtn.setAttribute('data-nuevo-estado', nuevoEstado);
     });
@@ -46,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok) {
           mostrarAlerta(result.message, 'success');
           confirmarCambioEstadoModal.hide();
-          actualizarUIEstado(activeStateButton, nuevoEstado, camaId);
+          actualizarUI(activeStateButton, nuevoEstado, camaId);
         } else {
           mostrarAlerta(result.message || 'Ocurrió un error al cambiar el estado.', 'danger');
         }
@@ -58,43 +61,20 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmarBtn.innerHTML = originalButtonText;
       }
     });
-  }
 
-  function actualizarUIEstado(button, nuevoEstado, camaId) {
-    const fila = button.closest('tr');
-    const badge = fila.cells[3].querySelector('.badge');
 
-    badge.textContent = nuevoEstado;
-    badge.className = 'badge';
-    if (nuevoEstado === 'Libre') badge.classList.add('bg-success');
-    else if (nuevoEstado === 'Higienizando') badge.classList.add('bg-warning', 'text-dark');
-    else if (nuevoEstado === 'Ocupado') badge.classList.add('bg-danger');
-
-    const newButton = document.createElement('button');
-    newButton.type = 'button';
-    newButton.className = 'btn btn-sm';
-    newButton.setAttribute('data-bs-toggle', 'modal');
-    newButton.setAttribute('data-bs-target', '#confirmarCambioEstadoCamaModal');
-    newButton.setAttribute('data-cama-id', camaId);
-
-    if (nuevoEstado === 'Higienizando') {
-      newButton.classList.add('btn-outline-success');
-      newButton.setAttribute('data-nuevo-estado', 'Libre');
-      newButton.setAttribute('data-accion-texto', 'finalizar la higienización y marcar la cama como libre');
-      newButton.setAttribute('data-titulo', 'Confirmar Finalización');
-      newButton.setAttribute('data-btn-clase', 'btn-outline-success');
-      newButton.title = 'Finalizar Higienización';
-      newButton.innerHTML = '<i class="bi bi-check-circle"></i>';
-    } else if (nuevoEstado === 'Libre') {
-      newButton.classList.add('btn-outline-warning');
-      newButton.setAttribute('data-nuevo-estado', 'Higienizando');
-      newButton.setAttribute('data-accion-texto', 'iniciar la higienización de esta cama');
-      newButton.setAttribute('data-titulo', 'Confirmar Higienización');
-      newButton.setAttribute('data-btn-clase', 'btn-outline-warning');
-      newButton.title = 'Higienizar Cama';
-      newButton.innerHTML = '<i class="bi bi-droplet-fill"></i>';
+  function actualizarUI(button, nuevoEstado, camaId) {
+    // La vista para listar incorpara el script de la funcion
+    if (button.closest('tr')) {
+      actualizarUITabla(button, nuevoEstado, camaId);
+    } 
+    // La vista del dashboard incorpara el script de la funcion
+    else if (button.closest('.card-body')) {
+      actualizarUIDashboard(button, nuevoEstado, camaId);
     }
-
-    button.replaceWith(newButton);
   }
+
+
+
+
 });
