@@ -1,0 +1,19 @@
+//- views/Infraestructura/modalCambioEstadoCama.pug
+#confirmarCambioEstadoCamaModal.modal.fade(tabindex="-1" aria-labelledby="confirmarCambioEstadoCamaModalLabel" aria-hidden="true")
+  .modal-dialog.modal-dialog-centered(style="max-width: 540px;")
+    .modal-content.border-0.shadow-lg.rounded-3
+      .modal-header.border-bottom.bg-light.bg-opacity-50.py-3.px-4.align-items-center
+        .d-flex.align-items-center.gap-3
+          .d-flex.align-items-center.justify-content-center.bg-primary.bg-opacity-10.text-primary.rounded-3(style="width: 40px; height: 40px;")
+            i.bi.bi-question-circle.fs-4
+          div
+            h5.modal-title.fw-bold.text-dark.text-uppercase.fs-6.mb-0#confirmarCambioEstadoCamaModalLabel Confirmar Acción
+            p.small.fw-bold.text-muted.text-uppercase.mb-0(style="font-size: 10px;") Cambiar estado de la cama
+        button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+
+      .modal-body.p-4
+        p#confirmarCambioEstadoCamaModalBody.mb-0 ¿Estás seguro de que deseas realizar esta acción?
+
+      .modal-footer.bg-light.bg-opacity-50.border-top.px-4.py-3
+        button.btn.btn-light.text-muted.fw-bold.text-uppercase.small(type="button" data-bs-dismiss="modal" style="font-size: 12px;") Cancelar
+        button.btn.btn-primary.fw-bold.text-uppercase.small#confirmarCambioEstadoCamaBtn(type="button" style="font-size: 12px;") Confirmar
