@@ -3,12 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!modalGestion) return;
 
   const form = document.getElementById('formGestionPacienteSeguro');
-  const errorContainer = document.getElementById('error-container-gestion');
-  const btnActivar = document.getElementById('btn-activar');
-  const btnDesactivar = document.getElementById('btn-desactivar');
   const idInput = document.getElementById('gestion_id');
+  const submitBtn = form.querySelector('button[type="submit"]');
 
-  // Cargar datos en el modal desde los atributos data- del botón
   modalGestion.addEventListener('show.bs.modal', (event) => {
     const button = event.relatedTarget;
     
@@ -18,27 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('gestion_nro_afiliado').value = button.getAttribute('data-nro-afiliado');
     document.getElementById('gestion_fecha_vigencia').value = button.getAttribute('data-fecha-vigencia');
     document.getElementById('gestion_fecha_expiracion').value = button.getAttribute('data-fecha-expiracion');
-
-    const activo = button.getAttribute('data-activo') === 'true';
-    if (activo) {
-      btnActivar.classList.add('d-none');
-      btnDesactivar.classList.remove('d-none');
-    } else {
-      btnDesactivar.classList.add('d-none');
-      btnActivar.classList.remove('d-none');
-    }
   });
 
-  // Limpiar al cerrar
   modalGestion.addEventListener('hidden.bs.modal', () => {
     form.reset();
     form.classList.remove('was-validated');
-    errorContainer.classList.add('d-none');
   });
 
-  // Manejar Edición
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    event.stopPropagation();
+
     if (!form.checkValidity()) {
       form.classList.add('was-validated');
       return;
@@ -48,21 +35,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
+
     try {
       const response = await fetch(`/api/paciente-seguros/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Error al actualizar.');
 
-      mostrarAlerta('Seguro actualizado correctamente.', 'success');
-      setTimeout(() => window.location.reload(), 1000);
+      if (!response.ok) {
+        if (result && Array.isArray(result.errors)) {
+          result.errors.forEach(err => mostrarAlerta(err.msg, 'danger'));
+        } else {
+          mostrarAlerta(result.message || 'Ocurrió un error al renovar el seguro.', 'danger');
+        }
+      } else {
+        mostrarAlerta(result.message, 'success');
+        setTimeout(() => window.location.reload(), 1000);
+      }
     } catch (error) {
-      errorContainer.textContent = error.message;
-      errorContainer.classList.remove('d-none');
+      mostrarAlerta('Error de conexión. No se pudo completar la solicitud.', 'danger');
+    } finally {
+      setTimeout(() => {
+        submitBtn.disabled = false
+        submitBtn.innerHTML = originalBtnText 
+      }, 1000);
+
     }
   });
 });
