@@ -2,89 +2,158 @@ extends ../layout
 
 block styles
   link(rel="stylesheet", href="/css/dashboard.css")
+  style.
+    .bed-icon { font-size: 1.5rem; }
+    .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 
 block content
-
   .container-fluid.p-4.d-flex.flex-column.h-100
     .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.p-4.bg-body-tertiary
       //- Encabezado de la página
-      .d-flex.justify-content-center.pt-3.pb-2.mb-3.border-bottom
-        h1.display-6.fw-semibold= title
+      .d-flex.justify-content-between.align-items-center.mb-4
+        h1.h3.mb-0.text-gray-800= title
+        span.text-muted #{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
 
-      //- Tarjetas de Resumen (KPIs)
-      .row.mb-4
-        a.col-xl-3.col-md-6.mb-4.text-decoration-none(href="/infraestructura/alas")
-          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card.bg-light-subtle
-            .card-body
-              .row.g-0.align-items-center
-                .col.me-2
-                  .text-primary.text-uppercase.fw-bold.mb-1
-                    small Total de Alas
-                  span.h5.mb-0.fw-bold.text-secondary= stats.totalAlas
-                .col-auto
-                  i.bi.bi-hospital.fs-2.text-body-tertiary
+      if usuarioAutenticado.Rol.nombre == "Administrador"
+        .row.g-4.mb-4
+          //- Total de Alas
+          .col-xl-3.col-md-6
+            a.text-decoration-none(href="/infraestructura/alas")
+              .card.shadow.h-100.py-2.border-start.border-primary.border-4
+                .card-body
+                  .row.g-0.align-items-center
+                    .col.me-2
+                      .small.fw-bold.text-primary.text-uppercase.mb-1 Total de Alas
+                      .h5.mb-0.fw-bold.text-gray-800= stats.totalAlas
+                    .col-auto
+                      i.bi.bi-hospital.fs-2.text-body-tertiary
 
-        a.col-xl-3.col-md-6.mb-4.text-decoration-none(href="/infraestructura/habitaciones")
-          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card.bg-light-subtle
-            .card-body
-              .row.g-0.align-items-center
-                .col.me-2
-                  .text-success.text-uppercase.fw-bold.mb-1
-                    small Total de Habitaciones
-                  span.h5.mb-0.fw-bold.text-secondary= stats.totalHabitaciones
-                .col-auto
-                  i.bi.bi-door-open.fs-2.text-body-tertiary
+          //- Total de Habitaciones
+          .col-xl-3.col-md-6
+            a.text-decoration-none(href="/infraestructura/habitaciones")
+              .card.shadow.h-100.py-2.border-start.border-success.border-4
+                .card-body
+                  .row.g-0.align-items-center
+                    .col.me-2
+                      .small.fw-bold.text-success.text-uppercase.mb-1 Total de Habitaciones
+                      .h5.mb-0.fw-bold.text-gray-800= stats.totalHabitaciones
+                    .col-auto
+                      i.bi.bi-door-open.fs-2.text-body-tertiary
 
-        a.col-xl-3.col-md-6.mb-4.text-decoration-none(href="/infraestructura/camas?estado=Libre")
-          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card.bg-light-subtle
-            .card-body
-              .row.g-0.align-items-center
-                .col.me-2
-                  .text-info.text-uppercase.fw-bold.mb-1
-                    small Camas Disponibles
-                  span.h5.mb-0.fw-bold.text-secondary= `${stats.camasDisponibles} / ${stats.totalCamas}`
-                .col-auto
-                  i.bi.bi-bed.fs-2.text-body-tertiary
+          //- Camas Disponibles
+          .col-xl-3.col-md-6
+            a.text-decoration-none(href="/infraestructura/camas?estado=Libre")
+              .card.shadow.h-100.py-2.border-start.border-info.border-4
+                .card-body
+                  .row.g-0.align-items-center
+                    .col.me-2
+                      .small.fw-bold.text-info.text-uppercase.mb-1 Camas Disponibles
+                      .d-flex.align-items-baseline
+                        .h5.mb-0.fw-bold.text-gray-800= stats.camasDisponibles
+                        small.text-muted.ms-1 / #{stats.totalCamas}
+                    .col-auto
+                      i.bi.bi-bed.fs-2.text-body-tertiary
 
-        .col-xl-3.col-md-6.mb-4
-          .card.shadow-sm.h-100.border-0.rounded-4.dashboard-card.bg-light-subtle
-            .card-body
-              .row.g-0.align-items-center
-                .col.me-2
-                  .text-warning.text-uppercase.fw-bold.mb-1
-                    small Tasa de Ocupación
-                  span.h5.mb-0.fw-bold.text-secondary= `${stats.tasaOcupacion}%`
-                .col-auto
-                  i.bi.bi-pie-chart.fs-2.text-body-tertiary
+          //- Tasa de Ocupación
+          .col-xl-3.col-md-6
+            .card.shadow.h-100.py-2.border-start.border-warning.border-4
+              .card-body
+                .row.g-0.align-items-center
+                  .col.me-2
+                    .small.fw-bold.text-warning.text-uppercase.mb-1 Tasa de Ocupación
+                    - const tasa =  100 -stats.tasaOcupacion 
+                    .h5.mb-0.fw-bold.text-gray-800= `${tasa.toFixed(2)}%`
+                  .col-auto
+                    i.bi.bi-pie-chart-fill.fs-2.text-body-tertiary
 
       //- Visualización Jerárquica
-      .row
-        .col-12
-          h3.mb-3 Estructura del Hospital
+      .card.shadow-sm
+        .card-header.bg-white.py-3.d-flex.justify-content-between.align-items-center
+          h6.m-0.font-weight-bold.text-primary Estado de Camas
+          div
+            span.badge.bg-success.me-1 Libre
+            span.badge.bg-danger.me-1 Ocupada
+            span.badge.bg-warning.text-dark.me-1 Limpieza
+            span.badge.bg-dark Fuera Servicio
+        .card-body
           if alas && alas.length > 0
-            .accordion#accordionEstructura
-              each ala, index in alas
-                .accordion-item
-                  h2.accordion-header.d-flex.align-items-center(id=`heading-${ala.id}`)
-                    button.accordion-button.collapsed(type='button', data-bs-toggle='collapse', data-bs-target=`#collapse-${ala.id}`, aria-expanded='false', aria-controls=`collapse-${ala.id}`)
-                      strong= ala.nombre
-                      span.ms-2.badge.bg-secondary #{ala.habitaciones.length} Habitaciones
-                  .accordion-collapse.collapse.bg-white(id=`collapse-${ala.id}`, aria-labelledby=`heading-${ala.id}`, data-bs-parent='#accordionEstructura')
-                    .accordion-body.pb-0
-                      if ala.habitaciones.length > 0
-                        ul.list-group
-                          each habitacion in ala.habitaciones
-                            li.list-group-item.d-flex.justify-content-between.align-items-center
-                              div
-                                | Habitación #{habitacion.numero}
-                                span.ms-2.badge.bg-primary.rounded-pill #{habitacion.camas.length} Camas
-                              a.btn.btn-sm.btn-outline-secondary(href=`/infraestructura/camas?habitacion_id=${habitacion.id}`, title="Ver camas de esta habitación")
-                                i.bi.bi-arrow-right-circle
-                        .w-100.d-flex.justify-content-end.p-3
-                          a.btn.btn-sm.btn-outline-primary.ms-auto.me-2(href=`/infraestructura/habitaciones?ala_id=${ala.id}`, title="Ver habitaciones de esta ala")
-                            span.me-1 Ver Mas
-                            i.bi.bi-arrow-right-circle
-                      else
-                        p No hay habitaciones registradas en esta ala.
+            each ala in alas
+              if ala.habitaciones && ala.habitaciones.length > 0
+                h6.fw-bold.text-secondary.mb-2.mt-3= ala.nombre
+                .row.g-2.mb-3
+                  each habitacion in ala.habitaciones
+                    .col-auto
+                      .border.rounded.p-2.text-center(style="min-width: 80px;")
+                        if usuarioAutenticado.Rol.nombre == "Administrador"
+                          a.link-secondary.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover.mb-1(href=`/infraestructura/camas?habitacion_id=${habitacion.id}`)
+                            |  Hab #{habitacion.numero}
+                        else
+                          small.d-block.fw-bold.mb-1 Hab #{habitacion.numero}
+                        .d-flex.justify-content-center.flex-wrap(style="gap: 4px;")
+                          if habitacion.camas && habitacion.camas.length > 0
+                            each cama in habitacion.camas
+                              - var colorClass = 'text-success'
+                              - var title = 'Libre'
+                              if cama.estado == 'Ocupado'
+                                - colorClass = 'text-danger'
+                                - title = 'Ocupada'
+                              else if cama.estado == 'Higienizando'
+                                - colorClass = 'text-warning'
+                                - title = 'En Limpieza'
+                              else if cama.estado == 'Fuera de Servicio' || !cama.activo
+                                - colorClass = 'text-dark'
+                                - title = 'Fuera de Servicio'
+
+                              if usuarioAutenticado.Rol.nombre == "Administrador"
+                                a(href=`/infraestructura/camas?cama_id=${cama.id}` title=`Cama ${cama.codigo}: ${title}` data-bs-toggle="tooltip")
+                                  i.bi.bi-square-fill(class=colorClass)
+                              else
+                                if cama.estado === 'Libre'
+                                  button(
+                                    type="button",
+                                    class="btn border-0 p-0",
+                                  data-bs-toggle="modal", // lgtm [js/trivial-conditional]
+                                  data-bs-target="#confirmarCambioEstadoCamaModal",
+                                    data-cama-id=cama.id,
+                                    data-nuevo-estado="Higienizando",
+                                    data-accion-texto="iniciar higienizacion de la cama",
+                                    data-titulo="Iniciar higienizacion de la cama",
+                                    data-btn-clase="",
+                                    title="Higienizar Cama"
+                                  )
+                                    i.bi.bi-square-fill(class=colorClass)
+                                else if cama.estado === 'Higienizando'
+                                  button(
+                                    type="button",
+                                    class="btn border-0 p-0",
+                                  data-bs-toggle="modal", // lgtm [js/trivial-conditional]
+                                  data-bs-target="#confirmarCambioEstadoCamaModal",
+                                    data-cama-id=cama.id,
+                                    data-nuevo-estado="Libre",
+                                    data-accion-texto="finalizar la higienización de la cama",
+                                    data-titulo="Terminar de Higienizar la Cama",
+                                    data-btn-clase="",
+                                    title="Finalizar Higienización"
+                                  )
+                                    i.bi.bi-square-fill(class=colorClass)
+                                else 
+                                  //- Para otros estados, el ícono es solo informativo
+                                  span(title=`Cama ${cama.codigo}: ${title}` data-bs-toggle="tooltip")
+                                    i.bi.bi-square-fill(class=colorClass) 
+                          else
+                            small.text-muted Sin camas
           else
-            .alert.alert-info No hay alas registradas en el sistema.
+            p.text-center.text-muted No hay información de infraestructura disponible.
+
+  include ./modalCambioEstadoCama.pug
+
+block scripts
+  script(src="/js/infraestructura/setEstadoCama.js")
+  script(src="/js/infraestructura/confirmarCambioEstadoCamaModalDashboard.js")
+
+  script.
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
