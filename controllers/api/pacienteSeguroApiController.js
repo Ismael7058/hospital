@@ -37,6 +37,9 @@ exports.renovarPacienteSeguro = async (req, res) => {
         switch (error.message) {
             case 'Seguro del paciente no encontrado':
                 return res.status(404).json({ message: error.message });
+            case 'Paciente no disponible, no puede modificar sus seguros medicos':
+            case 'La fecha de expiracion debe ser mayor a la fecha de vigencia':
+                return res.status(404).json({ message: error.message });
             default:
                 res.status(500).json({ message: error.message || 'Error interno del servidor.' });
         }
