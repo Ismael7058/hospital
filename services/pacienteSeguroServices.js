@@ -49,15 +49,15 @@ exports.renovarPacienteSeguro = async (id, datosModificados) => {
 };
 
 exports.setActivo = async (id, activo) => {
-    const registro = await PacienteSeguro.findByPk(id);
-    if (!registro) {
-        throw new Error('Seguro del paciente no encontrado');
+    const seguroPaciente = await PacienteSeguro.findByPk(id);
+    if (!seguroPaciente) {
+      throw new Error ('Seguro del paciente no encontrado' );
     }
 
-    if (registro.activo === activo) {
+    if (seguroPaciente.activo === activo) {
         throw new Error(`La especialidad ya se encuentra ${activo ? 'activa' : 'inactiva'}.`);
     }
 
-    await registro.update({ activo });
-    return registro;
+    await seguroPaciente.update({ activo });
+    return seguroPaciente;
 };

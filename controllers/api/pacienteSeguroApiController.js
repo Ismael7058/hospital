@@ -55,9 +55,7 @@ exports.setActivo = async (req, res) => {
 
     try {
         const { id } = req.params;
-
         await  pacienteSeguroServices.setActivo(id, activo);
-
         res.status(200).json({ message: `Seguro ${activo ? 'activado' : 'desactivado'} correctamente` });
     } catch (error) {
         switch (error.message) {
