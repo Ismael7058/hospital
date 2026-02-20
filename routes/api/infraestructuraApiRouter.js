@@ -78,13 +78,13 @@ router.patch('/cama/:id/edit', restringirRol('Administrador'), editCamaValidatio
 router.patch('/cama/:id/trasladar', restringirRol('Administrador'), moverCamaValidation(), camaApiController.moverCama);
 
 // PATCH /api/infraestructura/cama/:id/estado
-router.patch('/cama/:id/estado', restringirRol('Administrador'), setEstadoCamaValidation(), camaApiController.setEstadoCama);
+router.patch('/cama/:id/estado', restringirRol('Administrador', 'Limpieza'), setEstadoCamaValidation(), camaApiController.setEstadoCama);
 
 // PATCH /api/infraestructura/cama/:id/activo
 router.patch('/cama/:id/activo', restringirRol('Administrador'), setActivoCamaValidation(), camaApiController.setActivoCama);
 
 // GET /api/infraestructura/cama/:id
-router.get('/cama/:id', getCamaValidation('Administrador', 'Limpieza'),camaApiController.getCama);
+router.get('/cama/:id', getCamaValidation('Administrador'),camaApiController.getCama);
 
 // GET /api/infraestructura/cama
 router.get('/cama', restringirRol('Administrador', 'Recepcionista', 'Enfermero', 'Medico'), camaApiController.getCamas);
