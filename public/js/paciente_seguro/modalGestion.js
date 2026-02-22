@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const modalGestion = document.getElementById('modalGestionPacienteSeguro');
-  if (!modalGestion) return;
+  const modalGestionEl = document.getElementById('modalGestionPacienteSeguro');
+  if (!modalGestionEl) return;
 
+  const modalGestionInstance = new bootstrap.Modal(modalGestionEl);
   const form = document.getElementById('formGestionPacienteSeguro');
   const idInput = document.getElementById('gestion_id');
   const submitBtn = form.querySelector('button[type="submit"]');
 
-  modalGestion.addEventListener('show.bs.modal', (event) => {
+  modalGestionEl.addEventListener('show.bs.modal', (event) => {
     const button = event.relatedTarget;
-    
     idInput.value = button.getAttribute('data-id');
     document.getElementById('gestion_seguro_medico_id').value = button.getAttribute('data-seguro-id');
     document.getElementById('gestion_seguro_medico_nombre').value = button.getAttribute('data-seguro-nombre');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('gestion_fecha_expiracion').value = button.getAttribute('data-fecha-expiracion');
   });
 
-  modalGestion.addEventListener('hidden.bs.modal', () => {
+  modalGestionEl.addEventListener('hidden.bs.modal', () => {
     form.reset();
     form.classList.remove('was-validated');
   });
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Renovando...`;
 
     try {
       const response = await fetch(`/api/paciente-seguros/${id}`, {
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
           mostrarAlerta(result.message || 'Ocurrió un error al renovar el seguro.', 'danger');
         }
       } else {
+        modalGestionInstance.hide();
         mostrarAlerta(result.message, 'success');
         setTimeout(() => window.location.reload(), 1000);
       }
@@ -61,10 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
       mostrarAlerta('Error de conexión. No se pudo completar la solicitud.', 'danger');
     } finally {
       setTimeout(() => {
-        submitBtn.disabled = false
-        submitBtn.innerHTML = originalBtnText 
-      }, 1000);
-
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }, 500);
     }
   });
 });

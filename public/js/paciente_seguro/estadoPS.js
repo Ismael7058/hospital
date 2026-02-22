@@ -69,18 +69,27 @@ document.addEventListener('DOMContentLoaded', () => {
   function actualizarUI(button, esActivo) {
     const fila = button.closest('tr');
     const badgeEstado = fila.cells[4].querySelector('.badge');
-
     badgeEstado.textContent = esActivo ? 'Activo' : 'Inactivo';
     badgeEstado.className = `badge ${esActivo ? 'bg-success' : 'bg-danger'}`;
 
+    const titulo = esActivo ? 'Desactivar seguro' : 'Activar seguro';
+    const nuevaClase = esActivo ? 'btn-outline-danger' : 'btn-outline-success';
+    const claseAntigua = esActivo ? 'btn-outline-success' : 'btn-outline-danger';
+    const nuevoIcono = esActivo ? 'bi bi-toggle-off' : 'bi bi-toggle-on';
+
+    button.classList.remove(claseAntigua);
+    button.classList.add(nuevaClase);
     button.setAttribute('data-activo', String(esActivo));
+    button.setAttribute('title', titulo);
     const icon = button.querySelector('i');
-    if (esActivo) {
-      icon.className = 'bi bi-toggle-off me-2';
-      button.innerHTML = `${icon.outerHTML} Desactivar`;
-    } else {
-      icon.className = 'bi bi-toggle-on me-2';
-      button.innerHTML = `${icon.outerHTML} Activar`;
+    if (icon) {
+      icon.className = nuevoIcono;
+    }
+
+    // Forzar la actualización del contenido del tooltip de Bootstrap para que muestre el nuevo título
+    const tooltip = bootstrap.Tooltip.getInstance(button);
+    if (tooltip) {
+      tooltip.setContent({ '.tooltip-inner': titulo });
     }
   }
 });
