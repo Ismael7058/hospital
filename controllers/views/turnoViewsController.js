@@ -2,94 +2,97 @@ const { Turno, Usuario, Paciente, Rol, Identificacion, ViaIngreso } = require('.
 const { Op } = require('sequelize');
 
 exports.getTurnos = async (req, res, next) => {
-    try {
-        const { fecha, estado, medico_id, medico, paciente, activo, pagina = 1 } = req.query;
-        const registrosPorPagina = 13;
-        const offset = (pagina - 1) * registrosPorPagina;
+  try {
+    const { fecha, estado, medico_id, paciente_id, activo, pagina = 1 } = req.query;
+    const registrosPorPagina = 13;
+    const offset = (pagina - 1) * registrosPorPagina;
 
-        const whereClause = {};
+    const whereClause = {};
 
-        // Filtro por fecha (rango del día completo)
-        if (fecha) {
-            whereClause.fecha = fecha;
-        }
+    if (fecha) whereClause.fecha = fecha;
+    if (estado) whereClause.estado = estado;
+    if (medico_id) whereClause.medico_id = medico_id;
+    if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
 
-        if (estado) whereClause.estado = estado;
-        if (medico_id) whereClause.medico_id = medico_id;
-        if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+    const includeOptions = [
+      { model: Usuario, as: 'medico', attributes: ['id', 'nombre', 'apellido'] },
+      {
+        model: Paciente,
+        as: 'paciente',
+        attributes: ['id', 'nombre', 'apellido'],
+        include: [{ model: Identificacion, as: 'identificaciones', attributes: ['tipo_doc', 'nro_doc'] }]
+      }
+    ]
 
-        // Configurar relaciones (includes)
-        const includeOptions = [
-            { model: Usuario, as: 'medico', attributes: ['id', 'nombre', 'apellido'] },
-            { model: Paciente, as: 'paciente', attributes: ['id', 'nombre', 'apellido'] }
-        ];
-
-        // Filtro de Medico (Búsqueda por nombre, apellido o DNI)
-        if (medico) {
-            includeOptions[0].where = {
-                [Op.or]: [
-                    { nombre: { [Op.like]: `%${medico}%` } },
-                    { apellido: { [Op.like]: `%${medico}%` } },
-                    { dni: { [Op.like]: `%${medico}%` } }
-                ]
-            };
-            includeOptions[0].required = true;
-        }
-
-        // Filtro de Paciente (Búsqueda por nombre o apellido)
-        if (paciente) {
-            includeOptions[1].where = {
-                [Op.or]: [
-                    { nombre: { [Op.like]: `%${paciente}%` } },
-                    { apellido: { [Op.like]: `%${paciente}%` } }
-                ]
-            };
-            includeOptions[1].required = true;
-        }
-
-        const { count, rows: turnos } = await Turno.findAndCountAll({
-            where: whereClause,
-            include: includeOptions,
-            order: [['hora_inicio', 'DESC']],
-            limit: registrosPorPagina,
-            offset: offset,
-            distinct: true
-        });
-
-        // Obtener lista de médicos para el filtro (Usuarios con Rol 'Medico')
-        const rolMedico = await Rol.findOne({ where: { nombre: 'Medico' } });
-        const medicos = rolMedico ? await Usuario.findAll({
-            where: { rol_id: rolMedico.id, activo: true },
-            attributes: ['id', 'nombre', 'apellido'],
-            order: [['apellido', 'ASC']]
-        }) : [];
-
-        const totalPaginas = Math.ceil(count / registrosPorPagina);
-        const filtros = { fecha, estado, medico_id, medico, paciente, activo };
-
-        Object.keys(filtros).forEach(key => {
-            if (filtros[key] === undefined || filtros[key] === '') {
-                delete filtros[key];
-            }
-        });
-
-        const filtrosQuery = new URLSearchParams(filtros).toString();
-
-        res.render('./Turno/Listar.pug', {
-            title: 'Listado de Turnos',
-            turnos: turnos,
-            medicos: medicos,
-            paginacion: {
-                totalRegistros: count,
-                totalPaginas: totalPaginas,
-                paginaActual: parseInt(pagina),
-            },
-            filtros: filtros,
-            filtrosQuery: filtrosQuery
-        });
-    } catch (error) {
-        next(error);
+    if (medico_id) {
+      includeOptions[0].where = { id: medico_id };
+      includeOptions[0].required = true;
     }
+
+    if (paciente_id) {
+      includeOptions[1].where = { id: paciente_id };
+      includeOptions[1].required = true;
+    }
+
+    const { count, rows: turnos } = await Turno.findAndCountAll({
+        where: whereClause,
+        include: includeOptions,
+        order: [['hora_inicio', 'DESC']],
+        limit: registrosPorPagina,
+        offset: offset,
+        distinct: true
+    });
+
+    // Medico del select2
+    let medicoFiltro = null;
+    if (medico_id) {
+      const rolMedico = await Rol.findOne({ where: { nombre: 'Medico' } });
+      medicoFiltro = await Usuario.findOne({
+        where: {
+          id: medico_id,
+          rol_id: rolMedico.id,
+          activo: true 
+        }
+      });
+    }
+
+    // Paciente del select2
+    let pacienteFiltro = null;
+    if (paciente_id) {
+      pacienteFiltro = await Paciente.findByPk(paciente_id, {
+        attributes: ['id', 'nombre', 'apellido'],
+        include: {
+          model: Identificacion, as: 'identificaciones', attributes: ['tipo_doc', 'nro_doc']
+        }
+      });
+    }
+
+    const totalPaginas = Math.ceil(count / registrosPorPagina);
+    const filtros = { fecha, estado, medico_id, paciente_id, activo };
+    Object.keys(filtros).forEach(key => {
+        if (filtros[key] === undefined || filtros[key] === '') {
+            delete filtros[key];
+        }
+    });
+
+    const filtrosQuery = new URLSearchParams(filtros).toString();
+
+    res.render('./Turno/Listar.pug', {
+        title: 'Listado de Turnos',
+        turnos: turnos,
+        medicoFiltro: medicoFiltro,
+        pacienteFiltro: pacienteFiltro,
+        paginacion: {
+            totalRegistros: count,
+            totalPaginas: totalPaginas,
+            paginaActual: parseInt(pagina),
+        },
+        filtros: filtros,
+        filtrosQuery: filtrosQuery
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
 exports.getRegistrar = async (req, res, next) => {
