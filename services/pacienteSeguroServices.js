@@ -7,13 +7,13 @@ exports.registrarPacienteSeguro = async (datosPacienteSeguro) => {
     const seguroExiste = await PacienteSeguro.findOne({
         where: {
             paciente_id,
-            nro_afiliado,
             seguro_medico_id,
             activo: true
         }
     });
+
     if (seguroExiste) {
-        throw new Error ('El paciente ya tiene este seguro médico activo.');
+      throw new Error ('El paciente ya tiene este seguro médico activo');
     }
 
     const nuevo = await PacienteSeguro.create({
