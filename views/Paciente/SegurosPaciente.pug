@@ -9,6 +9,9 @@ block content
           if paciente
             small.text-muted #{paciente.nombre} #{paciente.apellido} - DNI: #{paciente.dni}
         div
+          .btn-group.me-3(role="group")
+            a.btn.btn-outline-secondary(href=`/pacientes/${paciente.id}`): i.bi.bi-arrow-left-circle.me-2
+              | Volver  
           button.btn.btn-outline-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
             i.bi.bi-funnel-fill.me-2
             | Filtros
