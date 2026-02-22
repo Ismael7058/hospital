@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Usuario, Especialidad } = require('../db/models');
+const { Usuario, Especialidad, Rol } = require('../db/models');
 const { Op } = require('sequelize');
 
 const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
@@ -175,6 +175,30 @@ exports.buscarUsuarios = async (searchTerm) => {
     limit: 10,
     attributes: ['id', 'nombre', 'apellido', 'dni'],
     order: [['apellido', 'ASC'], ['nombre', 'ASC']]
+  });
+
+  return usuarios;
+};
+
+exports.buscarMedico = async (searchTerm) => {
+  const where = {
+    activo: true
+  };
+
+  if (searchTerm) {
+    where[Op.or] = [
+      { nombre: { [Op.iLike]: `%${searchTerm}%` } },
+      { apellido: { [Op.iLike]: `%${searchTerm}%` } },
+      { dni: { [Op.iLike]: `%${searchTerm}%` } }
+    ];
+  }
+
+  const usuarios = await Usuario.findAll({
+    where: where,
+    limit: 10,
+    attributes: ['id', 'nombre', 'apellido', 'dni'],
+    order: [['apellido', 'ASC'], ['nombre', 'ASC']],
+    include: [{model: Rol, where: { nombre: 'Medico'}}]
   });
 
   return usuarios;
