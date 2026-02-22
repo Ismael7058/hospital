@@ -258,23 +258,6 @@ db.Agenda.belongsTo(db.Usuario, {
     as: 'usuario'
 });
 
-// Un Paciente puede tener muchos Seguros Medicos
-db.Paciente.belongsToMany(db.SeguroMedico, {
-    through: db.PacienteSeguro,
-    foreignKey: 'paciente_id',
-    otherKey: 'seguro_medico_id',
-    timestamps: false,
-    as: 'seguros'
-});
-
-// Un SeguroMedico puede pertenecer a muchos Pacientes
-db.SeguroMedico.belongsToMany(db.Paciente,{
-    through: db.PacienteSeguro,
-    foreignKey: 'seguro_medico_id',
-    otherKey: 'paciente_id',
-    timestamps: false,
-    as: 'pacientes'
-});
 
 // Un PacienteSeguro pertenece a un SeguroMedico
 db.PacienteSeguro.belongsTo(db.SeguroMedico, {
@@ -284,6 +267,18 @@ db.PacienteSeguro.belongsTo(db.SeguroMedico, {
 // Un PacienteSeguro pertenece a un Paciente
 db.PacienteSeguro.belongsTo(db.Paciente, {
     foreignKey: 'paciente_id'
+});
+
+// Un Paciente tiene muchos PacienteSeguro
+db.Paciente.hasMany(db.PacienteSeguro, {
+    foreignKey: 'paciente_id',
+    as: 'seguros'
+});
+
+// Un SeguroMedico tiene muchos PacienteSeguro
+db.SeguroMedico.hasMany(db.PacienteSeguro, {
+    foreignKey: 'seguro_medico_id',
+    as: 'seguros'
 });
 
 // Un Usuario tiene muchos Horarios
