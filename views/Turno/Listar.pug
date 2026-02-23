@@ -83,8 +83,8 @@ block content
             .col-lg-4.d-flex.align-items-start.justify-content-end.gap-2
 
 
-      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
-        .table-responsive.table-fixed-height.rounded
+      .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
+        .table-responsive.table-fixed-height
           table.table.table-striped.table-hover.align-middle
             thead.table-dark
               tr
@@ -121,17 +121,11 @@ block content
               h4.fw-light No se encontraron turnos.
 
         //- Paginación
-        if paginacion.totalPaginas > 1
-            nav(aria-label='Paginación')
-                ul.pagination.justify-content-center.mb-0
-                    li.page-item(class=(paginacion.paginaActual === 1 ? 'disabled' : ''))
-                        a.page-link(href=`/turnos?pagina=${paginacion.paginaActual - 1}&${filtrosQuery}`) Anterior
-                    - var n = 1
-                    while n <= paginacion.totalPaginas
-                        li.page-item(class=(paginacion.paginaActual === n ? 'active' : ''))
-                            a.page-link(href=`/turnos?pagina=${n}&${filtrosQuery}`) #{n++}
-                    li.page-item(class=(paginacion.paginaActual === paginacion.totalPaginas ? 'disabled' : ''))
-                        a.page-link(href=`/turnos?pagina=${paginacion.paginaActual + 1}&${filtrosQuery}`) Siguiente
+        if paginacion && paginacion.totalPaginas > 1
+          .card-footer.d-flex.justify-content-between.align-items-center
+            div.text-muted
+              small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+            include ../Shared/Paginacion.pug
 
 block scripts 
   //- jQuery y Select2 JS
