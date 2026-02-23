@@ -14,7 +14,9 @@ exports.registrarTurnoValidation = () => {
       .not().isEmpty().withMessage('La hora de fin es obligatoria.')
       .matches(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/).withMessage('La hora de fin debe tener un formato válido (HH:MM).')
       .custom((value, { req }) => {
-        if (value <= req.body.hora_inicio) {
+        let horaFin = value;
+        if (horaFin === '00:00') horaFin = '24:00';
+        if (horaFin <= req.body.hora_inicio) {
           throw new Error('La hora de fin debe ser posterior a la hora de inicio.');
         }
         return true;
@@ -45,7 +47,9 @@ exports.editTurnoValidation = () => {
       .not().isEmpty().withMessage('La hora de fin es obligatoria.')
       .matches(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/).withMessage('La hora de fin debe tener un formato válido (HH:MM).')
       .custom((value, { req }) => {
-        if (value <= req.body.hora_inicio) {
+        let horaFin = value;
+        if (horaFin === '00:00') horaFin = '24:00';
+        if (horaFin <= req.body.hora_inicio) {
           throw new Error('La hora de fin debe ser posterior a la hora de inicio.');
         }
         return true;

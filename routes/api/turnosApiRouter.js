@@ -13,19 +13,19 @@ const {
 } = require('../../validators/turnoValidators');
 
 // POST /api/turnos/register
-router.post('/register', restringirRol('Administrador', 'Recepcionista'), registrarTurnoValidation(), turnoApiController.registrarTurno); 
+router.post('/register', restringirRol('Administrador', 'Recepcion'), registrarTurnoValidation(), turnoApiController.registrarTurno); 
     
 // PATCH /api/turnos/:id/activo
 router.patch('/:id/activo', restringirRol('Administrador'), setActivoTurnoValidation(), turnoApiController.setActivo);
 
 // PATCH /api/turnos/:id/estado
-router.patch('/:id/estado', restringirRol('Administrador', 'Recepcionista'), setEstadoTurnoValidation(), turnoApiController.setEstado);
+router.patch('/:id/estado', restringirRol('Administrador', 'Recepcion'), setEstadoTurnoValidation(), turnoApiController.setEstado);
 
 // PATCH /api/turnos/:id
-router.patch('/:id', restringirRol('Administrador', 'Recepcionista'), editTurnoValidation(), turnoApiController.editarTurno);
+router.patch('/:id', restringirRol('Administrador'), editTurnoValidation(), turnoApiController.editarTurno);
 
 // GET /api/turnos/:id
-router.get('/:id', restringirRol('Administrador', 'Recepcionista'), idTurnoValidation(), turnoApiController.getTurno);
+router.get('/:id', restringirRol('Administrador', 'Recepcion'), idTurnoValidation(), turnoApiController.getTurno);
 
 // DELETE /api/turnos/:id
 router.delete('/:id', restringirRol('Administrador'), idTurnoValidation(), turnoApiController.eliminarTurno);

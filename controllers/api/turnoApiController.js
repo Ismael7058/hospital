@@ -18,7 +18,6 @@ exports.registrarTurno = async (req, res) => {
     });
   } catch (error) {
     switch (error.message) {
-      case 'Medico no encontrado':
       case 'Paciente no encontrado':
           return res.status(404).json({ message: error.message });
       case 'El medico no atiende en ese horario':
@@ -54,6 +53,7 @@ exports.setActivo = async (req, res) => {
       case 'El medico no se encuentra disponible en esa fecha':
       case 'El turno se superpone con otro turno vigente':
       case 'El paciente ya tiene un turno en ese horario':
+      case 'No se puede desactivar el turno porque ya posee una admisión asociada':
           return res.status(409).json({ message: error.message });
       default:
           res.status(500).json({ message: 'Error interno del servidor al cambiar el estado activo el turno' });
@@ -70,14 +70,17 @@ exports.setEstado = async (req, res) => {
   const { estado } = req.body;
   try {
     const { id } = req.params;
-    await turnoServices.setEstado(id, estado);
+    await turnoServices.setEstado(id, estado, req.usuario.Rol.nombre);
     
     res.status(200).json({ message: `Estado del turno cambiado a ${estado} exitosamente.` });
   } catch (error) {
     switch (error.message) {
+      case 'No tienes permisos para realizar esta acción':
+        return res.status(403).json({ message: error.message });
       case 'Turno no encontrado':
         return res.status(404).json({ message: error.message });
       case `El estado del turno ya era: ${estado}`:
+      case 'No se puede cambiar el estado del turno porque ya posee una admisión gestionada':
           return res.status(409).json({ message: error.message });
       default:
           res.status(500).json({ message: `Error interno del servidor al cambiar el estado del turno` });
@@ -100,10 +103,12 @@ exports.editarTurno = async (req, res) => {
       case 'Medico no encontrado':
       case 'Paciente no encontrado':
           return res.status(404).json({ message: error.message });
+      case 'No se puede modificar el turno porque ya posee una admisión asociada':
       case 'El medico no atiende en ese horario':
       case 'El medico no se encuentra disponible en esa fecha':
       case 'El turno se superpone con otro turno vigente':
       case 'El paciente ya tiene un turno en ese horario':
+      case 'No se puede cambiar el estado del turno porque ya posee una admisión asociada':
           return res.status(409).json({ message: error.message });
       default:
           res.status(500).json({ message: 'Error interno del servidor al registrar el turno' });
@@ -145,6 +150,8 @@ exports.eliminarTurno = async (req, res) => {
     switch (error.message) {
       case 'Turno no encontrado':
         return res.status(404).json({ message: error.message });
+      case 'No se puede eliminar el turno porque ya posee una admisión asociada':
+        return res.status(409).json({ message: error.message });
       default:
           res.status(500).json({ message: 'Error interno del servidor al eliminar el turno' });
     }
