@@ -78,6 +78,7 @@ exports.registrarAdmisionValidation = () => {
     body('nro_doc').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true }).trim(),
     body('tipo_doc').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true })
       .isIn(['DNI', 'Pasaporte', 'Cédula']).withMessage('Tipo de documento no válido.'),
+    body('cama_id').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true })
   ];
 };
 

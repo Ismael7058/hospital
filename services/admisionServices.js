@@ -44,14 +44,86 @@ const registrarPorGuardia = async (data) => {
 const registrarPorEmergencia = async (data) => {
   const t = await sequelize.transaction();
   try {
-    let { medico_atencion_id, paciente_id, via_ingreso_id, motivo_internacion, usuario_agenda, nombre, apellido, sexo, fecha_nacimiento, nro_doc, tipo_doc } = data;
+    let { medico_atencion_id, paciente_id, via_ingreso_id, motivo_internacion, usuario_agenda, nombre, apellido, sexo, fecha_nacimiento, nro_doc, tipo_doc, cama_id } = data;
     
+    let sexoPaciente = sexo;
+    if (paciente_id) {
+      const pacienteExistente = await Paciente.findByPk(paciente_id, { transaction: t });
+      if (!pacienteExistente) throw new Error('Paciente no encontrado');
+      sexoPaciente = pacienteExistente.sexo;
+    }
+
+    const admision = await Admision.findOne({ 
+      where: { 
+        paciente_id: paciente_id, 
+        activo: true,
+        estado: 'Activa'
+      } 
+    });
+    if (admision) {
+      throw new Error('El paciente ya se encuentra admitido');
+    }
+
+    if (cama_id) {
+      const cama = await Cama.findByPk(cama_id, { transaction: t });
+      if (!cama) throw new Error('Cama no encontrada');
+      if (cama.estado !== 'Libre') throw new Error('La cama seleccionada no está libre');
+
+      const habitacion = await Habitacion.findOne({
+        where: {
+          id: cama.habitacion_id 
+        },
+        transaction: t,
+        include: [
+          {
+            model:Cama,
+            as: 'camas',
+            where: { activo: true },
+            include: [
+              {
+                model: UbicacionInternacion,
+                as: 'ubicaciones',
+                order: [['fecha_hora_asignacion', 'DESC']],
+                limit: 1,
+                include: [
+                  {
+                    model:Admision,
+                    as: 'admision',
+                    include: [
+                      {
+                        model: Paciente,
+                        as: 'paciente',
+                        attributes: ['id', 'sexo'] 
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      if (habitacion && habitacion.camas && habitacion.camas.length > 1) {
+        const otrasCamasOcupadas = habitacion.camas.filter(c => c.id !== parseInt(cama_id) && c.estado === 'Ocupado');
+
+        for (const otraCama of otrasCamasOcupadas) {
+          const ubicacionVecina = otraCama.ubicaciones[0];
+          if (ubicacionVecina && ubicacionVecina.admision && ubicacionVecina.admision.paciente) {
+            if (ubicacionVecina.admision.paciente.sexo !== sexoPaciente) {
+              throw new Error('La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion');
+            }
+          }
+        }
+      }
+    }
+
     if (!paciente_id) {
       const timestamp = Date.now();
       const nuevoPaciente = await Paciente.create({
         nombre: nombre || 'NN',
         apellido: apellido || 'Emergencia',
-        sexo,
+        sexo: sexoPaciente,
         fecha_nacimiento: fecha_nacimiento || new Date(),
         telefono: 'N/A',
         direccion: 'N/A',
@@ -109,12 +181,24 @@ const registrarPorEmergencia = async (data) => {
       via_ingreso_id,
       fecha_hora_ingreso: new Date(),
       motivo_internacion: motivo_internacion || 'Ingreso por Emergencia',
-      estado_atencion: "En Atencion",
+      estado_atencion: cama_id ? "En Atencion" : 'En Espera',
       estado: "Activa",
       activo: true,
       usuario_registro_id: usuario_agenda,
       medico_atencion_id: medico_atencion_id || null
     }, { transaction: t });
+
+    if (cama_id) {
+      await UbicacionInternacion.create({
+        fecha_hora_asignacion: new Date(),
+        cama_id,
+        admision_id: nuevaAdmision.id,
+        usuario_asignacion: usuario_agenda
+      }, { transaction: t });
+
+      await Cama.update({ estado: 'Ocupado' }, { where: { id: cama_id }, transaction: t });
+    }
+
     await t.commit();
     return nuevaAdmision;
   } catch (error) {
