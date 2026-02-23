@@ -126,3 +126,61 @@ exports.getAlas = async (nombre) => {
         throw new Error('Error al realizar la búsqueda de las alas.');
     }
 }
+
+exports.alasDisponibles = async (sexo = null) => {
+  const whereHabitacion = {
+    activo: true
+  }
+
+  const op_and = [];
+
+  op_and.push(sequelize.literal(
+    `
+    EXISTS (
+      SELECT 1
+      FROM "Camas" AS "Cama"
+      WHERE "Cama"."habitacion_id" = "habitaciones"."id"
+      AND "Cama"."activo" = true
+      AND "Cama"."estado" = 'Libre'
+    )
+    `
+  ))
+
+  if (sexo) {
+    op_and.push(sequelize.literal(
+    `
+      NOT EXISTS (
+        SELECT 1
+        FROM "Camas" AS "CamaOcupada"
+        INNER JOIN "Ubicaciones_Internacion" AS "UI" ON "UI"."cama_id" = "CamaOcupada"."id"
+        INNER JOIN "Admisiones" AS "Admision" ON "UI"."admision_id" = "Admision"."id"
+        INNER JOIN "Pacientes" AS "Paciente" ON "Admision"."paciente_id" = "Paciente"."id"
+        WHERE "CamaOcupada"."habitacion_id" = "habitaciones"."id"
+        AND "CamaOcupada"."estado" != 'Libre'
+        AND "UI"."fecha_hora_liberacion" IS NULL
+        AND "Paciente"."sexo" != ${sequelize.escape(sexo)}
+      )
+    `
+    ));
+  }
+
+  whereHabitacion[Op.and] = op_and;
+
+  const alas = await Ala.findAll({
+      where: {
+          activo: true
+      },
+      limit: 10,
+      attributes: ['id', 'nombre'],
+      include: [
+        {
+          model: Habitacion,
+          as: 'habitaciones',
+          where: whereHabitacion
+        }
+      ]
+  });
+
+  return alas;
+
+};

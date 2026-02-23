@@ -44,6 +44,9 @@ router.patch('/ala/:id/activo', restringirRol('Administrador'), setActivoAlaVali
 // GET /api/infraestructura/ala/buscar
 router.get('/ala/buscar', restringirRol('Administrador'), alaApiController.getAlas);
 
+// GET /api/infraestructura/ala/disponibles
+router.get('/ala/disponibles', restringirRol('Administrador', 'Recepcion'), alaApiController.alasDisponibles);
+
 
 // POST /api/infraestructura/habitacion/register
 router.post('/habitacion/register', restringirRol('Administrador'), registerHabitacionValidation(), habitacionApiController.registerHabitacion);
@@ -61,7 +64,7 @@ router.patch('/habitacion/:id/activo', restringirRol('Administrador'), setActivo
 router.get('/habitacion/buscar', restringirRol('Administrador'), habitacionApiController.getHabitaciones);
 
 // GET /api/infraestructura/habitacion/disponible
-router.get('/habitacion/disponible', restringirRol('Administrador', 'Recepcionista', 'Enfermero', 'Medico'), habitacionApiController.habitacionesDisponibles);
+router.get('/habitacion/disponible', restringirRol('Administrador', 'Recepcion', 'Enfermero', 'Medico'), habitacionApiController.habitacionesDisponibles);
 
 // GET /api/infraestructura/habitacion/:id
 router.get('/habitacion/:id', restringirRol('Administrador'), habitacionApiController.getHabitacion);
@@ -87,7 +90,7 @@ router.patch('/cama/:id/activo', restringirRol('Administrador'), setActivoCamaVa
 router.get('/cama/:id', getCamaValidation('Administrador'),camaApiController.getCama);
 
 // GET /api/infraestructura/cama
-router.get('/cama', restringirRol('Administrador', 'Recepcionista', 'Enfermero', 'Medico'), camaApiController.getCamas);
+router.get('/cama', restringirRol('Administrador', 'Recepcion', 'Enfermero', 'Medico'), camaApiController.getCamas);
 
 
 module.exports = router;

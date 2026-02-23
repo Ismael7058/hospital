@@ -85,3 +85,14 @@ exports.getAlas = async (req, res) => {
         res.status(500).json({ message: error || 'Error interno del servidor.' });
     }
 }
+
+exports.alasDisponibles = async (req, res) => {
+    try {
+        const { sexo } = req.query;
+        const alas = await alaServices.alasDisponibles(sexo);
+
+        res.status(200).json(alas);
+    } catch (error) {
+        res.status(500).json({ message: error || 'Error interno del servidor.' });
+    }
+}
