@@ -49,10 +49,13 @@ block content
             .row.g-3
               .col-12
                 label.form-label.fw-bold(for="select-paciente") Buscar Paciente Registrado
-                select#select-paciente.form-select(name="paciente_id" style="width: 100%;")
-                  if pacientePreseleccionado
-                    - const dni = pacientePreseleccionado.identificaciones && pacientePreseleccionado.identificaciones.length > 0 ? pacientePreseleccionado.identificaciones[0].nro_doc : 'S/D'
-                    option(value=pacientePreseleccionado.id selected) #{pacientePreseleccionado.nombre} #{pacientePreseleccionado.apellido} (DNI: #{dni})
+                .input-group
+                  select#select-paciente.form-select(name="paciente_id")
+                    if pacientePreseleccionado
+                      - const dni = pacientePreseleccionado.identificaciones && pacientePreseleccionado.identificaciones.length > 0 ? pacientePreseleccionado.identificaciones[0].nro_doc : 'S/D'
+                      option(value=pacientePreseleccionado.id selected) #{pacientePreseleccionado.nombre} #{pacientePreseleccionado.apellido} (DNI: #{dni})
+                  button#btn-limpiar-paciente.btn.btn-outline-secondary(type="button" title="Limpiar selección")
+                    i.bi.bi-x-lg
                 .form-text.text-muted Si el paciente ya existe, búsquelo aquí.
 
               .col-12
@@ -96,10 +99,7 @@ block content
               .col-md-4
                 label.form-label(for="ala_id") Ala / Sector
                 select.form-select(id="ala_id" name="ala_id")
-                  option(value="") Seleccionar Ala
-                  if alas
-                    each ala in alas
-                      option(value=ala.id) #{ala.nombre}
+                  option(value="") Seleccione un Paciente primero
               .col-md-4
                 label.form-label(for="habitacion_id") Habitación
                 select.form-select(id="habitacion_id" name="habitacion_id" disabled)
@@ -120,7 +120,7 @@ block scripts
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")
   script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
 
-  script(src="/js/admision/buscarMedico.js")
-  script(src="/js/admision/buscarPaciente.js")
-  script(src="/js/admision/ubicacion.js") 
+  script(src="/js/medico/buscarMedico.js")
+  script(src="/js/paciente/buscarPacienteDisponibles.js")
+  script(src="/js/admision/ubicacionDisponible.js") 
   script(src="/js/admision/registroEmergencia.js")
