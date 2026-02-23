@@ -13,7 +13,7 @@ exports.registerPaciente = async (pacienteData) => {
             apellido,
             fecha_nacimiento,
             sexo,
-            email: email || null, // Guardar null si el email está vacío
+            email: email || null,
             telefono,
             direccion,
             activo: true
@@ -123,32 +123,70 @@ exports.editIdentificacion = async (id, identificaciones) => {
 }
 
 exports.buscarPacientes = async (searchTerm) => {
-    if (!searchTerm || searchTerm.length < 3) {
-        return [];
-    }
-    const pacientes = await Paciente.findAll({
-        where: {
-            [Op.and]: [
-                { activo: true },
-                {
-                    [Op.or]: [
-                        { nombre: { [Op.iLike]: `%${searchTerm}%` } },
-                        { apellido: { [Op.iLike]: `%${searchTerm}%` } },
-                        { '$identificaciones.nro_doc$': { [Op.iLike]: `%${searchTerm}%` } }
-                    ]
-                }
-            ]
-        },
-        include: [{
-            model: Identificacion,
-            as: 'identificaciones',
-            attributes: ['tipo_doc', 'nro_doc']
-        }],
-        limit: 10,
-        subQuery: false,
-        attributes: ['id', 'nombre', 'apellido'],
-        order: [['apellido', 'ASC'], ['nombre', 'ASC']]
-    });
+  const where = {
+    activo: true
+  };
 
-    return pacientes;
-}
+  if (searchTerm) {
+    const matchingIdentificaciones = await Identificacion.findAll({
+      where: { nro_doc: { [Op.iLike]: `%${searchTerm}%` } },
+      attributes: ['paciente_id'],
+      raw: true
+    });
+    const pacienteIdsFromDoc = matchingIdentificaciones.map(i => i.paciente_id);
+
+    where[Op.or] = [
+      { nombre: { [Op.iLike]: `%${searchTerm}%` } },
+      { apellido: { [Op.iLike]: `%${searchTerm}%` } },
+      { id: { [Op.in]: pacienteIdsFromDoc } }
+    ];
+  }
+
+  const pacientes = await Paciente.findAll({
+    where: where,
+    include: [{
+      model: Identificacion,
+      as: 'identificaciones',
+      attributes: ['tipo_doc', 'nro_doc']
+    }],
+    limit: 10,
+    attributes: ['id', 'nombre', 'apellido'],
+    order: [['apellido', 'ASC'], ['nombre', 'ASC']]
+  });
+  return pacientes;
+};
+
+exports.pacientesDisponibles = async (searchTerm) => {
+  const where = {
+    activo: true,
+    estado_identidad: 'Validado'
+  };
+
+  if (searchTerm) {
+    const matchingIdentificaciones = await Identificacion.findAll({
+      where: { nro_doc: { [Op.iLike]: `%${searchTerm}%` } },
+      attributes: ['paciente_id'],
+      raw: true
+    });
+    const pacienteIdsFromDoc = matchingIdentificaciones.map(i => i.paciente_id);
+
+    where[Op.or] = [
+      { nombre: { [Op.iLike]: `%${searchTerm}%` } },
+      { apellido: { [Op.iLike]: `%${searchTerm}%` } },
+      { id: { [Op.in]: pacienteIdsFromDoc } }
+    ];
+  }
+
+  const pacientes = await Paciente.findAll({
+    where: where,
+    include: [{
+      model: Identificacion,
+      as: 'identificaciones',
+      attributes: ['tipo_doc', 'nro_doc']
+    }],
+    limit: 10,
+    attributes: ['id', 'nombre', 'apellido'],
+    order: [['apellido', 'ASC'], ['nombre', 'ASC']]
+  });
+  return pacientes;
+};

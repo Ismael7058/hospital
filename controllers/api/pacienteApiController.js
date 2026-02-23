@@ -104,3 +104,15 @@ exports.buscarPacientes = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor al realizar la búsqueda.' });
     }
 };
+
+exports.pacientesDisponibles = async (req, res) => {
+    try {
+        const searchTerm = req.query.q || '';
+
+        const pacientes = await pacienteServices.pacientesDisponibles(searchTerm);
+
+        res.status(200).json(pacientes);
+    } catch (error) {
+        res.status(500).json({ message: 'Error interno del servidor al realizar la búsqueda.' });
+    }
+};

@@ -26,5 +26,8 @@ router.patch('/:id', restringirRol('Recepcion', 'Administrador'), editInformacio
 // GET /api/pacientes/buscar
 router.get('/buscar', restringirRol('Recepcion','Administrador', 'Medico', 'Enfermero'), pacienteApiController.buscarPacientes);
 
+// GET /api/pacientes/disponibles
+router.get('/disponibles', restringirRol('Recepcion','Administrador', 'Medico', 'Enfermero'), pacienteApiController.pacientesDisponibles);
+
 
 module.exports = router;
