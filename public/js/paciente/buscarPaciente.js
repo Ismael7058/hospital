@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicialización de Select2 para Pacientes
   $('#select-paciente').select2({
     theme: 'bootstrap-5',
-    placeholder: 'Busque un paciente por nombre, apellido o nro de indentificacion...',
+    placeholder: 'Busque un paciente por nombre, apellido o documento...',
     ajax: {
       url: '/api/pacientes/buscar',
       dataType: 'json',
@@ -23,5 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
       cache: true
     }
   });
+
+  const btnLimpiar = document.getElementById('btn-limpiar-paciente');
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', function() {
+      $('#select-paciente').val(null).trigger('change').trigger('select2:unselect');
+    });
+  }
 
 });

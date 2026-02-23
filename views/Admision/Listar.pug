@@ -48,15 +48,21 @@ block content
               .d-flex.flex-column.gap-3
                 div
                   label.form-label.small.fw-bold(for="select-medico") Médico
-                  select#select-medico.form-select.form-select-sm(name="medico_id" style="width: 100%;")
-                    if medicoFiltro
-                      option(value=medicoFiltro.id selected) #{medicoFiltro.nombre} #{medicoFiltro.apellido} (DNI: #{medicoFiltro.dni})
+                  .input-group
+                    select#select-medico.form-select(name="medico_id")
+                      if medicoFiltro
+                        option(value=medicoFiltro.id selected) #{medicoFiltro.nombre} #{medicoFiltro.apellido} (DNI: #{medicoFiltro.dni})
+                    button#btn-limpiar-medico.btn.btn-outline-secondary(type="button" title="Limpiar selección")
+                      i.bi.bi-x-lg
                 div
                   label.form-label.small.fw-bold(for="select-paciente") Paciente
-                  select#select-paciente.form-select.form-select-sm(name="paciente_id" style="width: 100%;")
-                    if pacienteFiltro
-                      - const dni = pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0 ? pacienteFiltro.identificaciones[0].nro_doc : 'S/D'
-                      option(value=pacienteFiltro.id selected) #{pacienteFiltro.nombre} #{pacienteFiltro.apellido} (DNI: #{dni})
+                  .input-group
+                    select#select-paciente.form-select(name="paciente_id")
+                      if pacienteFiltro
+                        - const dni = pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0 ? pacienteFiltro.identificaciones[0].nro_doc : 'S/D'
+                        option(value=pacienteFiltro.id selected) #{pacienteFiltro.nombre} #{pacienteFiltro.apellido} (DNI: #{dni})
+                    button#btn-limpiar-paciente.btn.btn-outline-secondary(type="button" title="Limpiar selección")
+                      i.bi.bi-x-lg
 
             //- Columna Derecha: Filtros de Estado y Fecha
             .col-lg-8

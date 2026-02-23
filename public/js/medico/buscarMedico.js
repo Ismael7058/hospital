@@ -22,4 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const btnLimpiar = document.getElementById('btn-limpiar-medico');
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', function() {
+      $('#select-medico').val(null).trigger('change').trigger('select2:unselect');
+    });
+  }
+
 });
