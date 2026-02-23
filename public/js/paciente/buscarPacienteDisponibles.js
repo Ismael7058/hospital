@@ -16,12 +16,20 @@ document.addEventListener('DOMContentLoaded', () => {
           const doc = item.identificaciones && item.identificaciones.length > 0 ? item.identificaciones[0] : { tipo_doc: 'Doc', nro_doc: 'N/A' };
           return {
             id: item.id,
-            text: `${item.nombre} ${item.apellido} (${doc.tipo_doc}: ${doc.nro_doc})`
+            text: `${item.nombre} ${item.apellido} (${doc.tipo_doc}: ${doc.nro_doc})`,
+            sexo: item.sexo
           };
         })
       }),
       cache: true
     }
   });
+
+  const btnLimpiar = document.getElementById('btn-limpiar-paciente');
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', function() {
+      $('#select-paciente').val(null).trigger('change').trigger('select2:unselect');
+    });
+  }
 
 });
