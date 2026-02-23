@@ -23,6 +23,6 @@ router.get('/:id/signos-vitales', restringirRol('Administrador', 'Medico', 'Enfe
 
 router.get('/:id/ubicaciones', restringirRol('Administrador'), admisionController.getUbicacionesInternaciones);
 
-router.get('/:id', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getAdmision);
+router.get('/:id', restringirRol('Administrador', 'Medico', 'Enfermero', 'Recepcion'), admisionController.getAdmision);
 
 module.exports = router;
