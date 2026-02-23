@@ -17,36 +17,39 @@ block content
             a.btn.btn-outline-secondary(href="/admisiones")
               i.bi.bi-arrow-left-circle.me-2
               | Volver
-          .btn-group(role="group")
-            a.btn.btn-outline-primary(href=`/admisiones/${admision.id}/estadia`)
-              i.bi.bi-clipboard2-pulse.me-2
-              | Estudios y Acciones
+          if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+            .btn-group(role="group")
+                a.btn.btn-outline-primary(href=`/admisiones/${admision.id}/estadia`)
+                  i.bi.bi-clipboard2-pulse.me-2
+                  | Estudios y Acciones
 
               
           .btn-group(role="group")
-            if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa' && admision.activo
-              button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAtenderAdmision")
-                i.bi.bi-file-medical.me-2
-                | Atender Paciente
-
-            if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa'
-              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Alta Médica" data-mensaje="¿Confirma que desea dar el Alta Médica al paciente?" data-estado="Alta Medica" data-clase="btn-success")
-                i.bi.bi-file-medical.me-2
-                | Alta Médica
+            if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+              if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa' && admision.activo
+                button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAtenderAdmision")
+                  i.bi.bi-file-medical.me-2
+                  | Atender Paciente
+            if usuarioAutenticado.Rol.nombre == 'Medico'
+              if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa'
+                button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Alta Médica" data-mensaje="¿Confirma que desea dar el Alta Médica al paciente?" data-estado="Alta Medica" data-clase="btn-success")
+                  i.bi.bi-file-medical.me-2
+                  | Alta Médica
             if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
               button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAdmision" data-id=admision.id data-titulo="Cancelar Admisión" data-mensaje="¿Confirma que desea Cancelar la admisión?" data-estado="Cancelada" data-clase="btn-warning")
                 i.bi.bi-file-medical.me-2
                 | Cancelar Admisión
 
-          .btn-group(role="group")
-            if admision.activo
-              button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="false" data-accion="dar de baja" data-clase="btn-danger" data-titulo="Dar de Baja" data-mensaje="¿Confirma que desea dar de baja la admisión?")
-                i.bi.bi-eye-slash-fill.me-2
-                | Dar de Baja
-            else
-              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="true" data-accion="dar de alta" data-clase="btn-success" data-titulo="Dar de Alta" data-mensaje="¿Confirma que desea dar de alta la admisión?")
-                i.bi.bi-eye-fill.me-2
-                | Dar de Alta
+          if usuarioAutenticado.Rol.nombre == 'Administrador'
+            .btn-group(role="group")
+              if admision.activo
+                button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="false" data-accion="dar de baja" data-clase="btn-danger" data-titulo="Dar de Baja" data-mensaje="¿Confirma que desea dar de baja la admisión?")
+                  i.bi.bi-eye-slash-fill.me-2
+                  | Dar de Baja
+              else
+                button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=admision.id data-activo="true" data-accion="dar de alta" data-clase="btn-success" data-titulo="Dar de Alta" data-mensaje="¿Confirma que desea dar de alta la admisión?")
+                  i.bi.bi-eye-fill.me-2
+                  | Dar de Alta
 
       .row.g-4.pb-4.flex-grow-1
         .col-lg-4.d-flex.flex-column.gap-4
@@ -56,9 +59,11 @@ block content
               h5.card-title.mb-0.text-primary
                 i.bi.bi-person-vcard.me-2
                 | Paciente
-              button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalReasignar")
-                i.bi.bi-person-gear.me-2
-                | Reasignar
+              if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+                if admision.paciente.estado_identidad == 'Valido'
+                  button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalReasignar")
+                    i.bi.bi-person-gear.me-2
+                    | Reasignar
             .card-body
               .d-flex.align-items-center.mb-3
                 .bg-primary.bg-opacity-10.text-primary.rounded-circle.py-2.px-3.me-3
@@ -89,10 +94,11 @@ block content
               h5.card-title.mb-0.text-info
                 i.bi.bi-geo-alt.me-2
                 | Ultima Ubicacion
-              if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
-                  i.bi.bi-arrow-left-right.me-2
-                  | Trasladar
+              if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+                if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                  button.btn.btn-outline-info.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
+                    i.bi.bi-arrow-left-right.me-2
+                    | Trasladar
             .card-body
               if admision.ubicaciones && admision.ubicaciones.length > 0
                 - const ubicacion = admision.ubicaciones[0]
@@ -177,10 +183,11 @@ block content
                   table.table.table-hover.align-middle.mb-0
                     thead.bg-light
                       tr
-                        th.ps-4 Rol
+                        th.ps-4 Personal
                         th Nombre
                         th.pe-4 Especialidad / Detalles
-                        th Accion
+                        if usuarioAutenticado.Rol.nombre == 'Administrador'
+                          th Accion
                     tbody
                       if admision.medico_atencion
                         tr
@@ -192,10 +199,11 @@ block content
                               | #{admision.medico_atencion.especialidades.map(e => e.nombre).join(', ')}
                             else
                               span.text-muted N/A
-                          td
-                            a.btn.btn-outline-info.ms-auto.btn-sm(href=`/usuarios/${admision.medico_atencion.id}`)
-                              i.bi.bi-eye-fill.me-1
-                              | Ver
+                          if usuarioAutenticado.Rol.nombre == 'Administrador'
+                            td
+                              a.btn.btn-outline-info.ms-auto.btn-sm(href=`/usuarios/${admision.medico_atencion.id}`)
+                                i.bi.bi-eye-fill.me-1
+                                | Ver
 
                       if admision.enfermeros
                         each enfermero in admision.enfermeros
@@ -203,87 +211,93 @@ block content
                             td.ps-4
                               span.badge.bg-success.bg-opacity-10.text-success Enfermero/a
                             td.fw-bold #{enfermero.nombre} #{enfermero.apellido}
-                            td.pe-4
-                              span.text-muted -
+                            if usuarioAutenticado.Rol.nombre == 'Administrador'
+                              td.pe-4
+                                a.btn.btn-outline-info.ms-auto.btn-sm(href=`/usuarios/${enfermero.id}`)
+                                  i.bi.bi-eye-fill.me-1
+                                  | Ver
               else
                 .text-center.py-5
                   .mb-3.text-muted
                     i.bi.bi-person-plus.display-4
                   h6.text-muted No hay profesionales asignados
                   p.small.text-muted Asigne un médico o enfermero para comenzar la atención.
-
-    //- alta/baja logica
-    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Confirmar Acción
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          form#formEstado(autocomplete="off" novalidate)
-            .modal-body
-              p#mensajeConfirmarEstado.mb-3 ¿Está seguro?
-              input#inputConfirmarEstadoId(type="hidden" name="admision_id")
-              input#inputConfirmarEstadoAccion(type="hidden" name="activo" value=admision.activo)
-            .modal-footer
-              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-              button#btnConfirmarEstado.btn(type="submit") Confirmar
-
-    //- reasignar admision
-    #modalReasignar.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Reasignar Paciente
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          form#formReasignarPaciente(autocomplete="off" novalidate)
-            .modal-body
-              input(type="hidden", name="admision_id" value=admision.id)
-              .mb-3
-                label.form-label(for="select-paciente") Buscar Paciente
-                select#select-paciente.form-select(name="paciente_id" required style="width: 100%;" data-dropdown-parent="#modalReasignar")
-                .invalid-feedback#error-paciente_id El paciente es obligatorio.
-            .modal-footer
-              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-              button.btn.btn-primary(type="submit")
-                i.bi.bi-save.me-2
-                | Reasignar Paciente
-            
-    //- trasladar paciente
-    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-      include modalTraslado
-
-    //- atender paciente
-    if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
-      #modalAtenderAdmision.modal.fade(tabindex="-1" aria-hidden="true")
+    if usuarioAutenticado.Rol.nombre == 'Administrador'
+      //- alta/baja logica
+      #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
         .modal-dialog.modal-dialog-centered
           .modal-content
             .modal-header
-              h5.modal-title Atender Paciente
+              h5.modal-title Confirmar Acción
               button.btn-close(type="button" data-bs-dismiss="modal")
-            form#formAtenderAdmision(autocomplete="off" novalidate)
+            form#formEstado(autocomplete="off" novalidate)
+              .modal-body
+                p#mensajeConfirmarEstado.mb-3 ¿Está seguro?
+                input#inputConfirmarEstadoId(type="hidden" name="admision_id")
+                input#inputConfirmarEstadoAccion(type="hidden" name="activo" value=admision.activo)
+              .modal-footer
+                button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+                button#btnConfirmarEstado.btn(type="submit") Confirmar
+
+    if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+      //- reasignar admision
+      #modalReasignar.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Reasignar Paciente
+              button.btn-close(type="button" data-bs-dismiss="modal")
+            form#formReasignarPaciente(autocomplete="off" novalidate)
               .modal-body
                 input(type="hidden", name="admision_id" value=admision.id)
-                .row.g-3.justify-content-center
-                  .col-md-12
-                    label.form-label(for="ala_id") Ala / Sector
-                    select.form-select(id="ala_id" name="ala_id" required)
-                      option(value="") Seleccionar Ala
-                      if alas
-                        each ala in alas
-                          option(value=ala.id) #{ala.nombre}
-                  .col-md-12
-                    label.form-label(for="habitacion_id") Habitación
-                    select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
-                      option(value="") Seleccione Ala primero
-                  .col-md-12
-                    label.form-label(for="cama_id") Cama
-                    select.form-select(id="cama_id" name="cama_id" disabled required)
-                      option(value="") Seleccione Habitación primero
+                .mb-3
+                  label.form-label(for="select-paciente") Buscar Paciente
+                  select#select-paciente.form-select(name="paciente_id" required style="width: 100%;" data-dropdown-parent="#modalReasignar")
+                  .invalid-feedback#error-paciente_id El paciente es obligatorio.
               .modal-footer
                 button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
                 button.btn.btn-primary(type="submit")
                   i.bi.bi-save.me-2
-                  | Atender
+                  | Reasignar Paciente
+            
+    //- trasladar paciente
+    if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+      if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+        include modalTraslado
+
+    if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+      //- atender paciente
+      if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
+        #modalAtenderAdmision.modal.fade(tabindex="-1" aria-hidden="true")
+          .modal-dialog.modal-dialog-centered
+            .modal-content
+              .modal-header
+                h5.modal-title Atender Paciente
+                button.btn-close(type="button" data-bs-dismiss="modal")
+              form#formAtenderAdmision(autocomplete="off" novalidate)
+                .modal-body
+                  input(type="hidden", name="admision_id" value=admision.id)
+                  .row.g-3.justify-content-center
+                    .col-md-12
+                      label.form-label(for="ala_id") Ala / Sector
+                      select.form-select(id="ala_id" name="ala_id" required)
+                        option(value="") Seleccionar Ala
+                        if alas
+                          each ala in alas
+                            option(value=ala.id) #{ala.nombre}
+                    .col-md-12
+                      label.form-label(for="habitacion_id") Habitación
+                      select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
+                        option(value="") Seleccione Ala primero
+                    .col-md-12
+                      label.form-label(for="cama_id") Cama
+                      select.form-select(id="cama_id" name="cama_id" disabled required)
+                        option(value="") Seleccione Habitación primero
+                .modal-footer
+                  button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+                  button.btn.btn-primary(type="submit")
+                    i.bi.bi-save.me-2
+                    | Atender
 
     //- estado admision
     if (admision.estado_atencion == 'En Atencion' || admision.estado_atencion == 'En Espera') && admision.estado == 'Activa'
@@ -307,13 +321,20 @@ block scripts
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")
   script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
 
-  script(src="/js/admision/buscarPaciente.js")
-  script(src="/js/admision/ubicacion.js") 
-  script(src="/js/admision/setActivoAdmision.js") 
   script(src="/js/admision/setEstadoAdmision.js") 
-  script(src="/js/admision/trasladar.js")
-  script(src="/js/admision/atender.js")
-  script(src="/js/admision/cambiarPaciente.js")
+
+  if usuarioAutenticado.Rol.nombre == 'Administrador'
+    script(src="/js/admision/setActivoAdmision.js") 
+
+  if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+    script(src="/js/admision/atender.js")
+
+  if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+    script(src="/js/admision/trasladar.js")
+    script(src="/js/admision/cambiarPaciente.js")
+    script(src="/js/paciente/buscarPacienteDisponibles.js")
+    script(src="/js/admision/ubicacion.js") 
+
 
   script.
     // Inicializar todos los popovers en la página
