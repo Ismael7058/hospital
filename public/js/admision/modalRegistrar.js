@@ -7,9 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     theme: 'bootstrap-5',
     dropdownParent: $('#modalRegistrarAdmision'),
     placeholder: 'Busque un paciente por nombre, apellido o DNI...',
-    minimumInputLength: 3,
     ajax: {
-      url: '/api/pacientes/buscar',
+      url: '/api/pacientes/disponibles',
       dataType: 'json',
       delay: 250,
       data: (params) => ({
