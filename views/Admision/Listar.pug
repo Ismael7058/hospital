@@ -207,7 +207,11 @@ block content
               input(type="hidden", name="via_ingreso_id" value=viaIngresoModal.id)
               .mb-3
                 label.form-label(for="modal-select-paciente") Buscar Paciente
-                select#modal-select-paciente.form-select(name="paciente_id" required style="width: 100%;")
+                .input-group
+                  select#modal-select-paciente.form-select(name="paciente_id" required)
+                  button#btn-limpiar-modal-paciente.btn.btn-outline-secondary(type="button" title="Limpiar selección")
+                    i.bi.bi-x-lg
+
                 .invalid-feedback#error-paciente_id El paciente es obligatorio.
               .mb-3
                 label.form-label(for="motivo_internacion") Motivo
@@ -217,7 +221,6 @@ block content
             button.btn.btn-primary(type="submit")
               i.bi.bi-save-fill.me-2
               | Guardar
-
 block scripts
   //- jQuery y Select2 JS
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")

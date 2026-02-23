@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#select-paciente').select2({
     theme: 'bootstrap-5',
     placeholder: 'Busque un paciente por nombre, apellido o DNI...',
-    minimumInputLength: 3,
     ajax: {
       url: '/api/pacientes/buscar',
       dataType: 'json',
@@ -24,5 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
       cache: true
     }
   });
+
+  const btnLimpiar = document.getElementById('btn-limpiar-paciente');
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', function() {
+      $('#select-paciente').val(null).trigger('change').trigger('select2:unselect');
+    });
+  }
 
 });

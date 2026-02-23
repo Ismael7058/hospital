@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#modal-select-paciente').select2({
     theme: 'bootstrap-5',
     dropdownParent: $('#modalRegistrarAdmision'),
-    placeholder: 'Busque un paciente por nombre, apellido o DNI...',
+    placeholder: 'Buscar por nombre, apellido o documento...',
     ajax: {
       url: '/api/pacientes/disponibles',
       dataType: 'json',
@@ -26,6 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
       cache: true
     }
   });
+
+  const btnLimpiar = document.getElementById('btn-limpiar-modal-paciente');
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', function() {
+      $('#modal-select-paciente').val(null).trigger('change').trigger('select2:unselect');
+    });
+  }
 
   if (modalElement) {
     modalElement.addEventListener('hidden.bs.modal', () => {
