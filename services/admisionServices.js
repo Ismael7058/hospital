@@ -249,7 +249,7 @@ exports.setEstado = async (id, estado, rol) => {
 
     if (estado === 'Alta Medica') {
       if (rol !== 'Medico') {
-        throw new Error('El usuario no tiene acceso a esta funcion');
+        throw new Error('No tienes permisos para realizar esta acción');
       }
       if (admision.estado_atencion != 'En Atencion') {
         throw new Error('La admision no puede recibir un alta medica');
@@ -266,6 +266,10 @@ exports.setEstado = async (id, estado, rol) => {
           await ubicacionActual.cama.save({ transaction: t });
         }
       }
+    }
+
+    if (estado != 'Cancelada' && rol == 'Recepcion') {
+      throw new Error('No tienes permisos para realizar esta acción');
     }
 
     if (estado === 'Cancelada') {

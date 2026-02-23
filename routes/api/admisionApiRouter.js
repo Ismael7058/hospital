@@ -14,16 +14,16 @@ const {
  } = require('../../validators/admisionValidator')
 
 // POST /api/admisiones/registrar
-router.post('/registrar', restringirRol('Recepcionista','Administrador'),  registrarAdmisionValidation(), admisionController.registrarAdmision);
+router.post('/registrar', restringirRol('Recepcion','Administrador'),  registrarAdmisionValidation(), admisionController.registrarAdmision);
 
 // PATCH /api/admisiones/:id/activo
 router.patch('/:id/activo', restringirRol('Administrador'), setActivoAdmisionValidation(), admisionController.setActivo);
 
 // PATCH /api/admisiones/:id/estado
-router.patch('/:id/estado', restringirRol('Medico', 'Administrador'), setEstadoAdmisionValidation(), admisionController.setEstado);
+router.patch('/:id/estado', restringirRol('Medico', 'Administrador', 'Recepcion', 'Enfermero'), setEstadoAdmisionValidation(), admisionController.setEstado);
 
 // POST /api/admisiones/:id/cama
-router.post('/:id/cama', restringirRol('Medico', 'Recepcionista' , 'Administrador'), cambiarCamaValidation(), admisionController.cambiarCama);
+router.post('/:id/cama', restringirRol('Medico', 'Enfermero' , 'Administrador'), cambiarCamaValidation(), admisionController.cambiarCama);
 
 // POST /api/admisiones/:id/atender
 router.post('/:id/atender', restringirRol('Medico'), atenderAdmisionValidation(), admisionController.atenderAdmision);

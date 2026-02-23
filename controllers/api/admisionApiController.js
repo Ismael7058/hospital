@@ -72,7 +72,7 @@ exports.setEstado = async (req, res) => {
     res.status(200).json({ message: `El estado de la admision admision cambio a ${estado} exitosamente` });
   } catch (error) {
     switch (error.message) {
-      case 'El usuario no tiene acceso a esta funcion':
+      case 'No tienes permisos para realizar esta acción':
         return res.status(403).json({ message: error.message });
       case 'Admision no encontrada':
         return res.status(404).json({ message: error.message });
