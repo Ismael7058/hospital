@@ -22,9 +22,10 @@ block content
           
           .btn-group(role="group")
             //- Redirigir al Médico (Usuario)
-            a.btn.btn-outline-info(href=`/usuarios/${turno.medico_id}`)
-              i.bi.bi-person-badge.me-2
-              | Ver Médico
+            if usuarioAutenticado.Rol.nombre == "Administrador"
+              a.btn.btn-outline-info(href=`/usuarios/${turno.medico_id}`)
+                i.bi.bi-person-badge.me-2
+                | Ver Médico
             //- Ver Paciente
             a.btn.btn-outline-info(href=`/pacientes/${turno.paciente_id}`)
               i.bi.bi-person-fill.me-2
@@ -34,11 +35,35 @@ block content
               a.btn.btn-outline-primary(href=`/admisiones/${turno.admision_id}`)
                 i.bi.bi-clipboard-data.me-2
                 | Admisión
-            else 
-              button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAdmicion")
-                i.bi.bi-file-medical.me-2
-                | Ingresar Paciente
-
+            else
+              -
+                let turnoVencido = false;
+                if (turno.fecha && turno.hora_inicio) {
+                  let fechaStr = turno.fecha;
+                  if (fechaStr instanceof Date) fechaStr = fechaStr.toISOString().split('T')[0];
+                  const fParts = fechaStr.split('-');
+                  const tParts = turno.hora_inicio.split(':');
+                  const fechaLimite = new Date(fParts[0], fParts[1] - 1, fParts[2], tParts[0], parseInt(tParts[1]) + 10);
+                  if (new Date() > fechaLimite) turnoVencido = true;
+                }
+              if turnoVencido
+                button.btn.btn-outline-secondary(type="button" disabled title="El horario del turno ha vencido")
+                  i.bi.bi-clock-history.me-2
+                  | Turno Vencido
+              else
+                if turno.estado != 'Pendiente'
+                  button.btn.btn-outline-primary(type="button" disabled title="El turno no es admitible")
+                    i.bi.bi-file-medical.me-2
+                    | Ingresar Paciente
+                else
+                  if new Date(turno.fecha) != new Date()
+                    button.btn.btn-outline-primary(type="button" disabled title="El turno no es admitible")
+                      i.bi.bi-file-medical.me-2
+                      | Ingresar Paciente
+                  else
+                    button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAdmicion")
+                      i.bi.bi-file-medical.me-2
+                      | Ingresar Paciente
 
           .btn-group(role="group")
             //- Cancelar Turno
@@ -46,26 +71,27 @@ block content
               button.btn.btn-outline-secondary(type="button" data-bs-toggle="modal" data-bs-target="#cancelarTurnoModal" data-id=turno.id)
                 i.bi.bi-x-circle.me-2
                 | Cancelar
-
-            //- Alta/Baja Lógica
-            if turno.activo
-              button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="false" data-accion="dar de baja" data-clase="btn-warning")
-                i.bi.bi-eye-slash-fill.me-2
-                | Dar de Baja
-            else
-              button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="true" data-accion="dar de alta" data-clase="btn-success")
-                i.bi.bi-eye-fill.me-2
-                | Dar de Alta
-            
-            //- Eliminar Permanente
-            button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#eliminarTurnoModal" data-id=turno.id)
-              i.bi.bi-trash-fill.me-2
-              | Eliminar
+            if usuarioAutenticado.Rol.nombre == "Administrador"
+              //- Alta/Baja Lógica
+              if turno.activo
+                button.btn.btn-outline-warning(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="false" data-accion="dar de baja" data-clase="btn-warning")
+                  i.bi.bi-eye-slash-fill.me-2
+                  | Dar de Baja
+              else
+                button.btn.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#confirmarEstadoModal" data-id=turno.id data-activo="true" data-accion="dar de alta" data-clase="btn-success")
+                  i.bi.bi-eye-fill.me-2
+                  | Dar de Alta
+              
+              //- Eliminar Permanente
+              button.btn.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#eliminarTurnoModal" data-id=turno.id)
+                i.bi.bi-trash-fill.me-2
+                | Eliminar
 
       //- Formulario de Edición
       .row.g-4.mt-0.flex-grow-1
         .col-12
           form#form-gestion-turno.p-4.border.rounded.h-100.d-flex.flex-column.justify-content-between(novalidate autocomplete="off")
+            - const disabled = usuarioAutenticado.Rol.nombre != "Administrador"
             input(type="hidden" id="turno_id" name="id" value=turno.id)
             
             h5.mb-3.border-bottom.pb-2 Detalles del Turno
@@ -75,7 +101,7 @@ block content
                     label.form-label(for="select-medico") 
                         i.bi.bi-person-badge-fill.me-2
                         | Médico
-                    select#select-medico.form-select(name="medico_id" required style="width: 100%;")
+                    select#select-medico.form-select(name="medico_id" required style="width: 100%;" disabled=disabled)
                         if turno.medico
                             option(value=turno.medico.id selected) #{turno.medico.nombre} #{turno.medico.apellido} - DNI:#{turno.medico.dni}
                     .invalid-feedback#error-medico_id
@@ -84,7 +110,7 @@ block content
                     label.form-label(for="select-paciente") 
                         i.bi.bi-person-fill.me-2
                         | Paciente
-                    select#select-paciente.form-select(name="paciente_id" required style="width: 100%;")
+                    select#select-paciente.form-select(name="paciente_id" required style="width: 100%;" disabled=disabled)
                       if turno.paciente
                         - let labelPaciente = `${turno.paciente.nombre} ${turno.paciente.apellido} -`
                         if turno.paciente.identificaciones && turno.paciente.identificaciones.length > 0
@@ -97,7 +123,7 @@ block content
                     label.form-label(for="fecha") Fecha
                     .input-group.has-validation
                         span.input-group-text: i.bi.bi-calendar-date
-                        input.form-control(type="date" id="fecha" name="fecha" required value=turno.fecha)
+                        input.form-control(type="date" id="fecha" name="fecha" required value=turno.fecha disabled=disabled)
                         .invalid-feedback#error-fecha
 
                 //- Generación de TimeSlots
@@ -114,7 +140,7 @@ block content
                     label.form-label(for="hora_inicio") Hora Inicio
                     .input-group.has-validation
                         span.input-group-text: i.bi.bi-clock
-                        select.form-select(id="hora_inicio" name="hora_inicio" required)
+                        select.form-select(id="hora_inicio" name="hora_inicio" required disabled=disabled)
                             each time in timeSlots
                                 option(value=time selected=(turno.hora_inicio && turno.hora_inicio.startsWith(time))) #{time}
                         .invalid-feedback#error-hora_inicio
@@ -124,7 +150,7 @@ block content
                     label.form-label(for="hora_fin") Hora Fin
                     .input-group.has-validation
                         span.input-group-text: i.bi.bi-clock-fill
-                        select.form-select(id="hora_fin" name="hora_fin" required)
+                        select.form-select(id="hora_fin" name="hora_fin" required disabled=disabled)
                             each time in timeSlots
                                 option(value=time selected=(turno.hora_fin && turno.hora_fin.startsWith(time))) #{time}
                         .invalid-feedback#error-hora_fin
@@ -134,34 +160,36 @@ block content
                     label.form-label(for="estado") Estado
                     .input-group.has-validation
                         span.input-group-text: i.bi.bi-info-circle
-                        select.form-select(id="estado" name="estado" required)
-                            each est in ['Pendiente', 'Confirmado', 'Cancelado', 'Realizado']
+                        select.form-select(id="estado" name="estado" required disabled=disabled)
+                            each est in ['Pendiente', 'Confirmado', 'Cancelado']
                                 option(value=est selected=(turno.estado === est)) #{est}
                         .invalid-feedback#error-estado
 
                 //- Motivo
                 .col-12
                     label.form-label(for="motivo") Motivo
-                    textarea.form-control(id="motivo" name="motivo" required rows="3" placeholder="Describa el motivo de la consulta...") #{turno.motivo}
+                    textarea.form-control(id="motivo" name="motivo" required rows="3" placeholder="Describa el motivo de la consulta..." disabled=disabled) #{turno.motivo}
                     .invalid-feedback#error-motivo
 
             .d-flex.justify-content-end.mt-4
+              if usuarioAutenticado.Rol.nombre == "Administrador"
                 button.btn.btn-primary(type="submit")
                     i.bi.bi-save-fill.me-2
                     | Guardar Cambios
 
-    //- Modales de Confirmación
-    #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Confirmar Acción
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          .modal-body
-            p ¿Está seguro de realizar esta acción?
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button#btnConfirmarEstado.btn(type="button") Confirmar
+    if usuarioAutenticado.Rol.nombre == "Administrador" 
+      //- Modales de Confirmación
+      #confirmarEstadoModal.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Confirmar Acción
+              button.btn-close(type="button" data-bs-dismiss="modal")
+            .modal-body
+              p ¿Está seguro de realizar esta acción?
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button#btnConfirmarEstado.btn(type="button") Confirmar
 
     #cancelarTurnoModal.modal.fade(tabindex="-1" aria-hidden="true")
       .modal-dialog.modal-dialog-centered
@@ -175,17 +203,19 @@ block content
             button.btn.btn-outline-secondary(type="button" data-bs-dismiss="modal") Cerrar
             button#btnCancelarTurno.btn.btn-secondary(type="button") Cancelar Turno
 
-    #eliminarTurnoModal.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog.modal-dialog-centered
-        .modal-content
-          .modal-header
-            h5.modal-title Eliminar Turno
-            button.btn-close(type="button" data-bs-dismiss="modal")
-          .modal-body
-            p.text-danger ¿Está seguro de que desea eliminar este turno permanentemente? Esta acción no se puede deshacer.
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button#btnEliminarTurno.btn.btn-danger(type="button") Eliminar
+    if usuarioAutenticado.Rol.nombre == "Administrador" 
+      #eliminarTurnoModal.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Eliminar Turno
+              button.btn-close(type="button" data-bs-dismiss="modal")
+            .modal-body
+              p.text-danger ¿Está seguro de que desea eliminar este turno permanentemente? Esta acción no se puede deshacer.
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button#btnEliminarTurno.btn.btn-danger(type="button") Eliminar
+
 
     //- estado atencion
     #modalAdmicion.modal.fade(tabindex="-1" aria-hidden="true")
@@ -208,5 +238,13 @@ block scripts
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")
   script(src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js")
   script(src="/js/turno/formTurnoGestion.js")
+
+  if usuarioAutenticado.Rol.nombre == "Administrador" 
+    script(src="/js/medico/buscarMedico.js")
+    script(src="/js/paciente/buscarPaciente.js")
+    script(src="/js/turno/formTurnoGestion.js")
+    script(src="/js/turno/setEstadoTurno.js")
+  script(src="/js/turno/cancelarTurno.js")
+  script(src="/js/turno/eliminarTurno.js")
 
   script(src="/js/admision/admisionTurno.js")
