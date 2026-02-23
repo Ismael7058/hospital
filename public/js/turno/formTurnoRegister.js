@@ -2,54 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('form-registrar-turno');
   if (!form) return;
 
-  // === Inicialización de Select2 para Médicos ===
-  $('#select-medico').select2({
-    theme: 'bootstrap-5',
-    placeholder: 'Busque un médico por nombre, apellido o DNI...',
-    minimumInputLength: 3,
-    ajax: {
-      url: '/api/usuarios/buscar?rol=Medico', // Ajusta este endpoint según tu API
-      dataType: 'json',
-      delay: 250,
-      data: (params) => ({
-        q: params.term
-      }),
-      processResults: (data) => ({
-        results: $.map(data, (item) => ({
-          id: item.id,
-          text: `${item.nombre} ${item.apellido} (DNI: ${item.dni})`
-        }))
-      }),
-      cache: true
-    }
-  });
-
-  // === Inicialización de Select2 para Pacientes ===
-  $('#select-paciente').select2({
-    theme: 'bootstrap-5',
-    placeholder: 'Busque un paciente por nombre, apellido o DNI...',
-    minimumInputLength: 3,
-    ajax: {
-      url: '/api/pacientes/buscar', // Ajusta este endpoint según tu API
-      dataType: 'json',
-      delay: 250,
-      data: (params) => ({
-        q: params.term
-      }),
-      processResults: (data) => ({
-        results: $.map(data, (item) => {
-          const doc = item.identificaciones && item.identificaciones.length > 0 ? item.identificaciones[0] : { tipo_doc: 'Doc', nro_doc: 'N/A' };
-          return {
-            id: item.id,
-            text: `${item.nombre} ${item.apellido} (${doc.tipo_doc}: ${doc.nro_doc})`
-          };
-        })
-      }),
-      cache: true
-    }
-  });
-
-  // === Manejo del envío del formulario ===
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -57,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Construir fechas completas (ISO) para el backend
     const fecha = document.getElementById('fecha').value;
     const horaInicio = document.getElementById('hora_inicio').value;
     const horaFin = document.getElementById('hora_fin').value;
@@ -71,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
         motivo: document.getElementById('motivo').value
     };
 
-    // Botón de carga
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
@@ -88,24 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!response.ok) {
         if (result && Array.isArray(result.errors)) {
-          clearErrors();
-          result.errors.forEach(err => {
-            showError(err.path, err.msg);
-          });
+          result.errors.forEach(err => mostrarAlerta(err.msg, 'danger'));
         } else {
-          throw new Error(result.message || 'Error inesperado');
+          mostrarAlerta(result.message || 'Ocurrió un error al renovar el seguro.', 'danger');
         }
       } else {
-        window.location.href = '/turnos?success=Turno registrado exitosamente';
+        mostrarAlerta(result.message, 'success');
+        setTimeout(() => window.location.href = `/turnos/${result.turno.id}`, 1000);
       }
     } catch (error) {
-      console.error('Error:', error);
-      const generalError = document.getElementById('general-error');
-      generalError.textContent = error.message || 'Ocurrió un error de conexión.';
-      generalError.classList.remove('d-none');
+      mostrarAlerta('Error de conexión. No se pudo completar la solicitud.', 'danger');
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
+      setTimeout(() => {
+        submitBtn.disabled = false
+        submitBtn.innerHTML = originalBtnText
+      }, 1000);
     }
   });
 
@@ -113,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clearErrors();
     let isValid = true;
 
-    // Validar Select2
     if (!$('#select-medico').val()) {
       showError('medico_id', 'Debe seleccionar un médico.');
       isValid = false;
@@ -123,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
       isValid = false;
     }
 
-    // Validar inputs normales
     ['fecha', 'hora_inicio', 'hora_fin', 'motivo'].forEach(field => {
         const input = document.getElementById(field);
         if (!input.value.trim()) {
@@ -150,6 +95,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearErrors = () => {
     document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-    document.getElementById('general-error').classList.add('d-none');
   };
 });
