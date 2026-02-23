@@ -185,7 +185,7 @@ exports.pacientesDisponibles = async (searchTerm) => {
       attributes: ['tipo_doc', 'nro_doc']
     }],
     limit: 10,
-    attributes: ['id', 'nombre', 'apellido'],
+    attributes: ['id', 'nombre', 'apellido', 'sexo'],
     order: [['apellido', 'ASC'], ['nombre', 'ASC']]
   });
   return pacientes;
