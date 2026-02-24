@@ -74,7 +74,7 @@ app.use('/api/signos-vitales', protegerRuta, restringirRol('Administrador'), sig
 
 // Rutas de views
 app.use('/', authViewsRouter);
-app.use('/usuarios', protegerRuta, restringirRol('Administrador'), userViewsRouter);
+app.use('/usuarios', protegerRuta, userViewsRouter);
 app.use('/matriculas', protegerRuta, restringirRol('Administrador'), matriculaViewsRouter);
 app.use('/especialidades', protegerRuta, restringirRol('Administrador'), especialidadViewsRouter);
 app.use('/infraestructura', protegerRuta, infraestructuraViewsRouter);
