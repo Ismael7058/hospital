@@ -13,6 +13,6 @@ router.get('/:id/seguros', restringirRol('Administrador', 'Recepcion'), paciente
 
 router.get('/:id/antecedentes', restringirRol('Administrador', 'Medico', 'Enfermero'), pacienteController.getAntecedentes);
 
-router.get('/:id', restringirRol('Administrador', 'Recepcion'), pacienteController.getPaciente);
+router.get('/:id', restringirRol('Administrador', 'Recepcion', 'Medico'), pacienteController.getPaciente);
 
 module.exports = router;
