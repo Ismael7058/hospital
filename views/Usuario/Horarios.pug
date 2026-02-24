@@ -7,6 +7,7 @@ block content
                 div
                     h4.mb-0 #{title}
                 div
+                  if usuarioAutenticado.Rol.nombre == 'Administrador'
                     a.btn.btn-outline-secondary.me-2(href=`/usuarios/${usuario.id}`)
                         i.fas.fa-arrow-left.me-2
                         | Volver
@@ -17,36 +18,37 @@ block content
                         i.fas.fa-plus.me-2
                         | Nuevo Horario
 
+            if usuarioAutenticado.Rol.nombre == 'Administrador'
+              .collapse#filtrosCollapse
+                  form.card-body.border-bottom.px-4(method="GET", action=`/usuarios/${usuario.id}/horarios`)
+                      .row.g-3.align-items-end
+                          .col-md-4
+                              label.form-label(for="fecha") Día
+                              select#fecha.form-select(name="fecha")
+                                  option(value="", selected=!filtros.fecha) Todos
+                                  each dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                                      option(value=dia, selected=filtros.fecha === dia)= dia
+                          .col-md-4
+                              label.form-label(for="activo") Estado
+                              select#activo.form-select(name="activo")
+                                  option(value="", selected=!filtros.activo) Todos
+                                  option(value="true", selected=filtros.activo === 'true') Activos
+                                  option(value="false", selected=filtros.activo === 'false') Inactivos
+                          .col-md-4.text-end
+                              a.btn.btn-secondary(href=`/usuarios/${usuario.id}/horarios`) Limpiar
+                              button.btn.btn-primary.ms-2(type="submit") Filtrar
 
-            .collapse#filtrosCollapse
-                form.card-body.border-bottom.px-4(method="GET", action=`/usuarios/${usuario.id}/horarios`)
-                    .row.g-3.align-items-end
-                        .col-md-4
-                            label.form-label(for="fecha") Día
-                            select#fecha.form-select(name="fecha")
-                                option(value="", selected=!filtros.fecha) Todos
-                                each dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-                                    option(value=dia, selected=filtros.fecha === dia)= dia
-                        .col-md-4
-                            label.form-label(for="activo") Estado
-                            select#activo.form-select(name="activo")
-                                option(value="", selected=!filtros.activo) Todos
-                                option(value="true", selected=filtros.activo === 'true') Activos
-                                option(value="false", selected=filtros.activo === 'false') Inactivos
-                        .col-md-4.text-end
-                            a.btn.btn-secondary(href=`/usuarios/${usuario.id}/horarios`) Limpiar
-                            button.btn.btn-primary.ms-2(type="submit") Filtrar
-
-            .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden.px-4.pt-4
-                .table-responsive.table-fixed-height.rounded
+            .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
+                .table-responsive.table-fixed-height
                     table.table.table-striped.table-hover.align-middle
                         thead.table-dark
                             tr
                                 th.text-center Día
                                 th.text-center Hora Inicio
                                 th.text-center Hora Fin
-                                th.text-center Estado
-                                th.text-center Acciones
+                                if usuarioAutenticado.Rol.nombre == 'Administrador'
+                                  th.text-center Estado
+                                  th.text-center Acciones
                         tbody
                             if horarios.length > 0
                                 each horario in horarios
@@ -54,18 +56,19 @@ block content
                                         td.text-center= horario.fecha
                                         td.text-center= horario.hora_inicio
                                         td.text-center= horario.hora_fin
-                                        td.text-center
-                                            if horario.activo
-                                                span.badge.bg-success Activo
-                                            else
-                                                span.badge.bg-danger Inactivo
-                                        td.text-center
-                                            button.btn.btn-warning.btn-sm.me-2(type="button", data-bs-toggle="modal", data-bs-target="#modalEditarHorario", data-id=horario.id, title="Editar")
-                                                i.bi.bi-pencil-fill
-                                            button.btn.btn-info.btn-sm.me-2(type="button", data-bs-toggle="modal", data-bs-target="#modalEstadoHorario", data-id=horario.id, data-activo=horario.activo.toString(), title="Cambiar Estado")
-                                                i.bi.bi-arrow-repeat.text-white
-                                            button.btn.btn-danger.btn-sm(type="button", data-bs-toggle="modal", data-bs-target="#modalEliminarHorario", data-id=horario.id, title="Eliminar")
-                                                i.bi.bi-trash-fill
+                                        if usuarioAutenticado.Rol.nombre == 'Administrador'
+                                          td.text-center
+                                              if horario.activo
+                                                  span.badge.bg-success Activo
+                                              else
+                                                  span.badge.bg-danger Inactivo
+                                          td.text-center
+                                              button.btn.btn-warning.btn-sm.me-2(type="button", data-bs-toggle="modal", data-bs-target="#modalEditarHorario", data-id=horario.id, title="Editar")
+                                                  i.bi.bi-pencil-fill
+                                              button.btn.btn-info.btn-sm.me-2(type="button", data-bs-toggle="modal", data-bs-target="#modalEstadoHorario", data-id=horario.id, data-activo=horario.activo.toString(), title="Cambiar Estado")
+                                                  i.bi.bi-arrow-repeat.text-white
+                                              button.btn.btn-danger.btn-sm(type="button", data-bs-toggle="modal", data-bs-target="#modalEliminarHorario", data-id=horario.id, title="Eliminar")
+                                                  i.bi.bi-trash-fill
                                 - const filasVacias = (paginacion.registrosPorPagina || 13) - horarios.length;
                                 if filasVacias > 0
                                     - for (let i = 0; i < filasVacias; i++)
@@ -94,88 +97,86 @@ block content
 
     //- Modal para registrar los horarios
     #modalHorario.modal.fade(tabindex="-1" aria-labelledby="modalHorarioLabel" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+          .modal-content
+              .modal-header
+                  h5#modalHorarioLabel.modal-title Nuevo Horario
+                  button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+              form#formCrearHorario(autocomplete="off" novalidate)
+                  .modal-body
+                      #error-container-horario.alert.alert-danger.d-none(role="alert")
+                      input(type="hidden", name="usuario_id", value=usuario.id)
+                      .mb-3
+                          label.form-label(for="fechaInput") Día
+                          select#fechaInput.form-select(name="fecha", required)
+                              option(value="", selected, disabled) Seleccione un día
+                              each dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                                  option(value=dia)= dia
+                      .row
+                          .col-md-6.mb-3
+                              label.form-label(for="horaInicio") Hora Inicio
+                              input#horaInicio.form-control(type="time", name="hora_inicio", required)
+                          .col-md-6.mb-3
+                              label.form-label(for="horaFin") Hora Fin
+                              input#horaFin.form-control(type="time", name="hora_fin", required)
+                  .modal-footer
+                      button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+                      button.btn.btn-primary(type="submit")
+                        i.bi.bi-save-fill.me-2
+                        | Guardar
+    if usuarioAutenticado.Rol.nombre == 'Administrador'
+      //- Modal para editar los horarios
+      #modalEditarHorario.modal.fade(tabindex="-1" aria-labelledby="modalEditarHorarioLabel" aria-hidden="true")
         .modal-dialog.modal-dialog-centered
-            .modal-content
-                .modal-header
-                    h5#modalHorarioLabel.modal-title Nuevo Horario
-                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-content
+            .modal-header
+              h5#modalEditarHorarioLabel.modal-title Editar Horario
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
 
-                form#formCrearHorario(autocomplete="off" novalidate)
-                    .modal-body
-                        #error-container-horario.alert.alert-danger.d-none(role="alert")
-                        input(type="hidden", name="usuario_id", value=usuario.id)
-                        .mb-3
-                            label.form-label(for="fechaInput") Día
-                            select#fechaInput.form-select(name="fecha", required)
-                                option(value="", selected, disabled) Seleccione un día
-                                each dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-                                    option(value=dia)= dia
-                        .row
-                            .col-md-6.mb-3
-                                label.form-label(for="horaInicio") Hora Inicio
-                                input#horaInicio.form-control(type="time", name="hora_inicio", required)
-                            .col-md-6.mb-3
-                                label.form-label(for="horaFin") Hora Fin
-                                input#horaFin.form-control(type="time", name="hora_fin", required)
+            form#formEditarHorario(autocomplete="off" novalidate)
+              .modal-body
+                #error-container-editar-horario.alert.alert-danger.d-none(role="alert")
+                input#edit_id(type="hidden" name="id")
+                input#edit_usuario_id(type="hidden", name="usuario_id", value=usuario.id)
+                .mb-3
+                  label.form-label(for="fechaInputEdit") Día
+                  select#fechaInputEdit.form-select(name="fecha", required)
+                    option(value="", selected, disabled) Seleccione un día
+                    each dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                      option(value=dia)= dia
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for="horaInicioEdit") Hora Inicio
+                    input#horaInicioEdit.form-control(type="time", name="hora_inicio", required)
+                  .col-md-6.mb-3
+                    label.form-label(for="horaFinEdit") Hora Fin
+                    input#horaFinEdit.form-control(type="time", name="hora_fin", required)
 
-                    .modal-footer
-                        button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-                        button.btn.btn-primary(type="submit")
-                            i.bi.bi-save-fill.me-2
-                            | Guardar
-
-    //- Modal para editar los horarios
-    #modalEditarHorario.modal.fade(tabindex="-1" aria-labelledby="modalEditarHorarioLabel" aria-hidden="true")
-        .modal-dialog.modal-dialog-centered
-            .modal-content
-                .modal-header
-                    h5#modalEditarHorarioLabel.modal-title Editar Horario
-                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-
-                form#formEditarHorario(autocomplete="off" novalidate)
-                    .modal-body
-                        #error-container-editar-horario.alert.alert-danger.d-none(role="alert")
-                        input#edit_id(type="hidden" name="id")
-                        input#edit_usuario_id(type="hidden", name="usuario_id", value=usuario.id)
-                        .mb-3
-                            label.form-label(for="fechaInputEdit") Día
-                            select#fechaInputEdit.form-select(name="fecha", required)
-                                option(value="", selected, disabled) Seleccione un día
-                                each dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-                                    option(value=dia)= dia
-                        .row
-                            .col-md-6.mb-3
-                                label.form-label(for="horaInicioEdit") Hora Inicio
-                                input#horaInicioEdit.form-control(type="time", name="hora_inicio", required)
-                            .col-md-6.mb-3
-                                label.form-label(for="horaFinEdit") Hora Fin
-                                input#horaFinEdit.form-control(type="time", name="hora_fin", required)
-
-                    .modal-footer
-                        button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-                        button.btn.btn-primary(type="submit")
-                            i.bi.bi-save-fill.me-2
-                            | Guardar
-
-    //- Modal Estado Horario
-    #modalEstadoHorario.modal.fade(tabindex="-1" aria-labelledby="modalEstadoHorarioLabel" aria-hidden="true")
-        .modal-dialog.modal-dialog-centered
-            .modal-content
-                .modal-header
-                    h5#modalEstadoHorarioLabel.modal-title Confirmar Cambio de Estado
-                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-                .modal-body
-                    p#mensajeEstadoHorario ¿Está seguro de cambiar el estado de este horario?
-                    #error-container-estado.alert.alert-danger.d-none
                 .modal-footer
-                    button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-                    form#formEstadoHorario
-                        input#estado_horario_id(type="hidden" name="id")
-                        input#estado_horario_activo(type="hidden" name="activo")
-                        button#btnConfirmarEstado.btn.btn-primary(type="submit") Confirmar
+                  button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+                  button.btn.btn-primary(type="submit")
+                    i.bi.bi-save-fill.me-2
+                    | Guardar
 
-    //- Modal Eliminar Horario
-    #modalEliminarHorario.modal.fade(tabindex="-1" aria-labelledby="modalEliminarHorarioLabel" aria-hidden="true")
+      //- Modal Estado Horario
+      #modalEstadoHorario.modal.fade(tabindex="-1" aria-labelledby="modalEstadoHorarioLabel" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5#modalEstadoHorarioLabel.modal-title Confirmar Cambio de Estado
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            .modal-body
+              p#mensajeEstadoHorario ¿Está seguro de cambiar el estado de este horario?
+              #error-container-estado.alert.alert-danger.d-none
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              form#formEstadoHorario
+                input#estado_horario_id(type="hidden" name="id")
+                input#estado_horario_activo(type="hidden" name="activo")
+                button#btnConfirmarEstado.btn.btn-primary(type="submit") Confirmar
+
+      //- Modal Eliminar Horario
+      #modalEliminarHorario.modal.fade(tabindex="-1" aria-labelledby="modalEliminarHorarioLabel" aria-hidden="true")
         .modal-dialog.modal-dialog-centered
             .modal-content
                 .modal-header
@@ -191,7 +192,8 @@ block content
                         button#btnConfirmarEliminar.btn.btn-danger(type="submit") Eliminar
 
 block scripts
-  script(src="/js/horario/registrarHorario.js")
-  script(src="/js/horario/editarHorario.js")
-  script(src="/js/horario/estadoHorario.js")
-  script(src="/js/horario/eliminarHorario.js")
+  if usuarioAutenticado.Rol.nombre == 'Administrador'
+    script(src="/js/horario/registrarHorario.js")
+    script(src="/js/horario/editarHorario.js")
+    script(src="/js/horario/estadoHorario.js")
+    script(src="/js/horario/eliminarHorario.js")

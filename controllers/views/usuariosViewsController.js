@@ -1,4 +1,4 @@
-const { Rol, Usuario, Agenda, Horario } = require('../../db/models');
+const { Rol, Usuario, Agenda, Horario, sequelize } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.getRegistrar = async (req, res, next) => {
@@ -183,12 +183,28 @@ exports.getHorarios = async (req, res, next) => {
         }
 
         const whereClause = { usuario_id: usuarioId };
+        if (req.usuario.Rol.nombre == 'Medico') {
+          whereClause.activo = true;
+        } else{
+          if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+        }
         if (fecha) whereClause.fecha = fecha;
-        if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
+
 
         const { count, rows: horarios } = await Horario.findAndCountAll({
             where: whereClause,
-            order: [['hora_inicio', 'ASC']],
+            order: [
+                [sequelize.literal(`CASE 
+                    WHEN fecha = 'Lunes' THEN 1 
+                    WHEN fecha = 'Martes' THEN 2 
+                    WHEN fecha = 'Miércoles' THEN 3 
+                    WHEN fecha = 'Jueves' THEN 4 
+                    WHEN fecha = 'Viernes' THEN 5 
+                    WHEN fecha = 'Sábado' THEN 6 
+                    WHEN fecha = 'Domingo' THEN 7 
+                    ELSE 8 END`), 'ASC'],
+                ['hora_inicio', 'ASC']
+            ],
             limit: registrosPorPagina,
             offset: offset
         });
