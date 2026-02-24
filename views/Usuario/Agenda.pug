@@ -11,12 +11,13 @@ block content
       .d-flex.justify-content-between.align-items-center.mb-4
         h3.text-center.m-0= title
         div
-          a.btn.btn-outline-secondary.me-2(href=`/usuarios/${usuario.id}`)
-            i.bi.bi-arrow-left.me-2
-            | Volver
-          button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalAgregarAgenda")
-            i.bi.bi-plus-circle.me-2
-            | Nueva Agenda
+          if usuarioAutenticado.Rol.nombre == 'Administrador'
+            a.btn.btn-outline-secondary.me-2(href=`/usuarios/${usuario.id}`)
+              i.bi.bi-arrow-left.me-2
+              | Volver
+            button.btn.btn-success(type="button" data-bs-toggle="modal" data-bs-target="#modalAgregarAgenda")
+              i.bi.bi-plus-circle.me-2
+              | Nueva Agenda
 
 
       //- Formulario de Filtros
@@ -29,22 +30,25 @@ block content
         .collapse#filtroCollapse
           .card-body
             form.row.g-2.align-items-end(method="GET" action=`/usuarios/${usuario.id}/agenda`)
-              .col-md
+              .col-4
                 label.form-label(for="year") Año
                 select.form-select(id="year" name="year")
                   option(value="") Todos
                   each y in añosDisponibles
                     option(value=y selected=filtros.year == y) #{y}
-              .col-md
+              .col-4
                 label.form-label(for="month") Mes
                 select.form-select(id="month" name="month")
                   option(value="") Todos
                   - const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
                   each mes, index in meses
                     option(value=index + 1 selected=filtros.month == (index + 1)) #{mes}
-              .col-md-auto
-                button.btn.btn-primary.w-100(type="submit")
-                  i.bi.bi-funnel-fill.me-2
+              .col-4.d-flex.align-items-end.justify-content-end.gap-2
+                a.btn.btn-outline-secondary(href=`/usuarios/${usuario.id}/agend` title="Limpiar Filtros" data-bs-toggle="tooltip") 
+                  i.bi.bi-eraser
+                  | Limpiar
+                button.btn.btn-primary.flex-grow-1(type="submit") 
+                  i.bi.bi-search.me-1
                   | Filtrar
 
       //- Contenido principal: Lista y Calendario
@@ -75,13 +79,17 @@ block content
                             data-fecha-fin=agenda.fecha_fin
                             data-motivo=agenda.motivo
                           )
-                            i.bi.bi-pencil-fill
-                          if agenda.activo
-                            button.btn.btn-sm.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAgenda" data-id=agenda.id data-activo="true")
-                              i.bi.bi-trash-fill
-                          else
-                            button.btn.btn-sm.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAgenda" data-id=agenda.id data-activo="false")
-                              i.bi.bi-check-circle-fill
+                            if usuarioAutenticado.Rol.nombre == 'Administrador'
+                              i.bi.bi-pencil-fill
+                            else
+                             i.bi.bi-eye-fill
+                          if usuarioAutenticado.Rol.nombre == 'Administrador'
+                            if agenda.activo
+                              button.btn.btn-sm.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAgenda" data-id=agenda.id data-activo="true")
+                                i.bi.bi-trash-fill
+                            else
+                              button.btn.btn-sm.btn-outline-success(type="button" data-bs-toggle="modal" data-bs-target="#modalEstadoAgenda" data-id=agenda.id data-activo="false")
+                                i.bi.bi-check-circle-fill
             else
               .alert.alert-info.text-center
                 i.bi.bi-info-circle.me-2
@@ -91,66 +99,68 @@ block content
         .col-lg-7
           .p-3.border.rounded.h-100
             #calendario
+    if usuarioAutenticado.Rol.nombre == 'Administrador'
+      //- Modal Agregar Agenda
+      #modalAgregarAgenda.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          form#formRegistrarAgenda.modal-content(action=`/api/agendas/register` method="POST")
+            .modal-header
+              h5.modal-title Nueva Agenda
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            .modal-body
+              input(type="hidden" name="usuario_id" value=usuario.id)
+              .row
+                .col-6
+                  label.form-label(for="fecha_inicio") Fecha Inicio
+                  input.form-control(type="date" name="fecha_inicio" required)
+                .col-6
+                  label.form-label(for="fecha_fin") Fecha Fin
+                  input.form-control(type="date" name="fecha_fin" required)
+                .col-12
+                  label.form-label(for="motivo") Motivo
+                  textarea.form-control(name="motivo" rows="2" style="resize: none;  min-height: 100px;")
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit") Guardar
 
-    //- Modal Agregar Agenda
-    #modalAgregarAgenda.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog
-        form#formRegistrarAgenda.modal-content(action=`/api/agendas/register` method="POST")
-          .modal-header
-            h5.modal-title Nueva Agenda
-            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-          .modal-body
-            input(type="hidden" name="usuario_id" value=usuario.id)
-            .mb-3
-              label.form-label(for="fecha_inicio") Fecha Inicio
-              input.form-control(type="date" name="fecha_inicio" required)
-            .mb-3
-              label.form-label(for="fecha_fin") Fecha Fin
-              input.form-control(type="date" name="fecha_fin" required)
-            .mb-3
-              label.form-label(for="motivo") Motivo
-              textarea.form-control(name="motivo" rows="2")
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button.btn.btn-primary(type="submit") Guardar
-
+      //- Modal Estado Agenda (Alta/Baja)
+      #modalEstadoAgenda.modal.fade(tabindex="-1" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+          .modal-content
+            .modal-header
+              h5.modal-title Confirmar Acción
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            .modal-body
+              p#mensajeEstado ¿Está seguro de cambiar el estado de esta agenda?
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              form#formEstadoAgenda(method="POST")
+                  input(type="hidden" name="_method" value="PATCH")
+                  input#estado_activo(type="hidden" name="activo")
+                  button#btnConfirmarEstado.btn(type="submit") Confirmar
     //- Modal Editar Agenda
     #modalEditarAgenda.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog
+      .modal-dialog.modal-dialog-centered
         form#formEditarAgenda.modal-content(method="POST")
           .modal-header
-            h5.modal-title Editar Agenda
+            h5.modal-title  #{usuarioAutenticado.Rol.nombre == 'Administrador' ? 'Editar Agenda' : 'Detalle de la Agenda'}
             button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
           .modal-body
             input#edit_id(type="hidden" name="id")
-            .mb-3
-              label.form-label(for="edit_fecha_inicio") Fecha Inicio
-              input#edit_fecha_inicio.form-control(type="date" name="fecha_inicio" required)
-            .mb-3
-              label.form-label(for="edit_fecha_fin") Fecha Fin
-              input#edit_fecha_fin.form-control(type="date" name="fecha_fin" required)
-            .mb-3
-              label.form-label(for="edit_motivo") Motivo
-              textarea#edit_motivo.form-control(name="motivo" rows="2")
+            .row
+              .col-6
+                label.form-label(for="edit_fecha_inicio") Fecha Inicio
+                input#edit_fecha_inicio.form-control(type="date" name="fecha_inicio" required)
+              .col-6
+                label.form-label(for="edit_fecha_fin") Fecha Fin
+                input#edit_fecha_fin.form-control(type="date" name="fecha_fin" required)
+              .col-12
+                label.form-label(for="edit_motivo") Motivo
+                textarea#edit_motivo.form-control(name="motivo" rows="2" style="resize: none;  min-height: 100px;")
           .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button.btn.btn-primary(type="submit") Actualizar
-
-    //- Modal Estado Agenda (Alta/Baja)
-    #modalEstadoAgenda.modal.fade(tabindex="-1" aria-hidden="true")
-      .modal-dialog
-        .modal-content
-          .modal-header
-            h5.modal-title Confirmar Acción
-            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-          .modal-body
-            p#mensajeEstado ¿Está seguro de cambiar el estado de esta agenda?
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            form#formEstadoAgenda(method="POST")
-                input(type="hidden" name="_method" value="PATCH")
-                input#estado_activo(type="hidden" name="activo")
-                button#btnConfirmarEstado.btn(type="submit") Confirmar
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+            if usuarioAutenticado.Rol.nombre == 'Administrador'
+              button.btn.btn-primary(type="submit") Actualizar
 
 block scripts
   //- CDN de FullCalendar para la funcionalidad
@@ -163,6 +173,7 @@ block scripts
 
   //- Script para inicializar el calendario
   script(src="/js/usuario/gestionAgenda.js")
-  script(src="/js/usuario/formAgendaRegister.js")
-  script(src="/js/usuario/formEditAgenda.js")
-  script(src="/js/usuario/gestionEstadoAgenda.js")
+  if usuarioAutenticado.Rol.nombre == 'Administrador'
+    script(src="/js/usuario/formAgendaRegister.js")
+    script(src="/js/usuario/formEditAgenda.js")
+    script(src="/js/usuario/gestionEstadoAgenda.js")
