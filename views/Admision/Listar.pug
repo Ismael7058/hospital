@@ -32,9 +32,10 @@ block content
           button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
             i.bi.bi-funnel.me-2
             | Filtros
-          button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarAdmision")
-            i.bi.bi-plus-lg.me-2
-            | Nueva Admision
+          if ["Recepcion", "Administrador"].includes(usuarioAutenticado.Rol.nombre)
+            button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarAdmision")
+              i.bi.bi-plus-lg.me-2
+              | Nueva Admision
 
       //- Filtro
       .collapse#filtrosCollapse
