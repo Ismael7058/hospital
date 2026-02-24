@@ -30,6 +30,8 @@ exports.registrarAdmision = async (req, res) => {
       case 'El turno esta vencido por la fecha y hora':
       case 'El turno no era para la fecha de hoy':
       case 'La identificacion ya se encuentra registrada':
+      case 'La cama seleccionada no está libre':
+      case 'La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion':
         return res.status(409).json({ message: error.message });
       default:
         res.status(500).json({ message: 'Error interno del servidor al registrar la admisión' });

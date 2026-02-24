@@ -51,17 +51,17 @@ const registrarPorEmergencia = async (data) => {
       const pacienteExistente = await Paciente.findByPk(paciente_id, { transaction: t });
       if (!pacienteExistente) throw new Error('Paciente no encontrado');
       sexoPaciente = pacienteExistente.sexo;
-    }
-
-    const admision = await Admision.findOne({ 
-      where: { 
-        paciente_id: paciente_id, 
-        activo: true,
-        estado: 'Activa'
-      } 
-    });
-    if (admision) {
-      throw new Error('El paciente ya se encuentra admitido');
+      
+      const admision = await Admision.findOne({ 
+        where: { 
+          paciente_id: paciente_id, 
+          activo: true,
+          estado: 'Activa'
+        } 
+      });
+      if (admision) {
+        throw new Error('El paciente ya se encuentra admitido');
+      }
     }
 
     if (cama_id) {
@@ -175,7 +175,7 @@ const registrarPorEmergencia = async (data) => {
       
       paciente_id = nuevoPaciente.id;
     }
-    
+
     const nuevaAdmision = await Admision.create({
       paciente_id,
       via_ingreso_id,
