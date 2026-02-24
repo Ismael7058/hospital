@@ -40,75 +40,70 @@ block content
       .collapse#filtrosCollapse
         form.card-body.border-bottom.bg-light.p-4(method="GET" action=`/admisiones`)
           .row.g-4
-            //- Columna Izquierda: Búsqueda de Entidades (Médico/Paciente)
-            .col-lg-4
-              h6.text-muted.mb-3.small.text-uppercase.fw-bold
-                i.bi.bi-people.me-2
-                | Búsqueda
-              .d-flex.flex-column.gap-3
+            if !["Medico"].includes(usuarioAutenticado.Rol.nombre)
+              .col-lg-4
                 div
-                  label.form-label.small.fw-bold(for="select-medico") Médico
+                  label.form-label.small.fw-bold(for="select-medico")= usuarioAutenticado.Rol.nombre == 'Enfermero' ? 'Médico a cargo' : 'Médico'
                   .input-group
-                    select#select-medico.form-select(name="medico_id")
+                    select#select-medico.form-select.form-select-sm(name="medico_id")
                       if medicoFiltro
-                        option(value=medicoFiltro.id selected) #{medicoFiltro.nombre} #{medicoFiltro.apellido} (DNI: #{medicoFiltro.dni})
-                    button#btn-limpiar-medico.btn.btn-outline-secondary(type="button" title="Limpiar selección")
+                        option(value=medicoFiltro.id selected) #{medicoFiltro.nombre} #{medicoFiltro.apellido}
+                    button#btn-limpiar-medico.btn.btn-outline-secondary.btn-sm(type="button" title="Limpiar selección")
                       i.bi.bi-x-lg
-                div
-                  label.form-label.small.fw-bold(for="select-paciente") Paciente
-                  .input-group
-                    select#select-paciente.form-select(name="paciente_id")
-                      if pacienteFiltro
-                        - const dni = pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0 ? pacienteFiltro.identificaciones[0].nro_doc : 'S/D'
-                        option(value=pacienteFiltro.id selected) #{pacienteFiltro.nombre} #{pacienteFiltro.apellido} (DNI: #{dni})
-                    button#btn-limpiar-paciente.btn.btn-outline-secondary(type="button" title="Limpiar selección")
-                      i.bi.bi-x-lg
+            .col-lg-4
+              div
+                label.form-label.small.fw-bold(for="select-paciente") Paciente
+                .input-group
+                  select#select-paciente.form-select.form-select-sm(name="paciente_id")
+                    if pacienteFiltro
+                      - const dni = pacienteFiltro.identificaciones && pacienteFiltro.identificaciones.length > 0 ? pacienteFiltro.identificaciones[0].nro_doc : 'S/D'
+                      option(value=pacienteFiltro.id selected) #{pacienteFiltro.nombre} #{pacienteFiltro.apellido} (DNI: #{dni})
+                  button#btn-limpiar-paciente.btn.btn-outline-secondary.btn-sm(type="button" title="Limpiar selección")
+                    i.bi.bi-x-lg
+            .col-lg-4
+              label.form-label.small.fw-bold Vía de Ingreso
+              select.form-select.form-select-sm(name="via_ingreso_id")
+                option(value="") Todos
+                each via in viaIngresoFiltro
+                  option(value=via.id selected=(filtros && filtros.via_ingreso_id == via.id)) #{via.nombre}
+            .col-lg-4
+              label.form-label.small.fw-bold Fecha
+              input.form-control.form-control-sm(type="date" name="fecha" value=(filtros ? filtros.fecha : ''))
+            .col-lg-4
+              label.form-label.small.fw-bold Estado Atención
+              select.form-select.form-select-sm(name="estado_atencion")
+                option(value="") Todos
+                option(value="En Espera" selected=(filtros && filtros.estado_atencion === 'En Espera')) En Espera
+                option(value="En Atencion" selected=(filtros && filtros.estado_atencion === 'En Atencion')) En Atencion
+                option(value="Llamado" selected=(filtros && filtros.estado_atencion === 'Llamado')) Llamado
+                option(value="Finalizado" selected=(filtros && filtros.estado_atencion === 'Finalizado')) Finalizado
+            .col-lg-4
+              label.form-label.small.fw-bold Estado Registro
+              select.form-select.form-select-sm(name="estado")
+                option(value="") Todos
+                option(value="Activa" selected=(filtros && filtros.estado === 'Activa')) Activa
+                option(value="Cancelada" selected=(filtros && filtros.estado === 'Cancelada')) Cancelada
+                option(value="Dada Alta" selected=(filtros && filtros.estado === 'Dada Alta')) Dada Alta
+            if usuarioAutenticado.Rol.nombre == "Administrador" 
+              .col-md-4
+                label.form-label.small.fw-bold Disponibilidad
+                select.form-select.form-select-sm(name="activo")
+                  option(value="") Todos
+                  option(value="true" selected=(filtros && filtros.activo === 'true')) Disponible
+                  option(value="false" selected=(filtros && filtros.activo === 'false')) No disponible
+            if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+              .col-lg-2.bg-white
+                .form-check.form-switch.mb-0.mt-3.pt-3
+                  input.form-check-input(type="checkbox" id="check-mis-admisiones" name="mis_admisiones" value="true" checked=(filtros && filtros.mis_admisiones === 'true'))
+                  label.form-check-label.small.fw-bold(for="check-mis-admisiones") Ver solo mías
 
-            //- Columna Derecha: Filtros de Estado y Fecha
-            .col-lg-8
-              h6.text-muted.mb-3.small.text-uppercase.fw-bold
-                i.bi.bi-sliders.me-2
-                | Criterios
-              .row.g-3
-                .col-md-4
-                  label.form-label.small.fw-bold Vía de Ingreso
-                  select.form-select.form-select-sm(name="via_ingreso_id")
-                    option(value="") Todos
-                    each via in viaIngresoFiltro
-                      option(value=via.id selected=(filtros && filtros.via_ingreso_id == via.id)) #{via.nombre}
-                .col-md-4
-                  label.form-label.small.fw-bold Fecha
-                  input.form-control.form-control-sm(type="date" name="fecha" value=(filtros ? filtros.fecha : ''))
-                .col-md-4
-                  label.form-label.small.fw-bold Estado Atención
-                  select.form-select.form-select-sm(name="estado_atencion")
-                    option(value="") Todos
-                    option(value="En Espera" selected=(filtros && filtros.estado_atencion === 'En Espera')) En Espera
-                    option(value="En Atencion" selected=(filtros && filtros.estado_atencion === 'En Atencion')) En Atencion
-                    option(value="Llamado" selected=(filtros && filtros.estado_atencion === 'Llamado')) Llamado
-                    option(value="Finalizado" selected=(filtros && filtros.estado_atencion === 'Finalizado')) Finalizado
-                .col-md-4
-                  label.form-label.small.fw-bold Estado Registro
-                  select.form-select.form-select-sm(name="estado")
-                    option(value="") Todos
-                    option(value="Activa" selected=(filtros && filtros.estado === 'Activa')) Activa
-                    option(value="Cancelada" selected=(filtros && filtros.estado === 'Cancelada')) Cancelada
-                    option(value="Dada Alta" selected=(filtros && filtros.estado === 'Dada Alta')) Dada Alta
-                .col-md-4
-                  label.form-label.small.fw-bold Disponibilidad
-                  select.form-select.form-select-sm(name="activo")
-                    option(value="") Todos
-                    option(value="true" selected=(filtros && filtros.activo === 'true')) Disponible
-                    option(value="false" selected=(filtros && filtros.activo === 'false')) No disponible
-                
-                //- Botones
-                .col-md-4.d-flex.align-items-end.justify-content-end.gap-2
-                  a.btn.btn-sm.btn-outline-secondary(href=`/admisiones` title="Limpiar Filtros" data-bs-toggle="tooltip") 
-                    i.bi.bi-eraser
-                    | Limpiar
-                  button.btn.btn-sm.btn-primary.flex-grow-1(type="submit") 
-                    i.bi.bi-search.me-1
-                    | Filtrar
+            .col-md-2.d-flex.align-items-end.justify-content-end.gap-2
+              a.btn.btn-sm.btn-outline-secondary(href=`/admisiones` title="Limpiar Filtros" data-bs-toggle="tooltip") 
+                i.bi.bi-eraser
+                | Limpiar
+              button.btn.btn-sm.btn-primary.flex-grow-1(type="submit") 
+                i.bi.bi-search.me-1
+                | Filtrar
 
       .card-body.flex-grow-1.d-flex.flex-column.p-0.overflow-hidden
         if admisiones.length > 0
@@ -120,9 +115,10 @@ block content
                   th.text-start.ps-4 Paciente
                   th.text-start Medico
                   th.text-start Motivo
-                  th.text-center Atencion
+                  th.text-center Estado de Atencion
                   th.text-center Estado
-                  th.text-center Disponible
+                  if usuarioAutenticado.Rol.nombre == "Administrador" 
+                    th.text-center Disponible
                   th.text-center Via de Ingreso
                   th.text-center Acciones
               tbody 
@@ -142,20 +138,24 @@ block content
                                 | +#{admision.paciente.identificaciones.length - 1}
                       if admision.medico_atencion
                         td.text-start
-                          a.text-decoration-none(href=`/usuarios/${admision.medico_atencion.id}`) 
+                          if usuarioAutenticado.Rol.nombre == "Administrador" 
+                            a.text-decoration-none(href=`/usuarios/${admision.medico_atencion.id}`) 
+                              | #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
+                          else
                             | #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
                       else
-                        td.text-center
-                          span.text-muted -
+                        td.text-start
+                          span.text-muted (Sin asignar)
                       td.text-start.text-truncate(style="max-width: 200px;" title=admision.motivo_internacion) #{admision.motivo_internacion}
                       td.text-center
                         span.badge(class=admision.estado_atencion === 'En Espera' ? 'bg-warning text-dark' : admision.estado_atencion === 'En Atencion' ? 'bg-primary' : 'bg-success') #{admision.estado_atencion}
                       td.text-center #{admision.estado}
-                      td.text-center
-                        if admision.activo
-                          i.bi.bi-check-circle-fill.text-success(title="Disponible" data-bs-toggle="tooltip")
-                        else
-                          i.bi.bi-x-circle-fill.text-danger(title="No Disponible" data-bs-toggle="tooltip")
+                      if usuarioAutenticado.Rol.nombre == "Administrador"
+                        td.text-center
+                          if admision.activo
+                            i.bi.bi-check-circle-fill.text-success(title="Disponible" data-bs-toggle="tooltip")
+                          else
+                            i.bi.bi-x-circle-fill.text-danger(title="No Disponible" data-bs-toggle="tooltip")
                       td.text-center #{admision.via_ingreso ? admision.via_ingreso.nombre : '-'}
                       td.text-center
                         .btn-group
@@ -180,7 +180,8 @@ block content
                       td.text-center &nbsp;
                       td.text-center &nbsp;
                       td.text-center &nbsp;
-                      td.text-center &nbsp;
+                      if usuarioAutenticado.Rol.nombre == "Administrador"
+                        td.text-center &nbsp;
                       td.text-center
                         button.btn.btn-sm.invisible
                           i.bi.bi-pencil-square.me-1
@@ -196,31 +197,32 @@ block content
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
           include ../Shared/Paginacion.pug
 
-  #modalRegistrarAdmision.modal.fade(tabindex="-1" aria-labelledby="modalRegistrarAdmisionLabel" aria-hidden="true")
-    .modal-dialog.modal-dialog-centered
-      .modal-content
-        .modal-header
-          h5#modalRegistrarAdmisionLabel.modal-title Nueva Admision
-          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-        form#formRegistrarAdmision(autocomplete="off" novalidate)
-          .modal-body
-              input(type="hidden", name="via_ingreso_id" value=viaIngresoModal.id)
-              .mb-3
-                label.form-label(for="modal-select-paciente") Buscar Paciente
-                .input-group
-                  select#modal-select-paciente.form-select(name="paciente_id" required)
-                  button#btn-limpiar-modal-paciente.btn.btn-outline-secondary(type="button" title="Limpiar selección")
-                    i.bi.bi-x-lg
+  if ["Recepcion", "Administrador"].includes(usuarioAutenticado.Rol.nombre)
+    #modalRegistrarAdmision.modal.fade(tabindex="-1" aria-labelledby="modalRegistrarAdmisionLabel" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5#modalRegistrarAdmisionLabel.modal-title Nueva Admision
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          form#formRegistrarAdmision(autocomplete="off" novalidate)
+            .modal-body
+                input(type="hidden", name="via_ingreso_id" value=viaIngresoModal.id)
+                .mb-3
+                  label.form-label(for="modal-select-paciente") Buscar Paciente
+                  .input-group
+                    select#modal-select-paciente.form-select(name="paciente_id" required)
+                    button#btn-limpiar-modal-paciente.btn.btn-outline-secondary(type="button" title="Limpiar selección")
+                      i.bi.bi-x-lg
 
-                .invalid-feedback#error-paciente_id El paciente es obligatorio.
-              .mb-3
-                label.form-label(for="motivo_internacion") Motivo
-                textarea.form-control(name="motivo_internacion" rows="2")
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
-            button.btn.btn-primary(type="submit")
-              i.bi.bi-save-fill.me-2
-              | Guardar
+                  .invalid-feedback#error-paciente_id El paciente es obligatorio.
+                .mb-3
+                  label.form-label(for="motivo_internacion") Motivo
+                  textarea.form-control(name="motivo_internacion" rows="2")
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cerrar
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-save-fill.me-2
+                | Guardar
 block scripts
   //- jQuery y Select2 JS
   script(src="https://code.jquery.com/jquery-3.6.0.min.js")
@@ -228,7 +230,8 @@ block scripts
 
   script(src="/js/medico/buscarMedico.js")
   script(src="/js/paciente/buscarPaciente.js")
-  script(src="/js/admision/modalRegistrar.js")
+  if ["Recepcion", "Administrador"].includes(usuarioAutenticado.Rol.nombre)
+    script(src="/js/admision/modalRegistrar.js")
 
   script.
     // Inicializar popovers y tooltips
