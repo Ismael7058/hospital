@@ -1,5 +1,4 @@
-const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala, UbicacionInternacion, Cama, Habitacion, Especialidad, EvolucionMedica, EstudioSolicitado, SignosVitales, CuidadoPreliminar, Medicacion, ViaAdministracion } = require('../../db/models');
-const { Op } = require('sequelize');
+const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala, UbicacionInternacion, Cama, Habitacion, Especialidad, EvolucionMedica, EstudioSolicitado, SignosVitales, CuidadoPreliminar, Medicacion, ViaAdministracion, AdmisionEnfermero } = require('../../db/models');
 const admisionVS = require('../../services/views/admisionViewServices')
 
 exports.getAdmisiones = async (req, res, next) => {
@@ -97,6 +96,17 @@ exports.getAdmision = async (req, res, next) => {
                   ]
                 }
               ]
+            }
+          ]
+        }, 
+        {
+          model: AdmisionEnfermero,
+          as: 'enfermeros',
+          include: [
+            {
+              model: Usuario,
+              as: 'enfermero',
+              attributes: ['id', 'nombre', 'apellido']
             }
           ]
         }
