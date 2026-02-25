@@ -62,7 +62,7 @@ exports.getAdmision = async (req, res, next) => {
         {
           model: Usuario,
           as: 'medico_atencion',
-          attributes: ['id', 'nombre', 'apellido'],
+          attributes: ['id', 'nombre', 'apellido', 'dni'],
           include: [{
             model: Especialidad,
             attributes: ['nombre'],
@@ -106,7 +106,7 @@ exports.getAdmision = async (req, res, next) => {
             {
               model: Usuario,
               as: 'enfermero',
-              attributes: ['id', 'nombre', 'apellido']
+              attributes: ['id', 'nombre', 'apellido', 'dni']
             }
           ]
         }

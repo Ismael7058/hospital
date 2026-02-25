@@ -191,7 +191,7 @@ block content
                       tr
                         th.ps-4 Personal
                         th Nombre
-                        th.pe-4 Especialidad / Detalles
+                        th.pe-4 Identificacion
                         if usuarioAutenticado.Rol.nombre == 'Administrador'
                           th Accion
                     tbody
@@ -199,12 +199,8 @@ block content
                         tr
                           td.ps-4
                             span.badge.bg-primary.bg-opacity-10.text-primary Médico
-                          td.fw-bold #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
-                          td.pe-4
-                            if admision.medico_atencion.especialidades && admision.medico_atencion.especialidades.length > 0
-                              | #{admision.medico_atencion.especialidades.map(e => e.nombre).join(', ')}
-                            else
-                              span.text-muted N/A
+                          td.form-label.text-muted.small.fw-bold.text-uppercase #{admision.medico_atencion.nombre} #{admision.medico_atencion.apellido}
+                          td.form-label.text-muted.small.fw-bold.text-uppercase DNI: #{admision.medico_atencion.dni}
                           if usuarioAutenticado.Rol.nombre == 'Administrador'
                             td
                               a.btn.btn-outline-info.ms-auto.btn-sm(href=`/usuarios/${admision.medico_atencion.id}`)
@@ -216,9 +212,8 @@ block content
                           tr
                             td.ps-4
                               span.badge.bg-success.bg-opacity-10.text-success Enfermero/a
-                            td.fw-bold #{enfermero.enfermero.nombre} #{enfermero.apellido}
-                            td.pe-4
-                              | N/A
+                            td.form-label.text-muted.small.fw-bold.text-uppercase #{enfermero.enfermero.nombre} #{enfermero.apellido}
+                            td.form-label.text-muted.small.fw-bold.text-uppercase DNI: #{enfermero.enfermero.dni}
                             if usuarioAutenticado.Rol.nombre == 'Administrador'
                               td.pe-4
                                 a.btn.btn-outline-info.ms-auto.btn-sm(href=`/usuarios/${enfermero.enfermero.id}`)
