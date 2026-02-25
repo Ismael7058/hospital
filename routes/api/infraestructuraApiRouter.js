@@ -45,7 +45,7 @@ router.patch('/ala/:id/activo', restringirRol('Administrador'), setActivoAlaVali
 router.get('/ala/buscar', restringirRol('Administrador'), alaApiController.getAlas);
 
 // GET /api/infraestructura/ala/disponibles
-router.get('/ala/disponibles', restringirRol('Administrador', 'Recepcion', 'Medico'), alaApiController.alasDisponibles);
+router.get('/ala/disponibles', restringirRol('Administrador', 'Recepcion', 'Medico', 'Enfermero'), alaApiController.alasDisponibles);
 
 
 // POST /api/infraestructura/habitacion/register
