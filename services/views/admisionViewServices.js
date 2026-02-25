@@ -1,4 +1,4 @@
-const { Admision, Paciente, ViaIngreso, Turno, Usuario, Rol, Identificacion, Ala, UbicacionInternacion, Cama, Habitacion, Especialidad, EvolucionMedica, EstudioSolicitado, SignosVitales, CuidadoPreliminar, Medicacion, ViaAdministracion } = require('../../db/models');
+const { Admision, Paciente, ViaIngreso,  Usuario, Rol, Identificacion, AdmisionEnfermero } = require('../../db/models');
 const { Op } = require('sequelize');
 
 exports.admisionesAdministrador = async (req) => {
@@ -319,7 +319,7 @@ exports.admisionesEnfermero = async (req) => {
       include: [{ model: Identificacion, as: 'identificaciones', attributes: ['tipo_doc', 'nro_doc'] }]
     },
     { model: ViaIngreso, as: 'via_ingreso', attributes: ['id', 'nombre'] },
-    { model: Usuario, as: 'enfermeros', attributes: ['id', 'nombre', 'apellido'], through: { attributes: [] } }
+    { model: AdmisionEnfermero, as: 'enfermeros', attributes: ['enfermero_id'] }
   ];
 
   if (medico_id) {
@@ -328,7 +328,7 @@ exports.admisionesEnfermero = async (req) => {
   }
 
   if (mis_admisiones === 'true') {
-    includeOptions[3].where = { id: req.usuario.id };
+    includeOptions[3].where = { enfermero_id: req.usuario.id };
     includeOptions[3].required = true;
   }
 
