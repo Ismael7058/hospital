@@ -26,7 +26,7 @@ block content
               
           .btn-group(role="group")
             if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
-              if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa' && admision.activo
+              if ['En Espera'].includes(admision.estado_atencion) && admision.estado == 'Activa' && admision.activo 
                 button.btn.btn-outline-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalAtenderAdmision")
                   i.bi.bi-file-medical.me-2
                   | Atender Paciente
@@ -265,9 +265,9 @@ block content
       if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
         include modalTraslado
 
-    if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
-      //- atender paciente
-      if admision.estado_atencion == 'En Espera' && admision.estado == 'Activa'
+    //- atender paciente
+    if ["Medico"].includes(usuarioAutenticado.Rol.nombre)
+      if ['En Espera'].includes(admision.estado_atencion)  && admision.estado == 'Activa' && admision.activo
         #modalAtenderAdmision.modal.fade(tabindex="-1" aria-hidden="true")
           .modal-dialog.modal-dialog-centered
             .modal-content
@@ -277,14 +277,12 @@ block content
               form#formAtenderAdmision(autocomplete="off" novalidate)
                 .modal-body
                   input(type="hidden", name="admision_id" value=admision.id)
+                  input(type="hidden", name="sexoPaciente" value=admision.paciente.sexo)
                   .row.g-3.justify-content-center
                     .col-md-12
                       label.form-label(for="ala_id") Ala / Sector
                       select.form-select(id="ala_id" name="ala_id" required)
                         option(value="") Seleccionar Ala
-                        if alas
-                          each ala in alas
-                            option(value=ala.id) #{ala.nombre}
                     .col-md-12
                       label.form-label(for="habitacion_id") Habitación
                       select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
@@ -298,8 +296,9 @@ block content
                   button.btn.btn-primary(type="submit")
                     i.bi.bi-save.me-2
                     | Atender
+       
 
-    //- estado admision
+      //- estado admision
     if (admision.estado_atencion == 'En Atencion' || admision.estado_atencion == 'En Espera') && admision.estado == 'Activa'
       #modalEstadoAdmision.modal.fade(tabindex="-1" aria-hidden="true")
         .modal-dialog.modal-dialog-centered
@@ -326,8 +325,9 @@ block scripts
   if usuarioAutenticado.Rol.nombre == 'Administrador'
     script(src="/js/admision/setActivoAdmision.js") 
 
-  if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
-    script(src="/js/admision/atender.js")
+  if ["Medico"].includes(usuarioAutenticado.Rol.nombre)
+    if ["En Espera"].includes(admision.estado_atencion) && admision.estado == 'Activa' && admision.activo
+      script(src="/js/admision/atender.js")
 
   if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
     script(src="/js/admision/trasladar.js")
@@ -344,3 +344,19 @@ block scripts
         return new bootstrap.Popover(popoverTriggerEl);
       });
     });
+
+
+
+//- Medico
+//- 
+  En Espera
+    Con Cama
+      Sin medico_atencion_id
+    Sin Cama
+      Sin medico_atencion_id
+//- En Atencion
+    Con Cama
+      Sin medico_atencion_id
+    Sin Cama
+      Sin medico_atencion_id
+//-
