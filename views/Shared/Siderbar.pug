@@ -6,74 +6,103 @@ nav#sidebarMenu.bg-dark.sidebar.h-100(aria-label="Navegación principal" data-bs
           i.bi.bi-speedometer2.me-2
           span Dashboard
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
-      span Gestión de Pacientes
-    ul.nav.flex-column.mb-2
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/pacientes" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Pacientes")
-          i.bi.bi-people.me-2
-          span Lista de Pacientes
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/pacientes/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Paciente")
-          i.bi.bi-person-plus.me-2
-          span Nuevo Paciente
+    if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+      h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+        span Gestión de Pacientes
+      ul.nav.flex-column.mb-2
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/pacientes" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Pacientes")
+            i.bi.bi-people.me-2
+            span Lista de Pacientes
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/pacientes/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Paciente")
+            i.bi.bi-person-plus.me-2
+            span Nuevo Paciente
+    if ["Administrador", "Medico", "Enfermero", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+      h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+        span Gestión de Admisión
+      ul.nav.flex-column.mb-2
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Admisiones")
+            i.bi.bi-card-list.me-2
+            span Lista de Admisiones
+        if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+          li.nav-item
+            a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones/registrar?emergencia=true" data-bs-toggle="tooltip" data-bs-placement="right" title="Emergencia")
+              i.bi.bi-heart-pulse.me-2
+              span Emergencia
+    if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+          li.nav-item
+            a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones?estado_atencion=En+Espera" data-bs-toggle="tooltip" data-bs-placement="right" title="Pacientes en Espera")
+              i.bi.bi-hourglass-split.me-2
+              span En Espera
+          li.nav-item
+            a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones?via_ingreso_id=1" data-bs-toggle="tooltip" data-bs-placement="right" title="Emergencias")
+              i.bi.bi-exclamation-triangle.me-2
+              span Emergencias
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
-      span Gestión de Admisión
-    ul.nav.flex-column.mb-2
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Admisiones")
-          i.bi.bi-people.me-2
-          span Lista de Admisiones
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones/registrar?emergencia=true" data-bs-toggle="tooltip" data-bs-placement="right" title="Emergencia")
-          i.bi.bi-heart-pulse.me-2
-          span Emergencia
+    if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+      h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+        span Gestión de Turnos
+      ul.nav.flex-column.mb-2
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/turnos" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Turnos")
+            i.bi.bi-people.me-2
+            span Lista de Turnos
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/turnos/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Turnos")
+            i.bi.bi-person-plus.me-2
+            span Nuevo Turnos
 
+    if ["Administrador"].includes(usuarioAutenticado.Rol.nombre)
+      h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+        span Administración
+      ul.nav.flex-column.mb-2
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/usuarios" data-bs-toggle="tooltip" data-bs-placement="right" title="Usuarios")
+            i.bi.bi-people-fill.me-2
+            span Usuarios
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/matriculas" data-bs-toggle="tooltip" data-bs-placement="right" title="Matrículas")
+            i.bi.bi-card-checklist.me-2
+            span Matrículas
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/especialidades" data-bs-toggle="tooltip" data-bs-placement="right" title="Especialidades")
+            i.bi.bi-heart-pulse-fill.me-2
+            span Especialidades
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/infraestructura" data-bs-toggle="tooltip" data-bs-placement="right" title="Infraestructura")
+            i.bi.bi-hospital.me-2
+            span Infraestructura
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/seguros" data-bs-toggle="tooltip" data-bs-placement="right" title="Seguros Medicos")
+            i.bi.bi-hospital.me-2
+            span Seguros Medicos
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/tipos-antecedentes" data-bs-toggle="tooltip" data-bs-placement="right" title="Seguros Medicos")
+            i.bi.bi-hospital.me-2
+            span Tipos de Antecedentes
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/funtes-informacion" data-bs-toggle="tooltip" data-bs-placement="right" title="Seguros Medicos")
+            i.bi.bi-hospital.me-2
+            span Fuentes de Informacion
 
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
-      span Gestión de Turnos
-    ul.nav.flex-column.mb-2
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/turnos" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de Turnos")
-          i.bi.bi-people.me-2
-          span Lista de Turnos
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/turnos/registrar" data-bs-toggle="tooltip" data-bs-placement="right" title="Nuevo Turnos")
-          i.bi.bi-person-plus.me-2
-          span Nuevo Turnos
-
-
-    h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
-      span Administración
-    ul.nav.flex-column.mb-2
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/usuarios" data-bs-toggle="tooltip" data-bs-placement="right" title="Usuarios")
-          i.bi.bi-people-fill.me-2
-          span Usuarios
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/matriculas" data-bs-toggle="tooltip" data-bs-placement="right" title="Matrículas")
-          i.bi.bi-card-checklist.me-2
-          span Matrículas
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/especialidades" data-bs-toggle="tooltip" data-bs-placement="right" title="Especialidades")
-          i.bi.bi-heart-pulse-fill.me-2
-          span Especialidades
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/infraestructura" data-bs-toggle="tooltip" data-bs-placement="right" title="Infraestructura")
-          i.bi.bi-hospital.me-2
-          span Infraestructura
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/seguros" data-bs-toggle="tooltip" data-bs-placement="right" title="Seguros Medicos")
-          i.bi.bi-hospital.me-2
-          span Seguros Medicos
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/tipos-antecedentes" data-bs-toggle="tooltip" data-bs-placement="right" title="Seguros Medicos")
-          i.bi.bi-hospital.me-2
-          span Tipos de Antecedentes
-      li.nav-item
-        a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/funtes-informacion" data-bs-toggle="tooltip" data-bs-placement="right" title="Seguros Medicos")
-          i.bi.bi-hospital.me-2
-          span Fuentes de Informacion
+    if ["Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+      h6.sidebar-heading.d-flex.justify-content-between.align-items-center.mt-3.mb-1.text-muted.ps-4
+        span Mi Gestión
+      ul.nav.flex-column.mb-2
+        if ["Medico"].includes(usuarioAutenticado.Rol.nombre)
+          li.nav-item
+            a.nav-link.d-flex.align-items-center.ps-4.text-white(href=`/usuarios/${usuarioAutenticado.id}/agenda` data-bs-toggle="tooltip" data-bs-placement="right" title="Mi Agenda")
+              i.bi.bi-calendar3.me-2
+              span Mi Agenda
+          li.nav-item
+            a.nav-link.d-flex.align-items-center.ps-4.text-white(href=`/usuarios/${usuarioAutenticado.id}/horarios` data-bs-toggle="tooltip" data-bs-placement="right" title="Mis Horarios")
+              i.bi.bi-clock.me-2
+              span Mis Horarios
+        li.nav-item
+          a.nav-link.d-flex.align-items-center.ps-4.text-white(href="/admisiones?mis_admisiones=true" data-bs-toggle="tooltip" data-bs-placement="right" title="Mis Admisiones")
+            i.bi.bi-person-check.me-2
+            span Mis Admisiones
 
 script(src="/js/sidebar.js")
