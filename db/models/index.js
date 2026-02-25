@@ -472,16 +472,13 @@ db.Admision.belongsTo(db.ViaIngreso, {
   as: 'via_ingreso'
 });
 
-// Una Admision puede pertenecer a muchos Usuarios (Rol Enfermero)
-db.Admision.belongsToMany(db.Usuario, {
-  through: {
-    model: db.AdmisionEnfermero,
-    unique: false
+// Una Admision tiene muchos AdmisionEnfermero
+db.Admision.hasMany(db.AdmisionEnfermero, {
+  foreignKey: {
+      name: 'admision_id',
+      allowNull: false
   },
-    foreignKey: 'admision_id',
-    otherKey: 'enfermero_id',
-    timestamps: false,
-    as: 'enfermeros'
+  as: 'enfermeros'
 });
 
 // Una AdmisionEnfermero pertenece a una Admision
@@ -489,7 +486,17 @@ db.AdmisionEnfermero.belongsTo(db.Admision, {
   foreignKey: {
       name: 'admision_id',
       allowNull: false
-  }
+  },
+  as: 'admision'
+});
+
+// Un Usuario (Enfermero) tiene muchos AdmisionEnfermero
+db.Usuario.hasMany(AdmisionEnfermero, {
+    foreignKey: {
+        name: 'enfermero_id',
+        allowNull: false
+    },
+    as: 'admisiones_enfermero'
 });
 
 // Una AdmisionEnfermero pertenece a un Usuario (Enfermero)
@@ -505,8 +512,6 @@ db.AdmisionEnfermero.belongsTo(db.Usuario, {
 db.Usuario.hasMany(db.AdmisionEnfermero, {
   foreignKey: 'enfermero_id'
 });
-
-
 
 
 // Una Admision tiene muchas Ubicaciones de Internacion

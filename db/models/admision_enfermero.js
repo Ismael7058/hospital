@@ -5,18 +5,10 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        fecha_desde: {
+        fecha_hora: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW
-        },
-        fecha_hasta: {
-            type: DataTypes.DATE,
-            allowNull: true
-        },
-        activo: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: true,
         }
     }, {
         tableName: 'Admision_Enfermeros',
