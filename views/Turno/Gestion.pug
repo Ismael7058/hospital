@@ -38,13 +38,17 @@ block content
             else
               -
                 let turnoVencido = false;
-                if (turno.fecha && turno.hora_inicio) {
+                let esHoy = false;
+                if (turno.fecha) {
                   let fechaStr = turno.fecha;
                   if (fechaStr instanceof Date) fechaStr = fechaStr.toISOString().split('T')[0];
                   const fParts = fechaStr.split('-');
-                  const tParts = turno.hora_inicio.split(':');
-                  const fechaLimite = new Date(fParts[0], fParts[1] - 1, fParts[2], tParts[0], parseInt(tParts[1]) + 10);
-                  if (new Date() > fechaLimite) turnoVencido = true;
+                  esHoy = new Date(fParts[0], fParts[1] - 1, fParts[2]).toDateString() == new Date().toDateString();
+                  if (turno.hora_inicio) {
+                    const tParts = turno.hora_inicio.split(':');
+                    const fechaLimite = new Date(fParts[0], fParts[1] - 1, fParts[2], tParts[0], parseInt(tParts[1]) + 10);
+                    if (new Date() > fechaLimite) turnoVencido = true;
+                  }
                 }
               if turnoVencido
                 button.btn.btn-outline-secondary(type="button" disabled title="El horario del turno ha vencido")
@@ -56,7 +60,7 @@ block content
                     i.bi.bi-file-medical.me-2
                     | Ingresar Paciente
                 else
-                  if new Date(turno.fecha) != new Date()
+                  if !esHoy
                     button.btn.btn-outline-primary(type="button" disabled title="El turno no es admitible")
                       i.bi.bi-file-medical.me-2
                       | Ingresar Paciente
