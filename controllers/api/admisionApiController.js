@@ -125,7 +125,7 @@ exports.atenderAdmision = async (req, res) => {
     const { id } = req.params;
     const admisionData = {
       ...req.body,
-      medico_id: req.usuario.id,
+      personal_id: req.usuario.id,
       rol_usuario: req.usuario.Rol.nombre,
     };
     await admisionServices.atenderAdmision(id, admisionData);
@@ -139,9 +139,10 @@ exports.atenderAdmision = async (req, res) => {
       case 'Esta admision no te corresponde':
       case 'La cama seleccionada no está libre':
       case 'La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion':
+      case 'El enfermero ya es participe de la admision':
         return res.status(409).json({ message: error.message });
       default:
-        res.status(500).json({ message: 'Error interno del servidor al cambiar la cama de la admision' });
+        res.status(500).json({ message: 'Error interno del servidor al atender la admision' });
     }
   }
 };

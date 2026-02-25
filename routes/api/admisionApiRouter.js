@@ -26,7 +26,7 @@ router.patch('/:id/estado', restringirRol('Medico', 'Administrador', 'Recepcion'
 router.post('/:id/cama', restringirRol('Medico', 'Enfermero' , 'Administrador'), cambiarCamaValidation(), admisionController.cambiarCama);
 
 // POST /api/admisiones/:id/atender
-router.post('/:id/atender', restringirRol('Medico'), atenderAdmisionValidation(), admisionController.atenderAdmision);
+router.post('/:id/atender', restringirRol('Medico', 'Enfermero'), atenderAdmisionValidation(), admisionController.atenderAdmision);
 
 // PATCH /api/admisiones/:id/cambiar-paciente
 router.patch('/:id/cambiar-paciente', restringirRol('Medico', 'Administrador'), cambiarPacienteValidation(), admisionController.cambiarPaciente)

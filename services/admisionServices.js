@@ -1,4 +1,4 @@
-const { Admision, Turno, Paciente, Identificacion, sequelize, Usuario, Rol, UbicacionInternacion, Cama, Habitacion, Ala } = require('../db/models');
+const { Admision, Turno, Paciente, Identificacion, sequelize, Usuario, Rol, UbicacionInternacion, Cama, Habitacion, Ala, AdmisionEnfermero } = require('../db/models');
 const { Op } = require('sequelize');
 
 exports.registrarAdmision = async (admisionData) => {
@@ -505,17 +505,145 @@ exports.cambiarCama = async (id, cama_id, usuario_asignacion = null) => {
 };
 
 exports.atenderAdmision = async (id, admisionData) => {
-    const {rol_usuario, cama_id, medico_id} = admisionData;
+    const {rol_usuario, cama_id, personal_id} = admisionData;
 
     switch (rol_usuario) {
       case 'Medico':
-        return await atenderMedico(id, cama_id, medico_id);
+        return await atenderMedico(id, cama_id, personal_id);
       case 'Enfermero':
-        return await atenderEnfermero(id, cama_id, medico_id);
+        return await atenderEnfermero(id, cama_id, personal_id);
       default:
         throw new Error('Acceso denegado');
     }
 }
+
+const atenderEnfermero = async (id, cama_id, enfermero_id) => {
+  const t = await sequelize.transaction();
+  try {
+    const admision = await Admision.findByPk(id, { 
+      include: [
+        {
+          model: Paciente,
+          as: 'paciente',
+          attributes: ['id', 'sexo']          
+        }, 
+        {
+          model: UbicacionInternacion,
+          as: 'ubicaciones',
+          order: [['fecha_hora_asignacion', 'DESC']],
+          limit: 1
+        },
+        {
+          model: AdmisionEnfermero,
+          as: 'enfermeros',
+          attributes: ['enfermero_id']
+        }
+      ],
+      transaction: t 
+    });
+
+    if (!admision) {
+      throw new Error('Admision no encontrada');
+    }
+
+    if (!admision.activo || admision.estado != 'Activa') {
+      throw new Error('No se puede atender esta admision');
+    }
+
+    // Admision sin ubicacion
+    if (admision.estado_atencion == 'En Espera') {
+      if (cama_id){
+        const cama = await Cama.findByPk(cama_id, { transaction: t });
+        if (!cama) throw new Error('Cama no encontrada');
+        
+        if (cama.estado !== 'Libre') {
+            throw new Error('La cama seleccionada no está libre');
+        }
+
+        const habitacion = await Habitacion.findOne({
+          where: {
+            id: cama.habitacion_id 
+          },
+          transaction: t,
+          include: [
+            {
+              model:Cama,
+              as: 'camas',
+              where: { activo: true },
+              include: [
+                {
+                  model: UbicacionInternacion,
+                  as: 'ubicaciones',
+                  order: [['fecha_hora_asignacion', 'DESC']],
+                  limit: 1,
+                  include: [
+                    {
+                      model:Admision,
+                      as: 'admision',
+                      include: [
+                        {
+                          model: Paciente,
+                          as: 'paciente',
+                          attributes: ['id', 'sexo'] 
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        });
+
+        if (habitacion.camas && habitacion.camas.length > 1) {
+          const otrasCamasOcupadas = habitacion.camas.filter(c => c.id !== parseInt(cama_id) && c.estado === 'Ocupado');
+
+          for (const otraCama of otrasCamasOcupadas) {
+            const ubicacionVecina = otraCama.ubicaciones[0];
+            if (ubicacionVecina && ubicacionVecina.admision && ubicacionVecina.admision.paciente) {
+              if (ubicacionVecina.admision.paciente.sexo !== admision.paciente.sexo) {
+                throw new Error('La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion');
+              }
+            }
+          }
+        }
+        cama.estado = 'Ocupado';
+        await cama.save({ transaction: t });
+
+        await UbicacionInternacion.create({
+          fecha_hora_asignacion: new Date(),
+          fecha_hora_liberacion: null,
+          usuario_asignacion: enfermero_id,
+          cama_id: cama_id,
+          admision_id: id
+        }, { transaction: t} );
+      }
+      admision.estado_atencion = 'En Atencion';
+      await admision.save({ transaction: t });
+
+    }
+    // Admision con ubicacion
+    else if (admision.estado_atencion == 'En Atencion') {
+      const enfermeroYaAsignado = admision.enfermeros.some(e => e.enfermero_id == enfermero_id);
+      if (enfermeroYaAsignado){
+        throw new Error('El enfermero ya es participe de la admision');
+        
+      }
+
+    }
+
+      await AdmisionEnfermero.create({
+        fecha_hora: new Date(),
+        admision_id: id,
+        enfermero_id: enfermero_id
+      }, {transaction: t})
+
+    await t.commit();
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
+};
 
 const atenderMedico = async (id, cama_id, medico_id) => {
   const t = await sequelize.transaction();
@@ -540,16 +668,16 @@ const atenderMedico = async (id, cama_id, medico_id) => {
     if (!admision) {
       throw new Error('Admision no encontrada');
     }
-    
-    if (!admision.activo || admision.estado_atencion != 'En Espera' || admision.estado != 'Activa') {
-      throw new Error('No se puede atender esta admision');
-    }
 
     if (admision.medico_atencion_id && admision.medico_atencion_id != medico_id) {
       throw new Error('Esta admision no te corresponde');
     }
 
-    if (admision.ubicaciones.length < 1){
+    if (!admision.activo || admision.estado != 'Activa' || admision.estado_atencion == 'Finalizado' ) {
+      throw new Error('No se puede atender esta admision');
+    }
+
+    if (admision.estado_atencion == 'En Espera'){
       if (cama_id){
         const cama = await Cama.findByPk(cama_id, { transaction: t });
         if (!cama) throw new Error('Cama no encontrada');
@@ -617,6 +745,7 @@ const atenderMedico = async (id, cama_id, medico_id) => {
         }, { transaction: t} );
       }
     }
+
 
     admision.medico_atencion_id = medico_id;
     admision.estado_atencion = 'En Atencion';
