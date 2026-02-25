@@ -32,11 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(data)
         });
 
+        const result = await response.json();
+
         if (response.ok) {
-          window.location.href = '/admisiones';
+          window.location.href = `/admisiones/${result.admision.id}`;
         } else {
-          const result = await response.json();
-          mostrarAlerta(result.message || 'Ocurrió un error al registrar la admisión.', 'danger');
+          let mensajeError = result.message || 'Error al tratar de atender al paciente';
+          if (result.errors && Array.isArray(result.errors)) {
+            mensajeError = result.errors.map(e => e.msg).join('. ');
+          }
+          mostrarAlerta(mensajeError, 'danger');
         }
       } catch (error) {
         mostrarAlerta('Error de conexión con el servidor.', 'danger');

@@ -23,7 +23,7 @@ block content
               .row.g-3
                 .col-12
                   label.form-label.fw-bold(for="select-medico") Médico Responsable
-                  select#select-medico.form-select(name="medico_id" style="width: 100%;")
+                  select#select-medico.form-select(name="medico_atencion_id" style="width: 100%;")
                     if medicoPreseleccionado
                       option(value=medicoPreseleccionado.id selected) #{medicoPreseleccionado.nombre} #{medicoPreseleccionado.apellido} (DNI: #{medicoPreseleccionado.dni})
 
