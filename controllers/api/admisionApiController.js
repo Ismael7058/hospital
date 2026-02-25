@@ -25,6 +25,7 @@ exports.registrarAdmision = async (req, res) => {
       case 'Turno no encontrado':
         return res.status(404).json({ message: error.message });
       case 'El paciente ya se encuentra admitido':
+      case 'Selecciona un medico valido':
       case 'El turno ya fue utilizado':
       case 'El turno esta cancelado':
       case 'El turno esta vencido por la fecha y hora':
@@ -135,6 +136,7 @@ exports.atenderAdmision = async (req, res) => {
       case 'Cama no encontrada':
         return res.status(404).json({ message: error.message });
       case 'No se puede atender esta admision':
+      case 'Esta admision no te corresponde':
       case 'La cama seleccionada no está libre':
       case 'La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion':
         return res.status(409).json({ message: error.message });

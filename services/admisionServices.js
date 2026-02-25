@@ -64,55 +64,56 @@ const registrarPorEmergencia = async (data) => {
       }
     }
 
-    if (cama_id) {
-      const cama = await Cama.findByPk(cama_id, { transaction: t });
-      if (!cama) throw new Error('Cama no encontrada');
-      if (cama.estado !== 'Libre') throw new Error('La cama seleccionada no está libre');
+    const medico = await Usuario.findByPk(medico_atencion_id, {
+      include: [
+        {
+          model: Rol,
+          where: { nombre: 'Medico' }
+        }
+      ],
+    }, { transaction: t });
 
-      const habitacion = await Habitacion.findOne({
-        where: {
-          id: cama.habitacion_id 
-        },
-        transaction: t,
-        include: [
-          {
-            model:Cama,
-            as: 'camas',
-            where: { activo: true },
-            include: [
-              {
-                model: UbicacionInternacion,
-                as: 'ubicaciones',
-                order: [['fecha_hora_asignacion', 'DESC']],
-                limit: 1,
-                include: [
-                  {
-                    model:Admision,
-                    as: 'admision',
-                    include: [
-                      {
-                        model: Paciente,
-                        as: 'paciente',
-                        attributes: ['id', 'sexo'] 
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      });
+    if (!medico) throw new Error('Medico no encontrado');
+    if (!medico.activo) throw new Error('Selecciona un medico valido');
 
-      if (habitacion && habitacion.camas && habitacion.camas.length > 1) {
-        const otrasCamasOcupadas = habitacion.camas.filter(c => c.id !== parseInt(cama_id) && c.estado === 'Ocupado');
+    const cama = await Cama.findByPk(cama_id, {
+      include: [{
+        model: Habitacion,
+        as: 'habitacion',
+        include: [{
+          model: Cama,
+          as: 'camas',
+          where: { activo: true },
+          include: [{
+            model: UbicacionInternacion,
+            as: 'ubicaciones',
+            order: [['fecha_hora_asignacion', 'DESC']],
+            limit: 1,
+            include: [{
+              model: Admision,
+              as: 'admision',
+              include: [{
+                model: Paciente,
+                as: 'paciente',
+                attributes: ['id', 'sexo']
+              }]
+            }]
+          }]
+        }]
+      }]
+    }, { transaction: t });
 
-        for (const otraCama of otrasCamasOcupadas) {
-          const ubicacionVecina = otraCama.ubicaciones[0];
-          if (ubicacionVecina && ubicacionVecina.admision && ubicacionVecina.admision.paciente) {
-            if (ubicacionVecina.admision.paciente.sexo !== sexoPaciente) {
-              throw new Error('La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion');
-            }
+    if (!cama) throw new Error('Cama no encontrada');
+    if (cama.estado !== 'Libre') throw new Error('La cama seleccionada no está libre');
+
+    if (cama.habitacion && cama.habitacion.camas && cama.habitacion.camas.length > 1) {
+      const otrasCamasOcupadas = cama.habitacion.camas.filter(c => c.id !== parseInt(cama_id) && c.estado === 'Ocupado');
+
+      for (const otraCama of otrasCamasOcupadas) {
+        const ubicacionVecina = otraCama.ubicaciones[0];
+        if (ubicacionVecina && ubicacionVecina.admision && ubicacionVecina.admision.paciente) {
+          if (ubicacionVecina.admision.paciente.sexo !== sexoPaciente) {
+            throw new Error('La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion');
           }
         }
       }
@@ -135,9 +136,8 @@ const registrarPorEmergencia = async (data) => {
       // Crear identificacion del paciente
       if (nro_doc && tipo_doc) {
         const idntExiste = await Identificacion.findOne({
-          where: { tipo_doc, nro_doc },
-          transaction: t
-        });
+          where: { tipo_doc, nro_doc }
+        }, { transaction: t });
         
         if (idntExiste) {
           throw new Error('La identificacion ya se encuentra registrada');
@@ -159,9 +159,8 @@ const registrarPorEmergencia = async (data) => {
           where: {
             nro_doc: { [Op.like]: `${numero}%` }
           },
-          order: [['nro_doc', 'DESC']],
-          transaction: t
-        });
+          order: [['nro_doc', 'DESC']]
+        }, { transaction: t });
         
         const numAdmEmgHoy = ultAdmEmgHoy ? parseInt(ultAdmEmgHoy.nro_doc.split('-')[2]) + 1 : 1;
         const nro_doc_temp = `${numero}${String(numAdmEmgHoy).padStart(4, '0')}`;
@@ -181,23 +180,21 @@ const registrarPorEmergencia = async (data) => {
       via_ingreso_id,
       fecha_hora_ingreso: new Date(),
       motivo_internacion: motivo_internacion || 'Ingreso por Emergencia',
-      estado_atencion: cama_id ? "En Atencion" : 'En Espera',
+      estado_atencion: "En Atencion",
       estado: "Activa",
       activo: true,
       usuario_registro_id: usuario_agenda,
-      medico_atencion_id: medico_atencion_id || null
+      medico_atencion_id: medico_atencion_id
     }, { transaction: t });
 
-    if (cama_id) {
-      await UbicacionInternacion.create({
-        fecha_hora_asignacion: new Date(),
-        cama_id,
-        admision_id: nuevaAdmision.id,
-        usuario_asignacion: usuario_agenda
-      }, { transaction: t });
+    await UbicacionInternacion.create({
+      fecha_hora_asignacion: new Date(),
+      cama_id,
+      admision_id: nuevaAdmision.id,
+      usuario_asignacion: usuario_agenda
+    }, { transaction: t });
 
-      await Cama.update({ estado: 'Ocupado' }, { where: { id: cama_id }, transaction: t });
-    }
+    await cama.update({estado:'Ocupado'}, { transaction: t });
 
     await t.commit();
     return nuevaAdmision;
@@ -513,6 +510,8 @@ exports.atenderAdmision = async (id, admisionData) => {
     switch (rol_usuario) {
       case 'Medico':
         return await atenderMedico(id, cama_id, medico_id);
+      case 'Enfermero':
+        return await atenderEnfermero(id, cama_id, medico_id);
       default:
         throw new Error('Acceso denegado');
     }
@@ -521,14 +520,18 @@ exports.atenderAdmision = async (id, admisionData) => {
 const atenderMedico = async (id, cama_id, medico_id) => {
   const t = await sequelize.transaction();
   try {
-    const admision = await Admision.findByPk(
-      id, 
-      { 
-        include: [
+    const admision = await Admision.findByPk(id, { 
+      include: [
         {
           model: Paciente,
           as: 'paciente',
           attributes: ['id', 'sexo']          
+        }, 
+        {
+          model: UbicacionInternacion,
+          as: 'ubicaciones',
+          order: [['fecha_hora_asignacion', 'DESC']],
+          limit: 1
         }
       ],
       transaction: t 
@@ -542,76 +545,83 @@ const atenderMedico = async (id, cama_id, medico_id) => {
       throw new Error('No se puede atender esta admision');
     }
 
-
-    const cama = await Cama.findByPk(cama_id);
-    if (!cama) throw new Error('Cama no encontrada');
-    
-    if (cama.estado !== 'Libre') {
-        throw new Error('La cama seleccionada no está libre');
+    if (admision.medico_atencion_id && admision.medico_atencion_id != medico_id) {
+      throw new Error('Esta admision no te corresponde');
     }
 
-    const habitacion = await Habitacion.findOne({
-      where: {
-        id: cama.habitacion_id 
-      },
-      transaction: t,
-      include: [
-        {
-          model:Cama,
-          as: 'camas',
-          where: { activo: true },
+    if (admision.ubicaciones.length < 1){
+      if (cama_id){
+        const cama = await Cama.findByPk(cama_id, { transaction: t });
+        if (!cama) throw new Error('Cama no encontrada');
+        
+        if (cama.estado !== 'Libre') {
+            throw new Error('La cama seleccionada no está libre');
+        }
+
+        const habitacion = await Habitacion.findOne({
+          where: {
+            id: cama.habitacion_id 
+          },
+          transaction: t,
           include: [
             {
-              model: UbicacionInternacion,
-              as: 'ubicaciones',
-              order: [['fecha_hora_asignacion', 'DESC']],
-              limit: 1,
+              model:Cama,
+              as: 'camas',
+              where: { activo: true },
               include: [
                 {
-                  model:Admision,
-                  as: 'admision',
+                  model: UbicacionInternacion,
+                  as: 'ubicaciones',
+                  order: [['fecha_hora_asignacion', 'DESC']],
+                  limit: 1,
                   include: [
                     {
-                      model: Paciente,
-                      as: 'paciente',
-                      attributes: ['id', 'sexo'] 
+                      model:Admision,
+                      as: 'admision',
+                      include: [
+                        {
+                          model: Paciente,
+                          as: 'paciente',
+                          attributes: ['id', 'sexo'] 
+                        }
+                      ]
                     }
                   ]
                 }
               ]
             }
           ]
-        }
-      ]
-    });
+        });
 
-    if (habitacion.camas && habitacion.camas.length > 1) {
-      const otrasCamasOcupadas = habitacion.camas.filter(c => c.id !== parseInt(cama_id) && c.estado === 'Ocupado');
+        if (habitacion.camas && habitacion.camas.length > 1) {
+          const otrasCamasOcupadas = habitacion.camas.filter(c => c.id !== parseInt(cama_id) && c.estado === 'Ocupado');
 
-      for (const otraCama of otrasCamasOcupadas) {
-        const ubicacionVecina = otraCama.ubicaciones[0];
-        if (ubicacionVecina && ubicacionVecina.admision && ubicacionVecina.admision.paciente) {
-          if (ubicacionVecina.admision.paciente.sexo !== admision.paciente.sexo) {
-            throw new Error('La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion');
+          for (const otraCama of otrasCamasOcupadas) {
+            const ubicacionVecina = otraCama.ubicaciones[0];
+            if (ubicacionVecina && ubicacionVecina.admision && ubicacionVecina.admision.paciente) {
+              if (ubicacionVecina.admision.paciente.sexo !== admision.paciente.sexo) {
+                throw new Error('La cama no puede ser asignada por diferencias de genero con otra cama de la habitacion');
+              }
+            }
           }
         }
+        cama.estado = 'Ocupado';
+        await cama.save({ transaction: t });
+
+        await UbicacionInternacion.create({
+          fecha_hora_asignacion: new Date(),
+          fecha_hora_liberacion: null,
+          usuario_asignacion: medico_id,
+          cama_id: cama_id,
+          admision_id: id
+        }, { transaction: t} );
       }
     }
 
-    admision.medico_atencion_id = medico_id;
+    admision.medico_atencion_id == medico_id;
     admision.estado_atencion = 'En Atencion';
     await admision.save({ transaction: t });
 
-    await UbicacionInternacion.create({
-      fecha_hora_asignacion: new Date(),
-      fecha_hora_liberacion: null,
-      usuario_asignacion: medico_id,
-      cama_id: cama_id,
-      admision_id: id
-    }, { transaction: t} );
-
-    cama.estado = 'Ocupado';
-    await cama.save({ transaction: t });
     await t.commit();
   } catch (error) {
     await t.rollback();

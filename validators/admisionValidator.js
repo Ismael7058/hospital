@@ -1,5 +1,5 @@
 const { body, query, param } = require('express-validator');
-const { Paciente, ViaIngreso, Turno, Cama } = require('../db/models');
+const { Paciente, ViaIngreso, Turno, Cama, Usuario, Rol } = require('../db/models');
 
 exports.registrarAdmisionValidation = () => {
   return [
@@ -72,13 +72,37 @@ exports.registrarAdmisionValidation = () => {
         }
       }),
     body('nombre').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true }),
-    body('sexo').if((value, { req }) => req.query.modo === 'emergencia'),
+    body('sexo')
+      .if((value, { req }) => req.query.modo === 'emergencia' && !req.body.paciente_id)
+      .notEmpty().withMessage('El sexo es obligatorio.')
+      .isIn(['Masculino', 'Femenino']).withMessage('El sexo debe ser Masculino o Femenino.'),
     body('apellido').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true }).trim(),
     body('fecha_nacimiento').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true }).trim(),
     body('nro_doc').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true }).trim(),
     body('tipo_doc').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true })
       .isIn(['DNI', 'Pasaporte', 'Cédula']).withMessage('Tipo de documento no válido.'),
-    body('cama_id').if((value, { req }) => req.query.modo === 'emergencia').optional({ checkFalsy: true })
+    body('cama_id')
+      .if((value, { req }) => req.query.modo === 'emergencia')
+      .notEmpty().withMessage('La cama es obligatoria.')
+      .bail()
+      .isInt().withMessage('El ID de la cama debe ser un número entero.')
+      .bail()
+      .custom(async (value) => {
+        const cama = await Cama.findByPk(value);
+        if (!cama) return Promise.reject('La cama seleccionada no existe.');
+        if (!cama.activo) return Promise.reject('La cama no está disponible.');
+      }),
+    body('medico_atencion_id')
+      .if((value, { req }) => req.query.modo === 'emergencia')
+      .notEmpty().withMessage('El medico es obligatorio.')
+      .bail()
+      .isInt().withMessage('El ID del medico debe ser un número entero.')
+      .bail()
+      .custom(async (value) => {
+        const medico = await Usuario.findByPk(value, { include: [{ model: Rol, where: { nombre: 'Medico' } }] });
+        if (!medico) return Promise.reject('El médico seleccionado no es válido.');
+        if (!medico.activo) return Promise.reject('El médico seleccionado no está activo.');
+      })
   ];
 };
 
@@ -117,14 +141,13 @@ exports.atenderAdmisionValidation = () => {
   return [
     param('id').isInt().withMessage('El ID debe ser un número entero.'),
     body('cama_id')
-      .notEmpty().withMessage('El ID de la cama es obligatorio.')
+      .optional({ checkFalsy: true })
       .isInt().withMessage('El ID de la cama debe ser un número entero.')
       .custom(async (value, { req }) => {
         const cama = await Cama.findByPk(value);
         if (!cama) return Promise.reject('La cama seleccionado no existe.');
         if (!cama.activo) return Promise.reject('La cama no esta disponible');
       }),
-
   ];
 };
 
