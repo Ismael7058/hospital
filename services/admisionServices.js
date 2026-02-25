@@ -618,7 +618,7 @@ const atenderMedico = async (id, cama_id, medico_id) => {
       }
     }
 
-    admision.medico_atencion_id == medico_id;
+    admision.medico_atencion_id = medico_id;
     admision.estado_atencion = 'En Atencion';
     await admision.save({ transaction: t });
 
