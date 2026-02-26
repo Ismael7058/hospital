@@ -111,34 +111,32 @@ block content
                                 if cama.estado === 'Libre'
                                   button(
                                     type="button",
-                                    class="btn border-0 p-0",
-                                  data-bs-toggle="modal", // lgtm [js/trivial-conditional]
-                                  data-bs-target="#confirmarCambioEstadoCamaModal",
+                                    class="btn border-0 p-0"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmarCambioEstadoCamaModal"
                                     data-cama-id=cama.id,
                                     data-nuevo-estado="Higienizando",
                                     data-accion-texto="iniciar higienizacion de la cama",
                                     data-titulo="Iniciar higienizacion de la cama",
-                                    data-btn-clase="",
                                     title="Higienizar Cama"
                                   )
                                     i.bi.bi-square-fill(class=colorClass)
                                 else if cama.estado === 'Higienizando'
                                   button(
                                     type="button",
-                                    class="btn border-0 p-0",
-                                  data-bs-toggle="modal", // lgtm [js/trivial-conditional]
-                                  data-bs-target="#confirmarCambioEstadoCamaModal",
+                                    class="btn border-0 p-0"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmarCambioEstadoCamaModal"
                                     data-cama-id=cama.id,
                                     data-nuevo-estado="Libre",
                                     data-accion-texto="finalizar la higienización de la cama",
                                     data-titulo="Terminar de Higienizar la Cama",
-                                    data-btn-clase="",
                                     title="Finalizar Higienización"
                                   )
                                     i.bi.bi-square-fill(class=colorClass)
                                 else 
                                   //- Para otros estados, el ícono es solo informativo
-                                  span(title=`Cama ${cama.codigo}: ${title}` data-bs-toggle="tooltip")
+                                  span(title=`Cama ${cama.estado}` data-bs-toggle="tooltip")
                                     i.bi.bi-square-fill(class=colorClass) 
                           else
                             small.text-muted Sin camas
@@ -153,7 +151,8 @@ block scripts
 
   script.
     // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    // Se seleccionan elementos con data-bs-toggle="tooltip" O elementos modales que tengan título
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"], [data-bs-toggle="modal"][title]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     })

@@ -48,7 +48,6 @@ block content
                         th Hora
                         th Paciente
                         th Estado
-                        th.text-end Acción
                     tbody
                       each turno in turnosHoyList
                         tr
@@ -66,9 +65,6 @@ block content
                                 span.badge.bg-danger Cancelado
                               default
                                 span.badge.bg-secondary= turno.estado
-                          td.text-end
-                            a.btn.btn-sm.btn-outline-primary(href=`/turnos/${turno.id}`, title="Ver Turno")
-                              i.bi.bi-eye
               else
                 p.text-center.text-muted.my-4 No tiene turnos programados para hoy.
 
