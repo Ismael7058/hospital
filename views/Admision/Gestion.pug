@@ -17,7 +17,7 @@ block content
             a.btn.btn-outline-secondary(href="/admisiones")
               i.bi.bi-arrow-left-circle.me-2
               | Volver
-          if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
+          if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre) && admision.estado_atencion != 'En Espera'
             .btn-group(role="group")
                 a.btn.btn-outline-primary(href=`/admisiones/${admision.id}/estadia`)
                   i.bi.bi-clipboard2-pulse.me-2
@@ -176,7 +176,10 @@ block content
                         span.badge.bg-success.px-3.py-2 #{admision.estado_atencion}
                       default
                         span.badge.bg-light.text-dark.border.px-3.py-2 #{admision.estado_atencion || 'Sin estado'}
-
+                .col-md-12.mt-0
+                  label.form-label.text-muted.small.fw-bold.text-uppercase Motivo
+                  div.fw-medium
+                    | #{admision.motivo_internacion}
           //- medicos y enfermeros
           .card.border-0.shadow-sm.flex-grow-1
             .card-header.bg-white.border-bottom.py-3

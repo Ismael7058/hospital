@@ -15,7 +15,7 @@ exports.registrarSignosVitalesValidation = () => {
       .custom((value) => {
         const [sis, dias] = value.split('/').map(Number);
         if (sis < 50 || sis > 300 || dias < 30 || dias > 200) {
-          throw new Error('Valores de presión arterial fuera de rango válido.');
+          throw new Error('La presión arterial ingresada no es válida. Debe estar entre 50/30 y 300/200 mmHg.');
         }
         return true;
       }),
@@ -24,7 +24,7 @@ exports.registrarSignosVitalesValidation = () => {
       .isInt({ min: 60, max: 100 }).withMessage('La saturación de oxígeno debe estar entre 60% y 100%.'),
     body('temperatura') 
       .notEmpty().withMessage('La temperatura es obligatoria.')
-      .isFloat({ min: 30, max: 45 }).withMessage('La temperatura debe estar entre 30°C y 45°C.'),
+      .isFloat({ min: 15, max: 45 }).withMessage('La temperatura debe estar entre 15°C y 45°C.'),
   ];
 };
 
