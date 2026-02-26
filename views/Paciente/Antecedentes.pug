@@ -27,9 +27,10 @@ block content
           button.btn.btn-secondary.me-2(type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse")
             i.bi.bi-funnel.me-2
             | Filtros
-          button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarAntecedente")
-            i.bi.bi-plus-lg.me-2
-            | Nuevo Antecedente
+          if ["Administrador", "Medico"].includes(usuarioAutenticado.Rol.nombre)
+            button.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalRegistrarAntecedente")
+              i.bi.bi-plus-lg.me-2
+              | Nuevo Antecedente
 
       //- Filtro
       .collapse#filtrosCollapse
@@ -164,53 +165,53 @@ block content
           div.text-muted.col-2
             small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
           include ../Shared/Paginacion.pug
-
-  //- Modal Registrar Antecedente
-  .modal.fade#modalRegistrarAntecedente(tabindex="-1" aria-hidden="true")
-    .modal-dialog.modal-lg.modal-dialog-centered
-      .modal-content
-        form#formRegistrarAntecedente
-          .modal-header
-            h5.modal-title Nuevo Antecedente
-            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-          .modal-body
-            input(type="hidden" name="paciente_id" value=paciente.id)
-            
-            .row.g-3
-              .col-md-6
-                label.form-label Tipo de Antecedente
-                select.form-select(name="tipo_antecedente_id" required)
-                  option(value="") Seleccione...
-                  each tipo in tiposAntecedentes
-                    option(value=tipo.id) #{tipo.nombre}
-            
-              .col-md-6
-                label.form-label Fecha de Registro
-                input.form-control(type="date" name="fecha_registro" required value=new Date().toISOString().split('T')[0])
-
-              .col-12
-                label.form-label Descripción
-                input.form-control(type="text" name="descripcion" required placeholder="Ej: Alergia a la Penicilina")
-
-              .col-md-6
-                label.form-label Fuente de Información
-                select.form-select(name="fuente_informacion_id" required)
-                  option(value="") Seleccione...
-                  each fuente in fuentesInformacion
-                    option(value=fuente.id) #{fuente.nombre}
+  if ["Administrador", "Medico"].includes(usuarioAutenticado.Rol.nombre)
+    //- Modal Registrar Antecedente
+    .modal.fade#modalRegistrarAntecedente(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-lg.modal-dialog-centered
+        .modal-content
+          form#formRegistrarAntecedente
+            .modal-header
+              h5.modal-title Nuevo Antecedente
+              button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+            .modal-body
+              input(type="hidden" name="paciente_id" value=paciente.id)
               
-              .col-md-6.d-flex.align-items-end
-                .form-check.form-switch.mb-2
-                  input.form-check-input(type="checkbox" name="validado" checked)
-                  label.form-check-label Validado médicamente
+              .row.g-3
+                .col-md-6
+                  label.form-label Tipo de Antecedente
+                  select.form-select(name="tipo_antecedente_id" required)
+                    option(value="") Seleccione...
+                    each tipo in tiposAntecedentes
+                      option(value=tipo.id) #{tipo.nombre}
+              
+                .col-md-6
+                  label.form-label Fecha de Registro
+                  input.form-control(type="date" name="fecha_registro" required value=new Date().toISOString().split('T')[0])
 
-              .col-12
-                label.form-label Observaciones
-                textarea.form-control(name="observaciones" rows="3")
+                .col-12
+                  label.form-label Descripción
+                  input.form-control(type="text" name="descripcion" required placeholder="Ej: Alergia a la Penicilina")
 
-          .modal-footer
-            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button.btn.btn-primary(type="submit") Guardar
+                .col-md-6
+                  label.form-label Fuente de Información
+                  select.form-select(name="fuente_informacion_id" required)
+                    option(value="") Seleccione...
+                    each fuente in fuentesInformacion
+                      option(value=fuente.id) #{fuente.nombre}
+                
+                .col-md-6.d-flex.align-items-end
+                  .form-check.form-switch.mb-2
+                    input.form-check-input(type="checkbox" name="validado" checked)
+                    label.form-check-label Validado médicamente
+
+                .col-12
+                  label.form-label Observaciones
+                  textarea.form-control(name="observaciones" rows="3")
+
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit") Guardar
 
   //- Modal Editar Antecedente
   .modal.fade#modalEditarAntecedente(tabindex="-1" aria-hidden="true")
