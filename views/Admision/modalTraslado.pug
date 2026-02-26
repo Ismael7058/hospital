@@ -13,15 +13,12 @@
       form#formTrasladoPaciente(autocomplete="off" novalidate)
         .modal-body.p-4
           input(type="hidden", name="admision_id" value=admision.id)
-
+          input(type="hidden", name="sexoPaciente" value=admision.paciente.sexo? admision.paciente.sexo : paciente.sexo)
           .row.g-3.justify-content-center.mb-3
             .col-md-12
               label.form-label(for="ala_id") Ala / Sector
               select.form-select(id="ala_id" name="ala_id" required)
                 option(value="") Seleccionar Ala
-                if alas
-                  each ala in alas
-                    option(value=ala.id) #{ala.nombre}
             .col-md-12
               label.form-label(for="habitacion_id") Habitación
               select.form-select(id="habitacion_id" name="habitacion_id" disabled required)
