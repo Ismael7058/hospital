@@ -21,7 +21,7 @@ router.get('/:id/medicaciones', restringirRol('Administrador', 'Medico', 'Enferm
 
 router.get('/:id/signos-vitales', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getSignosVitales);
 
-router.get('/:id/ubicaciones', restringirRol('Administrador'), admisionController.getUbicacionesInternaciones);
+router.get('/:id/ubicaciones', restringirRol('Administrador', 'Medico', 'Enfermero'), admisionController.getUbicacionesInternaciones);
 
 router.get('/:id', restringirRol('Administrador', 'Medico', 'Enfermero', 'Recepcion'), admisionController.getAdmision);
 
