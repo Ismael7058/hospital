@@ -17,14 +17,16 @@ block content
             a.btn.btn-outline-secondary(href="/pacientes"): i.bi.bi-arrow-left-circle.me-2
               | Volver
           .btn-group.me-3(role="group")
-            a.btn.btn-outline-primary(href=`/pacientes/${paciente.id}/seguros`): i.bi.bi-shield-check.me-2
-              | Seguros
+            if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+              a.btn.btn-outline-primary(href=`/pacientes/${paciente.id}/seguros`): i.bi.bi-shield-check.me-2
+                | Seguros
             if ["Administrador", "Medico", "Enfermero"].includes(usuarioAutenticado.Rol.nombre)
               a.btn.btn-outline-primary(href=`/pacientes/${paciente.id}/antecedentes`): i.bi.bi-file-medical.me-2
                 | Antecedentes
           .btn-group.me-3(role="group")
-            a.btn.btn-outline-primary(href=`/turnos?paciente_id=${paciente.id}`): i.bi.bi-calendar-check.me-2
-              | Turnos
+            if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+              a.btn.btn-outline-primary(href=`/turnos?paciente_id=${paciente.id}`): i.bi.bi-calendar-check.me-2
+                | Turnos
             a.btn.btn-outline-primary(href=`/admisiones?paciente_id=${paciente.id}`): i.bi.bi-door-open.me-2
               | Admisiones
           if usuarioAutenticado.Rol.nombre == "Administrador"
@@ -73,11 +75,11 @@ block content
               .col-md-6.mt-1
                 label.form-label(for="nacionalidades") Nacionalidades
                 input#nacionalidades-input.form-control(name="nacionalidades" value=JSON.stringify(paciente.nacionalidades.map(n => ({value: n.id, name: n.nombre}))))
-
-            .d-flex.justify-content-end.mt-2
-              button.btn.btn-primary(type="submit")
-                i.bi.bi-save-fill.me-2
-                | Guardar
+            if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+              .d-flex.justify-content-end.mt-2
+                button.btn.btn-primary(type="submit")
+                  i.bi.bi-save-fill.me-2
+                  | Guardar
 
         //- PRIMERA FILA: Formulario de Identificación (Nacionalidades y Documentos)
         .col-12
@@ -88,9 +90,10 @@ block content
               .col-md-12
                 .d-flex.justify-content-between.align-items-center.mb-2
                   h5.m-0 Documentos de Identificación
-                  button#btn-add-identificacion.btn.btn-outline-primary.btn-sm.rounded-pill.ms-2(type="button")
-                    i.bi.bi-plus-circle
-                    |  Agregar
+                  if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre) 
+                    button#btn-add-identificacion.btn.btn-outline-primary.btn-sm.rounded-pill.ms-2(type="button")
+                      i.bi.bi-plus-circle
+                      |  Agregar
                 #identificaciones-container
                   //- Mostrar ID Temporal si existe (no editable)
                   - const temporalId = paciente.identificaciones.find(id => id.tipo_doc === 'Temporal')
@@ -118,22 +121,23 @@ block content
                             input.form-control(type="text" name=`identificaciones[${index}][nro_doc]` placeholder="Número" required value=identificacion.nro_doc)
                             button.btn.btn-outline-danger.btn-remove-identificacion(type="button"): i.bi.bi-trash
                   else
-                    //- Si no hay editables, mostrar la plantilla para añadir. Esto asegura que el botón "Agregar" siempre funcione.
-                    .row.g-2.align-items-center.mb-2.identificacion-item
-                      .col-6
-                        select.form-select(name="identificaciones[0][tipo_doc]" required)
-                          option(value="" selected disabled) Tipo...
-                          option(value="DNI") DNI
-                          option(value="Pasaporte") Pasaporte
-                          option(value="Cédula") Cédula
-                      .col-6
-                        .input-group
-                          input.form-control(type="text" name="identificaciones[0][nro_doc]" placeholder="Número" required value="")
-                          button.btn.btn-outline-danger.btn-remove-identificacion(type="button"): i.bi.bi-trash
-            .d-flex.justify-content-end
-              button.btn.btn-primary(type="submit")
-                i.bi.bi-save-fill.me-2
-                | Guardar
+                    if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre)
+                      .row.g-2.align-items-center.mb-2.identificacion-item
+                        .col-6
+                          select.form-select(name="identificaciones[0][tipo_doc]" required)
+                            option(value="" selected disabled) Tipo...
+                            option(value="DNI") DNI
+                            option(value="Pasaporte") Pasaporte
+                            option(value="Cédula") Cédula
+                        .col-6
+                          .input-group
+                            input.form-control(type="text" name="identificaciones[0][nro_doc]" placeholder="Número" required value="")
+                            button.btn.btn-outline-danger.btn-remove-identificacion(type="button"): i.bi.bi-trash
+            if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre) 
+              .d-flex.justify-content-end
+                button.btn.btn-primary(type="submit")
+                  i.bi.bi-save-fill.me-2
+                  | Guardar
     if usuarioAutenticado.Rol.nombre == "Administrador"
       //- Modal genérico para confirmar cambio de estado (Alta/Baja)
       #confirmarEstadoModal.modal.fade(tabindex="-1" aria-labelledby="confirmarEstadoModalLabel" aria-hidden="true")
@@ -160,5 +164,6 @@ block scripts
   //- Script para manejar la lógica de esta página
   if usuarioAutenticado.Rol.nombre == "Administrador"
     script(src="/js/paciente/gestionEstadoPaciente.js")
-  script(src="/js/paciente/gestionInfoPersonal.js")
-  script(src="/js/paciente/gestionIdentificacion.js")
+  if ["Administrador", "Recepcion"].includes(usuarioAutenticado.Rol.nombre) 
+    script(src="/js/paciente/gestionInfoPersonal.js")
+    script(src="/js/paciente/gestionIdentificacion.js")
