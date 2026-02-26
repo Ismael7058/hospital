@@ -86,7 +86,7 @@ block content
                     .d-flex.justify-content-between.align-items-center.mb-4
                       h4.mb-0.text-dark Evoluciones Médicas
                       .btn-group(role="group")
-                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo && ["Medico"].includes(usuarioAutenticado.Rol.nombre)
                           button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEvolucionMedica")
                             i.bi.bi-plus-lg.me-1
                             | Nueva Nota
@@ -132,7 +132,7 @@ block content
                     .d-flex.justify-content-between.align-items-center.mb-4
                       h4.mb-0.text-dark Medicacion
                       .btn-group(role="group")
-                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo && ["Medico"].includes(usuarioAutenticado.Rol.nombre)
                           button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalMedicacionActiva")
                             i.bi.bi-plus-lg.me-1
                             | Nueva Nota
@@ -189,7 +189,7 @@ block content
                     .d-flex.justify-content-between.align-items-center.mb-4
                       h4.mb-0.text-dark Estudios Solicitados
                       .btn-group(role="group")
-                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo && ["Medico"].includes(usuarioAutenticado.Rol.nombre)
                           button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEstudiosSolicitados")
                             i.bi.bi-plus-lg.me-1
                             | Nueva Nota
