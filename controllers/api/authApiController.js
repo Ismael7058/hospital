@@ -14,12 +14,11 @@ exports.login = async (req, res) => {
 
         res.cookie('jwt', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Usar solo en HTTPS en producción
-            sameSite: 'strict', // Mitiga ataques CSRF
-            maxAge: 24 * 60 * 60 * 1000 // 24 horas
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
         });
 
-        // Enviar una respuesta de éxito
         res.status(200).json({ 
             message: 'Inicio de sesión exitoso.',
             usuario: {

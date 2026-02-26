@@ -20,7 +20,6 @@ exports.registerUsuario = async (usuarioData) => {
     const password_hash = await bcrypt.hash(password, saltRounds);
     usuarioData.password_hash = password_hash;
 
-    // Eliminamos las contraseñas en texto plano para que no se intenten guardar en la BD
     delete usuarioData.password;
     delete usuarioData.passwordConfirmation;
 
@@ -215,7 +214,6 @@ exports.asignarEspecialidad = async (usuarioId, especialidadId) => {
         throw new Error('Especialidad no encontrada');
     }
 
-    // Sequelize provee este método 'addEspecialidad' gracias a la asociación belongsToMany
     await usuario.addEspecialidad(especialidad);
 
     return { message: 'Especialidad asignada correctamente.' };

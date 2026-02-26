@@ -19,7 +19,6 @@ exports.editEspecialidad = async (id, datosActualizados) => {
         throw new Error('Especialidad no encontrada.');
     }
 
-    // Comprobar si el nombre que se quiere guardar es diferente al actual.
     if (especialidad.nombre === nombre) {
         throw new Error('No se han realizado cambios en la especialidad.');
     }

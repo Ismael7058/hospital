@@ -101,14 +101,12 @@ exports.getRegistrar = async (req, res, next) => {
         let medicoPreseleccionado = null;
         let pacientePreseleccionado = null;
 
-        // Si viene un ID de médico (usuario_id), buscamos sus datos
         if (usuario_id) {
             medicoPreseleccionado = await Usuario.findByPk(usuario_id, {
                 attributes: ['id', 'nombre', 'apellido', 'dni']
             });
         }
 
-        // Si viene un ID de paciente, buscamos sus datos e identificación
         if (paciente_id) {
             pacientePreseleccionado = await Paciente.findByPk(paciente_id, {
                 attributes: ['id', 'nombre', 'apellido'],

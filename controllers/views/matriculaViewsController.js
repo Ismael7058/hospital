@@ -37,19 +37,16 @@ exports.getMatricula = async (req, res, next) => {
 
 exports.getListar = async (req, res, next) => {
     try {
-        // 1. OBTENER PARÁMETROS DE FILTRO Y PAGINACIÓN
         const { numero, tipo, entidad_emisora, usuario, activo, pagina = 1 } = req.query;
         const registrosPorPagina = 13;
         const offset = (pagina - 1) * registrosPorPagina;
 
-        // 2. CONSTRUIR LA CLÁUSULA 'WHERE' DINÁMICAMENTE
         const whereClause = {};
         if (numero) whereClause.numero = { [Op.like]: `%${numero}%` };
         if (tipo) whereClause.tipo = { [Op.like]: `%${tipo}%` };
         if (entidad_emisora) whereClause.entidad_emisora = { [Op.like]: `%${entidad_emisora}%` };
         if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
 
-        // Filtro para el modelo asociado (Usuario)
         const includeWhereClause = {};
         if (usuario) {
             includeWhereClause[Op.or] = [
@@ -59,14 +56,13 @@ exports.getListar = async (req, res, next) => {
             ];
         }
 
-        // 3. REALIZAR LA CONSULTA CON FILTROS Y PAGINACIÓN
         const { count, rows: matriculas } = await Matricula.findAndCountAll({
             where: whereClause,
             include: [{
                 model: Usuario,
                 attributes: ['id', 'nombre', 'apellido'],
-                where: includeWhereClause, // Aplicar filtro en el include
-                required: true // INNER JOIN para que solo traiga matrículas de usuarios que coincidan
+                where: includeWhereClause,
+                required: true
             }],
             order: [['fecha_vencimiento', 'ASC']],
             limit: registrosPorPagina,
@@ -74,18 +70,15 @@ exports.getListar = async (req, res, next) => {
             distinct: true
         });
 
-        // 4. PREPARAR DATOS PARA LA VISTA
         const totalPaginas = Math.ceil(count / registrosPorPagina);
         const filtros = { numero, tipo, entidad_emisora, usuario, activo };
 
-        // Limpiamos el objeto de filtros para que no contenga claves con valor undefined o ''
         Object.keys(filtros).forEach(key => {
-            if (!filtros[key]) { // Cubre undefined, null, ''
+            if (!filtros[key]) {
                 delete filtros[key];
             }
         });
 
-        // Creamos una cadena de consulta para los enlaces de paginación
         const filtrosQuery = new URLSearchParams(filtros).toString();
         
         res.render('./Matricula/Listar.pug', {

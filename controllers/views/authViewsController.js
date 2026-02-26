@@ -43,7 +43,7 @@ exports.getHome = async (req, res, next) => {
             res.render('./Shared/Login', { title: 'Bienvenido a Horizon' });
         }
     } catch (error) {
-        next(error); // Pasamos el error al manejador de errores 500
+        next(error);
     }
 };
 

@@ -43,7 +43,6 @@ exports.getDashboardAdministrador = async () => {
     const proximoMes = new Date();
     proximoMes.setDate(hoy.getDate() + 30);
 
-    // --- Consultas en paralelo para mayor eficiencia ---
     const [
         pacientesActivos,
         totalCamas,
@@ -72,7 +71,7 @@ exports.getDashboardAdministrador = async () => {
         Admision.count({ where: { fecha_hora_ingreso: { [Op.gte]: hoy, [Op.lt]: manana } } }),
         UbicacionInternacion.count({ where: { fecha_hora_liberacion: { [Op.gte]: hoy, [Op.lt]: manana } } }),
         Admision.count({ where: { estado_atencion: 'En Espera', estado: 'Activa', activo: true } }),
-        // Alertas
+        // Alerta
         Matricula.count({ where: { fecha_vencimiento: { [Op.lt]: new Date() }, activo: true } }),
         Matricula.count({ where: { activo: true, fecha_vencimiento: { [Op.between]: [new Date(), proximoMes] } } }),
         PacienteSeguro.count({ distinct: true, col: 'paciente_id', where: { activo: true, fecha_expiracion: { [Op.gte]: new Date() } } }),
@@ -105,11 +104,9 @@ exports.getDashboardAdministrador = async () => {
             }],
             order: [['nombre', 'ASC']]
         }),
-        // Dependencia para KPI de emergencias
         ViaIngreso.findOne({ where: { nombre: 'Emergencia' }, attributes: ['id'] })
     ]);
 
-    // --- Procesamiento de resultados ---
     let emergenciasHoy = 0;
     if (viaEmergencia) {
         emergenciasHoy = await Admision.count({
@@ -144,7 +141,7 @@ exports.getDashboardAdministrador = async () => {
             matriculasPorVencer,
             pacientesSinSeguro,
             turnosSinMedico,
-            conflictos: 0 // Pendiente
+            conflictos: 0
         }
     };
 };
@@ -155,7 +152,6 @@ exports.getDashboardRecepcion = async () => {
     const manana = new Date(hoy);
     manana.setDate(hoy.getDate() + 1);
 
-    // --- Consultas en paralelo para mayor eficiencia ---
     const [
         pacientesActivos,
         totalCamas,
@@ -170,7 +166,6 @@ exports.getDashboardRecepcion = async () => {
         alas,
         viaEmergencia
     ] = await Promise.all([
-        // KPIs
         Paciente.count({ where: { activo: true } }),
         Cama.count({ where: { activo: true } }),
         Cama.count({ where: { estado: 'Libre', activo: true } }),
@@ -180,7 +175,6 @@ exports.getDashboardRecepcion = async () => {
         Admision.count({ where: { fecha_hora_ingreso: { [Op.gte]: hoy, [Op.lt]: manana } } }),
         UbicacionInternacion.count({ where: { fecha_hora_liberacion: { [Op.gte]: hoy, [Op.lt]: manana } } }),
         Admision.count({ where: { estado_atencion: 'En Espera', estado: 'Activa', activo: true } }),
-        // Listas y estructuras
         Turno.findAll({
             where: { fecha: { [Op.gte]: hoy, [Op.lt]: manana }, activo: true },
             include: [
@@ -243,7 +237,7 @@ exports.getDashboardRecepcion = async () => {
         },
         turnosHoyList,
         infraestructura: alas,
-        alertas: { conflictos: 0 } // Placeholder para futuras alertas de recepción
+        alertas: { conflictos: 0 }
     };
 };
 
@@ -260,7 +254,6 @@ exports.getDashboardMedico = async (usuario) => {
         turnosHoyList,
         pacientesInternadosList
     ] = await Promise.all([
-        // KPIs: Contar turnos pendientes para hoy y pacientes activos asignados
         Turno.count({
             where: {
                 medico_id: usuario.id,
@@ -276,7 +269,6 @@ exports.getDashboardMedico = async (usuario) => {
                 activo: true
             }
         }),
-        // Listas: Próximos turnos del día y pacientes internados a cargo
         Turno.findAll({
             where: {
                 medico_id: usuario.id,
@@ -326,7 +318,7 @@ exports.getDashboardMedico = async (usuario) => {
 };
 
 exports.getDashboardEnfermero = async (usuario) => {
-    // 1. Obtener los IDs de las admisiones activas asignadas a este enfermero
+    // admisiones activas asignadas a este enfermero
     const admisionesAsignadas = await AdmisionEnfermero.findAll({
         where: { enfermero_id: usuario.id },
         include: [{
@@ -339,7 +331,6 @@ exports.getDashboardEnfermero = async (usuario) => {
     });
     const admisionIds = admisionesAsignadas.map(a => a.admision_id);
 
-    // 2. Realizar consultas en paralelo
     const [
         camasLibresCount,
         pacientesAsignadosList

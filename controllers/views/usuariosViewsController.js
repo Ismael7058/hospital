@@ -44,26 +44,22 @@ exports.getUsuario = async (req, res, next) => {
 
 exports.getListar = async (req, res, next) => {
     try {
-        // 1. OBTENER PARÁMETROS DE FILTRO Y PAGINACIÓN DE LA URL (req.query)
         const { dni, nombre, email, rol_id, activo, pagina = 1 } = req.query;
         const registrosPorPagina = 13;
         const offset = (pagina - 1) * registrosPorPagina;
 
-        // 2. CONSTRUIR LA CLÁUSULA 'WHERE' DINÁMICAMENTE
         const whereClause = {};
-        if (dni) whereClause.dni = { [Op.like]: `%${dni}%` }; // `if ('')` es falsy, esto está bien.
-        if (nombre) { // `if ('')` es falsy, esto está bien.
+        if (dni) whereClause.dni = { [Op.like]: `%${dni}%` };
+        if (nombre) {
             whereClause[Op.or] = [
                 { nombre: { [Op.like]: `%${nombre}%` } },
                 { apellido: { [Op.like]: `%${nombre}%` } }
             ];
         }
-        if (email) whereClause.email = { [Op.like]: `%${email}%` }; // `if ('')` es falsy, esto está bien.
-        if (rol_id) whereClause.rol_id = rol_id; // `if ('')` es falsy, esto está bien.
+        if (email) whereClause.email = { [Op.like]: `%${email}%` };
+        if (rol_id) whereClause.rol_id = rol_id;
         if (activo !== undefined && activo !== '') whereClause.activo = activo === 'true';
 
-        // 3. REALIZAR LA CONSULTA CON FILTROS Y PAGINACIÓN
-        // Usamos findAndCountAll para obtener los registros y el conteo total en una sola llamada
         const { count, rows: usuarios } = await Usuario.findAndCountAll({
             where: whereClause,
             include: [{
@@ -73,24 +69,20 @@ exports.getListar = async (req, res, next) => {
             order: [['apellido', 'ASC'], ['nombre', 'ASC']],
             limit: registrosPorPagina,
             offset: offset,
-            distinct: true // Importante cuando se usa include con limit
+            distinct: true
         });
 
-        // 4. OBTENER TODOS LOS ROLES PARA EL DROPDOWN DE FILTROS
         const roles = await Rol.findAll({ attributes: ['id', 'nombre'], order: [['nombre', 'ASC']] });
 
-        // 5. PREPARAR DATOS PARA LA VISTA
         const totalPaginas = Math.ceil(count / registrosPorPagina);
-        const filtros = { dni, nombre, email, rol_id, activo }; // Objeto con posibles undefined
+        const filtros = { dni, nombre, email, rol_id, activo };
 
-        // Limpiamos el objeto de filtros para que no contenga claves con valor undefined o ''
         Object.keys(filtros).forEach(key => {
             if (filtros[key] === undefined || filtros[key] === '') {
                 delete filtros[key];
             }
         });
 
-        // Creamos una cadena de consulta para los enlaces de paginación
         const filtrosQuery = new URLSearchParams(filtros).toString();
 
         res.render('./Usuario/Listar.pug', {

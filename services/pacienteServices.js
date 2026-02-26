@@ -7,7 +7,6 @@ exports.registerPaciente = async (pacienteData) => {
     try {
         const { nombre, apellido, fecha_nacimiento, sexo, email, telefono, direccion, nacionalidades, identificaciones } = pacienteData;
 
-        // Crear el paciente
         const nuevoPaciente = await Paciente.create({
             nombre,
             apellido,
@@ -19,12 +18,10 @@ exports.registerPaciente = async (pacienteData) => {
             activo: true
         }, { transaction: t });
 
-        // Asociar nacionalidades
         const nacionalidadesData = JSON.parse(nacionalidades);
         const nacionalidadIds = nacionalidadesData.map(n => n.value);
         await nuevoPaciente.addNacionalidades(nacionalidadIds, { transaction: t });
 
-        // Crear identificaciones
         const identificacionesParaCrear = identificaciones.map(doc => ({
             ...doc,
             paciente_id: nuevoPaciente.id
@@ -76,7 +73,6 @@ exports.editInformacion = async (id, datosModificados) => {
             direccion,
         }, { transaction: t });
 
-        // Actualizar Nacionalidades (reemplazar las existentes)
         if (nacionalidades) {
             const nacionalidadesData = JSON.parse(nacionalidades);
             const nacionalidadIds = nacionalidadesData.map(n => n.value);
@@ -100,10 +96,8 @@ exports.editIdentificacion = async (id, identificaciones) => {
             throw new Error('Paciente no encontrado');
         }
 
-        // Eliminar identificaciones anteriores
         await Identificacion.destroy({ where: { paciente_id: id }, transaction: t });
 
-        // Crear las nuevas
         const identificacionesParaCrear = identificaciones.map(doc => ({
             ...doc,
             paciente_id: id
