@@ -143,7 +143,7 @@ exports.getEstadia = async (req, res, next) => {
             activo: true
           },
           order: [['fecha_hora', 'DESC']],
-          limit: 4,
+          limit: 10,
           separate: true
         },
         {
@@ -153,7 +153,7 @@ exports.getEstadia = async (req, res, next) => {
             activo: true
           },
           order: [['fecha_hora', 'DESC']],
-          limit: 4,
+          limit: 10,
           separate: true
         },
         {
@@ -163,7 +163,7 @@ exports.getEstadia = async (req, res, next) => {
             activo: true
           },
           order: [['fecha_hora', 'DESC']],
-          limit: 1,
+          limit: 25,
           separate: true
         },
         {
@@ -173,7 +173,7 @@ exports.getEstadia = async (req, res, next) => {
             activo: true
           },
           order: [['fecha_hora', 'DESC']],
-          limit: 4,
+          limit: 10,
           separate: true
         },
         {
@@ -184,7 +184,7 @@ exports.getEstadia = async (req, res, next) => {
             estado: 'Suministrar'
           },
           order: [['fecha_hora', 'DESC']],
-          limit: 3,
+          limit: 15,
           separate: true,
           include: [{
             model: ViaAdministracion,

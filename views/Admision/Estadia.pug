@@ -1,311 +1,445 @@
 extends ../layout
 
 block content
-  .container-fluid.d-flex.flex-column.p-4
-    .row.shadow-lg.rounded.border.bg-light.p-4.d-flex.flex-column.flex-grow-1
-      .d-flex.align-items-center.justify-content-between.mt-4
-        a.btn.btn-outline-secondary.ms-3(href=`/admisiones/${admision.id}`)
-          i.bi.bi-arrow-left.me-2
-          | Volver
-        h3.m-0 Gestionar Estadia
-        div(style="width: 100px")
-      .flex-grow-1.overflow-auto.p-4
-        //- Datos Paciente
-        .card.border-0.shadow-sm.mb-4.rounded-3
-          .card-body.p-4.d-flex.align-items-center.gap-4
-            i.bi.bi-person-fill.fs-1.text-primary-emphasis
-            .flex-grow-1.row.g-4
-              .col-md-3
-                p.small.text-muted.text-uppercase.fw-bold.mb-1 Nombre Completo
-                p.h5.fw-bold.mb-0 #{admision.paciente.nombre} #{admision.paciente.apellido}
-              .col-md-2
-                p.small.text-muted.text-uppercase.fw-bold.mb-1 Edad
-                -
-                  const fechaNac = new Date(admision.paciente.fecha_nacimiento);
-                  const hoy = new Date();
-                  let edad = hoy.getFullYear() - fechaNac.getFullYear();
-                  const m = hoy.getMonth() - fechaNac.getMonth();
-                  if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
-                    edad--;
-                  }
-                p.fw-semibold.text-secondary.mb-0 #{edad} años
-              .col-md-2
-                p.small.text-muted.text-uppercase.fw-bold.mb-1  Sexo
-                p.fw-semibold.text-secondary.mb-0 #{admision.paciente.sexo}
-              .col-md-3
-                p.small.text-muted.text-uppercase.fw-bold.mb-1 Identificación
-                if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
-                  .d-flex.flex-wrap.gap-1
-                    each ident in admision.paciente.identificaciones
-                      span.badge.bg-light.text-secondary.border #{ident.tipo_doc}: #{ident.nro_doc}
-                else
-                  p.fw-semibold.text-secondary.mb-0 --
-              .col-md-2
-                p.small.text-muted.text-uppercase.fw-bold.mb-1 ID Paciente
-                p.font-monospace.fw-semibold.text-secondary.mb-0 ##{admision.paciente.id}
-
-        .row.g-4
-          //- Evolución Médica
-          .col-12.col-md-6.col-xl-4
-            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
-              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
-                .d-flex.align-items-center.gap-2
-                  i.bi.bi-bar-chart-line-fill.text-primary.fs-5
-                  h6.fw-bold.mb-0.text-secondary Evolución Médica
-                .btn-group.d-flex.align-items-center(role="group")
-                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEvolucionMedica")
-                      i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/evolucion-medica`)
-                    | Todo
-              .card-body.d-flex.flex-column.gap-3
-                if admision.evoluciones_medicas.length > 0
-                  each evoluciones in admision.evoluciones_medicas
-                    .d-flex.align-items-start.gap-3
-                      .mt-2.rounded-circle.bg-primary(style="width: 8px; height: 8px; flex-shrink: 0;")
-                      div(style="min-width: 0;")
-                        p.fw-bold.small.mb-0.text-truncate(title=evoluciones.diagnostico data-bs-toggle="tooltip") #{evoluciones.diagnostico}
-                        p.small.text-muted.mb-0  
-                          | Diagnosticado el #{evoluciones.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}. #{evoluciones.tratamiento}
-                else 
-                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
-                    div
-                      i.bi.bi-folder2-open.fs-1.mb-3
-                      p.ps-2 No se encontraron evoluciones medicas.
-
-          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-            include modalEvolucionMedica
-            block scripts
-              script(src="/js/admision/registrarEvolucionMedica.js") 
-
-          //- Estudios Solicitados
-          .col-12.col-md-6.col-xl-4
-            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
-              .card-header.bg-light-subtle.border-bottom.py-3.d-flex.justify-content-between.align-items-center
-                .d-flex.align-items-center.gap-2
-                  i.bi.bi-shield-check.text-primary.fs-5
-                  h6.fw-bold.mb-0.text-secondary Estudios Solicitados
-                .btn-group.d-flex.align-items-center(role="group")
-                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEstudiosSolicitados")
-                      i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/estudios-solicitados`)
-                    | Todo
-
-              .card-body.d-flex.flex-column.gap-3
-                if admision.estudios_solicitados.length > 0
-                  each estudio in admision.estudios_solicitados
-                    .d-flex.align-items-center.gap-3
-                      .rounded-circle.bg-primary.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 32px; height: 32px; flex-shrink: 0;")
-                        i.bi.bi-check-circle-fill.text-primary.small
-                      div(style="min-width: 0;")
-                        p.fw-bold.small.mb-0.text-truncate(title=estudio.estudio data-bs-toggle="tooltip") #{estudio.estudio}
-                        p.text-muted.text-uppercase.fw-bold.mb-0(style="font-size: 10px;") #{estudio.fecha_hora.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})}
-
-                else 
-                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
-                    div
-                      i.bi.bi-folder2-open.fs-1.mb-3
-                      p.ps-2 No se encontraron estudios solicitados.
-
-          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-            include modalEstudiosSolicitados
-            block scripts
-              script(src="/js/admision/registrarEstudiosSolicitados.js") 
-
-          //- Signos Vitales
-          .col-12.col-md-6.col-xl-4
-            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
-              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
-                .d-flex.align-items-center.gap-2
-                  i.bi.bi-bar-chart-line-fill.text-primary.fs-5
-                  h6.fw-bold.mb-0.text-secondary Signos Vitales
-                .btn-group.d-flex.align-items-center(role="group")
-                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalSignosVitales")
-                      i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/signos-vitales`)
-                    | Todo
-
-              .card-body
-                if admision.signos_vitales.length == 1
-                  .row.g-3
-                    .col-6
-                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
-                        div
-                          span.text-muted.text-uppercase.fw-bold.small.d-block Frec. Cardíaca
-                          i.bi.bi-heart-pulse-fill.text-danger.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].frecuencia_cardiaca}
-                          span.fs-6.ms-1.text-muted LPM
-                    .col-6
-                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
-                        div
-                          span.text-muted.text-uppercase.fw-bold.small.d-block Pres. Arterial
-                          i.bi.bi-activity.text-danger.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].presion_arterial}
-                          span.fs-6.ms-1.text-muted mmHg
-                    .col-6
-                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
-                        div
-                          span.text-muted.text-uppercase.fw-bold.small.d-block Sat. Oxigeno
-                          i.bi.bi-lungs-fill.text-primary.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].saturacion_oxigeno}
-                          span.fs-6.ms-1.text-muted %
-                    .col-6
-                      .p-3.border.rounded.bg-light.text-center.h-100.d-flex.flex-column.justify-content-center
-                        div
-                          span.text-muted.text-uppercase.fw-bold.small.d-block Temperatura
-                          i.bi.bi-thermometer-half.text-danger.fs-5
-                        .fs-4.text-dark.fw-bold #{admision.signos_vitales[0].temperatura}
-                          span.fs-6.ms-1.text-muted °C
-                else 
-                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
-                    div
-                      i.bi.bi-folder2-open.fs-1.mb-3
-                      p.ps-2 Signos vitales no registrados.
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.overflow-hidden
+      .bg-dark.text-white.p-4.flex-shrink-0.shadow-sm.z-1
+        .d-flex.align-items-center.gap-4
+          .rounded-circle.bg-white.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 60px; height: 60px;")
+            i.bi.bi-person-fill.fs-2.text-white
+          .flex-grow-1.row.g-4
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Nombre Completo
+              p.h5.fw-bold.mb-0.text-light #{admision.paciente.nombre} #{admision.paciente.apellido}
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Edad
+              -
+                const fechaNac = new Date(admision.paciente.fecha_nacimiento);
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - fechaNac.getFullYear();
+                const m = hoy.getMonth() - fechaNac.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edad--;
+                }
+              p.fw-semibold.text-white.mb-0 #{edad} años
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Sexo
+              p.fw-semibold.text-white.mb-0 #{admision.paciente.sexo}
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Identificación
+              if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
+                .d-flex.flex-wrap.gap-1
+                  each ident in admision.paciente.identificaciones
+                    span.badge.bg-white.text-dark.bg-opacity-75 #{ident.tipo_doc}: #{ident.nro_doc}
+              else
+                p.fw-semibold.text-white.mb-0 --
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 ID Paciente
+              p.font-monospace.fw-semibold.text-white.mb-0 ##{admision.paciente.id}
 
 
-          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-            include modalSignosVitales
-            block scripts
-              script(src="/js/admision/registrarSignosVitales.js") 
+      .card-body.p-0.overflow-hidden
+        .row.g-0.h-100
+          //- Columna Izquierda: Navegación y Contenido Principal
+          .col-lg-9.d-flex.flex-column.h-100
+            - const activeTab = tab || 'evolucion'
+            .bg-light.border-bottom.p-3.d-flex.justify-content-between.align-items-center
+              ul.nav.nav-underline.gap-2#estadiaTab(role="tablist")
+                li.nav-item(role="presentation")
+                  a(class=['nav-link', (activeTab === 'evolucion' ? 'active' : '')], id="evolucion-tab", data-bs-toggle="tab", href="#evolucion-container", role="tab", aria-controls="evolucion-container", aria-selected=(activeTab === 'evolucion'))
+                    i.bi.bi-journal-medical.me-2
+                    | Evolución Médica
+                li.nav-item(role="presentation")
+                  a(class=['nav-link', (activeTab === 'estudios' ? 'active' : '')], id="estudios-tab", data-bs-toggle="tab", href="#estudios-container", role="tab", aria-controls="estudios-container", aria-selected=(activeTab === 'estudios'))
+                    i.bi.bi-clipboard2-pulse.me-2
+                    | Estudios Solicitados
+                li.nav-item(role="presentation")
+                  a(class=['nav-link', (activeTab === 'cuidados' ? 'active' : '')], id="cuidados-tab", data-bs-toggle="tab", href="#cuidados-container", role="tab", aria-controls="cuidados-container", aria-selected=(activeTab === 'cuidados'))
+                    i.bi.bi-bandaid.me-2
+                    | Cuidados Realizados
+                li.nav-item(role="presentation")
+                  a(class=['nav-link', (activeTab === 'medicacion' ? 'active' : '')], id="medicacion-tab", data-bs-toggle="tab", href="#medicacion-container", role="tab", aria-controls="medicacion-container", aria-selected=(activeTab === 'medicacion'))
+                    i.bi.bi-capsule.me-2
+                    | Medicación
+                li.nav-item(role="presentation")
+                  a(class=['nav-link', (activeTab === 'signos' ? 'active' : '')], id="signos-tab", data-bs-toggle="tab", href="#signos-container", role="tab", aria-controls="signos-container", aria-selected=(activeTab === 'signos'))
+                    i.bi.bi-heart-pulse.me-2
+                    | Signos Vitales
+                li.nav-item(role="presentation")
+                  a(class=['nav-link', (activeTab === 'ubicaciones' ? 'active' : '')], id="ubicaciones-tab", data-bs-toggle="tab", href="#ubicaciones-container", role="tab", aria-controls="ubicaciones-container", aria-selected=(activeTab === 'ubicaciones'))
+                    i.bi.bi-geo-alt.me-2
+                    | Ubicaciones
+              a.btn.btn-outline-secondary(href=`/admisiones/${admision.id}`)
+                i.bi.bi-arrow-left.me-2
+                | Volver
+            
+            .flex-grow-1.overflow-auto.bg-white
+              .tab-content#estadiaTabContent
+                //- Evolucion Medica
+                div(id="evolucion-container", class=['tab-pane', 'fade', (activeTab === 'evolucion' ? 'show active' : '')], role="tabpanel", aria-labelledby="evolucion-tab")
+                  .p-4
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                      h4.mb-0.text-dark Evoluciones Médicas
+                      .btn-group(role="group")
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                          button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEvolucionMedica")
+                            i.bi.bi-plus-lg.me-1
+                            | Nueva Nota
+                        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/evolucion-medica`)
+                          i.bi.bi-clock-history.me-1
+                          | Admision
+                        a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente_id}/evolucion-medica`)
+                          i.bi.bi-clock-history.me-1
+                          | Historial Completo
 
-          //- Cuidados Realizados
-          .col-12.col-md-6.col-xl-4
-            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
-              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
-                .d-flex.align-items-center.gap-2
-                  i.bi.bi-heart-pulse.text-primary.fs-5
-                  h6.fw-bold.mb-0.text-secondary Cuidados Realizados
-                .btn-group.d-flex.align-items-center(role="group")
-                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalCuidadosRealizados")
-                      i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/cuidados`)
-                    | Todo
-              .card-body.p-0
-                if admision.cuidados_preliminares.length > 0
-                  table.table.table-hover.table-last-row-no-border
-                    thead.table-light.border-light-subtle.bg-light-subtle
-                      tr
-                        th.text-start.text-secondary.bg-light-subtle Descripcion
-                        th.text-start.text-secondary.bg-light-subtle Hora
-                    tbody
+                    if admision.evoluciones_medicas && admision.evoluciones_medicas.length > 0
+                      .position-relative.mx-auto.py-2
+                      each evolucion in admision.evoluciones_medicas
+                        .position-relative.ps-5.mb-4
+                          .position-absolute.bg-primary.rounded-circle.border.border-4.border-white.shadow-sm(style="left: 0.65rem; top: 1.5rem; width: 1rem; height: 1rem; z-index: 1;")
+                          .card.border.border-light-subtle.shadow-sm.rounded-3
+                            .card-body.p-4
+                              .d-flex.justify-content-between.align-items-start.mb-3
+                                div
+                                  .d-flex.align-items-center.gap-2.mb-1
+                                    if evolucion.medico
+                                      span.small.fw-bold.text-uppercase.text-dark #{evolucion.medico.nombre} #{evolucion.medico.apellido}
+                                    else
+                                      span.small.fw-bold.text-uppercase.text-dark Profesional Médico
+                                    span.badge.bg-primary.bg-opacity-10.text-primary.rounded-pill.fw-bold(style="font-size: 10px;") Médico
+                                  .d-flex.align-items-center.gap-3.small.text-muted.fw-bold
+                                    span.d-flex.align-items-center.gap-1
+                                      i.bi.bi-calendar3
+                                      | #{evolucion.fecha_hora.toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}
+                                    span.d-flex.align-items-center.gap-1
+                                      i.bi.bi-clock
+                                      | #{evolucion.fecha_hora.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
+                                i.bi.bi-three-dots-vertical.text-muted(style="cursor: pointer;")
+                              div
+                                p.text-dark.mb-2.fw-medium #{evolucion.diagnostico}
+                                p.small.text-secondary.mb-0 #{evolucion.tratamiento}
+                    else 
+                      .text-center.text-muted.py-5.mt-5
+                        i.bi.bi-journal-medical.display-4.mb-3.opacity-50
+                        h5.mb-1 No hay evoluciones médicas
+                        p.small.text-secondary Registre la primera nota de evolución para esta admisión.
+                    
+                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                      include modalEvolucionMedica
+
+                //- Medicacion
+                div(id="medicacion-container", class=['tab-pane', 'fade', (activeTab === 'medicacion' ? 'show active' : '')], role="tabpanel", aria-labelledby="medicacion-tab")
+                  .p-4
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                      h4.mb-0.text-dark Medicacion
+                      .btn-group(role="group")
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                          button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalMedicacionActiva")
+                            i.bi.bi-plus-lg.me-1
+                            | Nueva Nota
+                        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/medicaciones`)
+                          i.bi.bi-clock-history.me-1
+                          | Admision
+                        a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente_id}/medicaciones`)
+                          i.bi.bi-clock-history.me-1
+                          | Historial Completo
+
+                    if admision.medicaciones && admision.medicaciones.length > 0
+                      table.table.table-hover.table-last-row-no-border
+                        thead.table-light.border-light-subtle
+                          tr
+                            th.text-start.text-secondary.bg-light-subtle Farmaco
+                            th.text-start.text-secondary.bg-light-subtle Dosis
+                            th.text-start.text-secondary.bg-light-subtle Proxima
+                        tbody
+                          each medicacion in admision.medicaciones
+                            tr
+                              td
+                                p.fw-bold.m-0 #{medicacion.medicamento}
+                                p.small.text-muted.mb-0 #{medicacion.via_administracion.nombre}
+                              td
+                                p.text-muted.fw-bold #{medicacion.dosis}
+                              td
+                                -
+                                  const inicio = new Date(medicacion.fecha_inicio);
+                                  const ahora = new Date();
+                                  const [horas, minutos] = medicacion.intervalo_horas.split(':');
+                                  const intervaloMs = (parseInt(horas) * 3600000) + (parseInt(minutos) * 60000);
+                                  let proxima = inicio;
+                                  if (ahora > inicio && intervaloMs > 0) {
+                                    const diff = ahora - inicio;
+                                    const pasados = Math.floor(diff / intervaloMs);
+                                    proxima = new Date(inicio.getTime() + ((pasados + 1) * intervaloMs));
+                                  }
+                                p.text-muted.fw-bold #{proxima.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+                    
+                    else 
+                      .text-center.text-muted.py-5.mt-5
+                        i.bi.bi-journal-medical.display-4.mb-3.opacity-50
+                        h5.mb-1 No hay evoluciones médicas
+                        p.small.text-secondary Registre la primera nota de evolución para esta admisión.
+                    
+                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                      include modalMedicacionActiva
+                      block scripts
+                        script(src="/js/admision/registrarMedicacionActiva.js") 
+
+                //- Estudios Solicitados
+                div(id="estudios-container", class=['tab-pane', 'fade', (activeTab === 'estudios' ? 'show active' : '')], role="tabpanel", aria-labelledby="estudios-tab")
+                  .p-4
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                      h4.mb-0.text-dark Estudios Solicitados
+                      .btn-group(role="group")
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                          button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalEstudiosSolicitados")
+                            i.bi.bi-plus-lg.me-1
+                            | Nueva Nota
+                        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/estudios-solicitados`)
+                          i.bi.bi-clock-history.me-1
+                          | Admision
+                        a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente_id}/estudios-solicitados`)
+                          i.bi.bi-clock-history.me-1
+                          | Historial Completo
+
+                    if admision.estudios_solicitados && admision.estudios_solicitados.length > 0
+                      .position-relative.mx-auto.py-2
+                      each estudio in admision.estudios_solicitados
+                        .position-relative.ps-5.mb-4
+                          .position-absolute.bg-primary.rounded-circle.border.border-4.border-white.shadow-sm(style="left: 0.65rem; top: 1.5rem; width: 1rem; height: 1rem; z-index: 1;")
+                          .card.border.border-light-subtle.shadow-sm.rounded-3
+                            .card-body.p-4
+                              .d-flex.justify-content-between.align-items-start.mb-3
+                                div
+                                  .d-flex.align-items-center.gap-2.mb-1
+                                    span.small.fw-bold.text-uppercase.text-dark #{estudio.estudio}
+                                  .d-flex.align-items-center.gap-3.small.text-muted.fw-bold
+                                    span.d-flex.align-items-center.gap-1
+                                      i.bi.bi-calendar3
+                                      | #{estudio.fecha_hora.toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}
+                                    span.d-flex.align-items-center.gap-1
+                                      i.bi.bi-clock
+                                      | #{estudio.fecha_hora.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
+                                i.bi.bi-three-dots-vertical.text-muted(style="cursor: pointer;")
+                              div
+                                p.text-dark.mb-2.fw-medium #{estudio.descripcion}
+                    else 
+                      .text-center.text-muted.py-5.mt-5
+                        i.bi.bi-journal-medical.display-4.mb-3.opacity-50
+                        h5.mb-1 No hay evoluciones médicas
+                        p.small.text-secondary Registre la primera nota de evolución para esta admisión.
+                    
+                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                      include modalEstudiosSolicitados
+                      block scripts
+                        script(src="/js/admision/registrarEstudiosSolicitados.js") 
+
+                //- Cuidados Preliminares
+                div(id="cuidados-container", class=['tab-pane', 'fade', (activeTab === 'cuidados' ? 'show active' : '')], role="tabpanel", aria-labelledby="cuidados-tab")
+                  .p-4
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                      h4.mb-0.text-dark Cuidados Realizados
+                      .btn-group(role="group")
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                          button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalCuidadosRealizados")
+                            i.bi.bi-plus-lg.me-1
+                            | Nueva Nota
+                        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/cuidados`)
+                          i.bi.bi-clock-history.me-1
+                          | Admision
+                        a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente_id}/cuidados`)
+                          i.bi.bi-clock-history.me-1
+                          | Historial Completo
+
+                    if admision.cuidados_preliminares && admision.cuidados_preliminares.length > 0
+                      .position-relative.mx-auto.py-2
                       each cuidados in admision.cuidados_preliminares
-                        tr
-                          td.text-muted.fw-bold #{cuidados.descripcion}
-                          td.text-muted.fw-bold #{new Date(cuidados.fecha_hora).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
-                else
-                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
-                    div
-                      i.bi.bi-folder2-open.fs-1.mb-3
-                      p.ps-2 No se encontraron cuidados realizados.
+                        .position-relative.ps-5.mb-4
+                          .position-absolute.bg-primary.rounded-circle.border.border-4.border-white.shadow-sm(style="left: 0.65rem; top: 1.5rem; width: 1rem; height: 1rem; z-index: 1;")
+                          .card.border.border-light-subtle.shadow-sm.rounded-3
+                            .card-body.p-4
+                              .d-flex.justify-content-between.align-items-start.mb-3
+                                div
+                                  .d-flex.align-items-center.gap-3.small.text-muted.fw-bold
+                                    span.d-flex.align-items-center.gap-1
+                                      i.bi.bi-calendar3
+                                      | #{cuidados.fecha_hora.toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}
+                                    span.d-flex.align-items-center.gap-1
+                                      i.bi.bi-clock
+                                      | #{cuidados.fecha_hora.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
+                                i.bi.bi-three-dots-vertical.text-muted(style="cursor: pointer;")
+                              div
+                                p.text-dark.mb-2.fw-medium #{cuidados.descripcion}
 
-          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-            include modalCuidadosRealizados
-            block scripts
-              script(src="/js/admision/registrarCuidadosRealizados.js") 
+                    else 
+                      .text-center.text-muted.py-5.mt-5
+                        i.bi.bi-journal-medical.display-4.mb-3.opacity-50
+                        h5.mb-1 No hay evoluciones médicas
+                        p.small.text-secondary Registre la primera nota de evolución para esta admisión.
+                    
+                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                      include modalCuidadosRealizados
+                      block scripts
+                        script(src="/js/admision/registrarCuidadosRealizados.js") 
 
-          //- Medicacion Activa
-          .col-12.col-md-6.col-xl-4
-            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
-              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
-                .d-flex.align-items-center.gap-2
-                  i.bi.bi-capsule.text-primary.fs-5
-                  h6.fw-bold.mb-0.text-secondary Medicacion Activa
-                .btn-group.d-flex.align-items-center(role="group")
-                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalMedicacionActiva")
-                      i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/medicaciones`)
-                    | Todo
-              .card-body.p-0
-                if admision.medicaciones.length > 0
-                  table.table.table-hover.table-last-row-no-border
-                    thead.table-light.border-light-subtle
-                      tr
-                        th.text-start.text-secondary.bg-light-subtle Farmaco
-                        th.text-start.text-secondary.bg-light-subtle Dosis
-                        th.text-start.text-secondary.bg-light-subtle Proxima
-                    tbody
-                      each medicacion in admision.medicaciones
-                        tr
-                          td
-                            p.fw-bold.m-0 #{medicacion.medicamento}
-                            p.small.text-muted.mb-0 #{medicacion.via_administracion.nombre}
-                          td
-                            p.text-muted.fw-bold #{medicacion.dosis}
-                          td
-                            -
-                              const inicio = new Date(medicacion.fecha_inicio);
-                              const ahora = new Date();
-                              const [horas, minutos] = medicacion.intervalo_horas.split(':');
-                              const intervaloMs = (parseInt(horas) * 3600000) + (parseInt(minutos) * 60000);
-                              let proxima = inicio;
-                              if (ahora > inicio && intervaloMs > 0) {
-                                const diff = ahora - inicio;
-                                const pasados = Math.floor(diff / intervaloMs);
-                                proxima = new Date(inicio.getTime() + ((pasados + 1) * intervaloMs));
-                              }
-                            p.text-muted.fw-bold #{proxima.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
-                else
-                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
-                    div
-                      i.bi.bi-folder2-open.fs-1.mb-3
-                      p.ps-2 No se encontraron cuidados realizados.
+                //- Signos Vitales
+                div(id="signos-container", class=['tab-pane', 'fade', (activeTab === 'signos' ? 'show active' : '')], role="tabpanel", aria-labelledby="signos-tab")
+                  .p-4
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                      h4.mb-0.text-dark Signos Vitales
+                      .btn-group(role="group")
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                          button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalSignosVitales")
+                            i.bi.bi-plus-lg.me-1
+                            | Nueva Nota
+                        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/signos-vitales`)
+                          i.bi.bi-clock-history.me-1
+                          | Admision
+                        a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente_id}/signos-vitales`)
+                          i.bi.bi-clock-history.me-1
+                          | Historial Completo
 
-          if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-            include modalMedicacionActiva
-            block scripts
-              script(src="/js/admision/registrarMedicacionActiva.js") 
+                    if admision.signos_vitales && admision.signos_vitales.length > 0
+                      .position-relative.mx-auto.py-2
+                        table.table.table-hover.table-last-row-no-border
+                          thead.table-light.border-light-subtle.bg-light-subtle
+                            tr
+                              th.text-start.text-secondary.bg-light-subtle Frec. Cardíaca
+                              th.text-start.text-secondary.bg-light-subtle Presión Arterial
+                              th.text-start.text-secondary.bg-light-subtle Sat. Oxígeno
+                              th.text-start.text-secondary.bg-light-subtle Temp.
+                              th.text-start.text-secondary.bg-light-subtle Hora
+                          tbody
+                            each signo in admision.signos_vitales
+                              tr
+                                td.text-muted.fw-bold #{signo.frecuencia_cardiaca} LPM
+                                td.text-muted.fw-bold #{signo.presion_arterial} mmHg
+                                td.text-muted.fw-bold #{signo.saturacion_oxigeno} %
+                                td.text-muted.fw-bold #{signo.temperatura} °C
+                                td.text-muted.fw-bold #{new Date(signo.fecha_hora).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+                      
+                    else 
+                      .text-center.text-muted.py-5.mt-5
+                        i.bi.bi-activity.display-4.mb-3.opacity-50
+                        h5.mb-1 No hay signos vitales registrados
+                        p.small.text-secondary Registre los signos vitales del paciente.
+                    
+                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                      include modalSignosVitales
+                      block scripts
+                        script(src="/js/admision/registrarSignosVitales.js") 
 
+                //- Historial de Ubicaciones
+                div(id="ubicaciones-container", class=['tab-pane', 'fade', (activeTab === 'ubicaciones' ? 'show active' : '')], role="tabpanel", aria-labelledby="ubicaciones-tab")
+                  .p-4
+                    .d-flex.justify-content-between.align-items-center.mb-4
+                      h4.mb-0.text-dark Historial de Ubicaciones
+                      .btn-group(role="group")
+                        if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                          button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
+                            i.bi.bi-plus-lg.me-1
+                            | Trasladar
+                        a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/ubicaciones`)
+                          i.bi.bi-clock-history.me-1
+                          | Historial Completo
 
-          //- Historial de Ubicaciones
-          .col-12.col-md-6.col-xl-4
-            .card.h-100.border-0.shadow-sm.rounded-3(style="min-height: 350px;")
-              .card-header.bg-light-subtle.border-bottom.border-light-subtle.py-3.d-flex.justify-content-between.align-items-center
-                .d-flex.align-items-center.gap-2
-                  i.bi.bi-capsule.text-primary.fs-5
-                  h6.fw-bold.mb-0.text-secondary Historial de Ubicaciones
-                .btn-group.d-flex.align-items-center(role="group")
-                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                    button.btn.btn-sm.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#modalTraslado")
-                      i.bi.bi-plus-lg
-                  a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}/ubicaciones`)
-                    | Todo
-              .card-body.p-0
-                if admision.ubicaciones.length > 0
-                  table.table.table-hover.table-last-row-no-border
-                    thead.table-light.border-light-subtle
-                      tr
-                      th.text-start.text-secondary.bg-light-subtle Sector
-                      th.text-start.text-secondary.bg-light-subtle Habitacion
-                      th.text-start.text-secondary.bg-light-subtle Cama
-                    tbody
-                      each ubicacion in admision.ubicaciones
-                        tr
-                          td
-                            p.text-muted.fw-bold #{ubicacion.cama.habitacion.ala.nombre}
-                          td
-                            p.text-muted.fw-bold N° #{ubicacion.cama.habitacion.numero}
-                          td
-                            p.text-muted.fw-bold #{ubicacion.cama.codigo}
-                else
-                  .text-center.text-muted.h-100.row.justify-content-center.align-items-center
-                    div
-                      i.bi.bi-folder2-open.fs-1.mb-3
-                      p.ps-2 No se encontraron cuidados realizados.
+                    if admision.ubicaciones && admision.ubicaciones.length > 0
+                      table.table.table-hover.table-last-row-no-border
+                        thead.table-light.border-light-subtle
+                          tr
+                          th.text-start.text-secondary.bg-light-subtle Sector
+                          th.text-start.text-secondary.bg-light-subtle Habitacion
+                          th.text-start.text-secondary.bg-light-subtle Cama
+                          th.text-start.text-secondary.bg-light-subtle Fecha y Hora
+                        tbody
+                          each ubicacion in admision.ubicaciones
+                            tr
+                              td
+                                p.text-muted.fw-bold #{ubicacion.cama.habitacion.ala.nombre}
+                              td
+                                p.text-muted.fw-bold N° #{ubicacion.cama.habitacion.numero}
+                              td
+                                p.text-muted.fw-bold #{ubicacion.cama.codigo}
+                              td
+                                .d-flex.align-items-center.gap-3.small.text-muted.fw-bold
+                                  span.d-flex.align-items-center.gap-1
+                                    i.bi.bi-calendar3
+                                    | #{ubicacion.fecha_hora_asignacion.toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}
+                                  span.d-flex.align-items-center.gap-1
+                                    i.bi.bi-clock
+                                    | #{ubicacion.fecha_hora_asignacion.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
 
-    //- trasladar paciente
-    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-      include modalTraslado
+                    else 
+                      .text-center.text-muted.py-5.mt-5
+                        i.bi.bi-geo-alt.display-4.mb-3.opacity-50
+                        h5.mb-1 No hay historial de ubicaciones
+                        p.small.text-secondary El paciente no ha sido trasladado.
+                    
+                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                      include modalTraslado
 
+          //- Columna Derecha: Sidebar de Signos Vitales
+          .col-lg-3.bg-light.border-start.h-100.overflow-auto
+            .p-3
+              h6.text-uppercase.text-muted.fw-bold.mb-4.ps-1.d-flex.align-items-center
+                i.bi.bi-heart-pulse.me-2
+                | Signos Vitales (Actual)
+              
+              if admision.signos_vitales && admision.signos_vitales.length > 0
+                - const sv = admision.signos_vitales[0]
+                .row.g-3
+                  .col-12
+                    .card.border-0.shadow-sm
+                      .card-body.d-flex.align-items-center.p-3
+                        .rounded-circle.bg-danger.bg-opacity-10.p-3.me-3
+                          i.bi.bi-heart-pulse-fill.text-danger.fs-4
+                        div
+                          small.text-muted.text-uppercase.fw-bold Frec. Cardíaca
+                          div.fs-4.fw-bold.text-dark #{sv.frecuencia_cardiaca} <span class="fs-6 text-muted fw-normal">LPM</span>
+                  
+                  .col-12
+                    .card.border-0.shadow-sm
+                      .card-body.d-flex.align-items-center.p-3
+                        .rounded-circle.bg-primary.bg-opacity-10.p-3.me-3
+                          i.bi.bi-activity.text-primary.fs-4
+                        div
+                          small.text-muted.text-uppercase.fw-bold Presión Arterial
+                          div.fs-4.fw-bold.text-dark #{sv.presion_arterial} <span class="fs-6 text-muted fw-normal">mmHg</span>
 
+                  .col-12
+                    .card.border-0.shadow-sm
+                      .card-body.d-flex.align-items-center.p-3
+                        .rounded-circle.bg-info.bg-opacity-10.p-3.me-3
+                          i.bi.bi-lungs-fill.text-info.fs-4
+                        div
+                          small.text-muted.text-uppercase.fw-bold Sat. Oxígeno
+                          div.fs-4.fw-bold.text-dark #{sv.saturacion_oxigeno} <span class="fs-6 text-muted fw-normal">%</span>
+
+                  .col-12
+                    .card.border-0.shadow-sm
+                      .card-body.d-flex.align-items-center.p-3
+                        .rounded-circle.bg-warning.bg-opacity-10.p-3.me-3
+                          i.bi.bi-thermometer-half.text-warning.fs-4
+                        div
+                          small.text-muted.text-uppercase.fw-bold Temperatura
+                          div.fs-4.fw-bold.text-dark #{sv.temperatura} <span class="fs-6 text-muted fw-normal">°C</span>
+
+                  .col-12.mt-4
+                    button.btn.btn-outline-primary.w-100(type="button") 
+                      i.bi.bi-clock-history.me-2
+                      | Ver Historial Completo
+              else 
+                .text-center.text-muted.py-5
+                  i.bi.bi-activity.display-4.mb-3.opacity-50
+                  p.mb-0 No hay registros de signos vitales.
+                  button.btn.btn-sm.btn-primary.mt-3
+                    i.bi.bi-plus-lg.me-1
+                    | Registrar Ahora
 
 block scripts
   if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
     script(src="/js/admision/trasladar.js")
-    script(src="/js/infraestructura/ubicacion.js") 
+    script(src="/js/infraestructura/ubicacion.js")
+    script(src="/js/admision/registrarEvolucionMedica.js")
   script.
     // Inicializar todos los popovers en la página
     document.addEventListener('DOMContentLoaded', function () {
@@ -319,4 +453,18 @@ block scripts
       var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
       });
+
+      // Activar la pestaña correcta basada en el hash de la URL al cargar la página
+      const hash = window.location.hash;
+      if (hash) {
+        // Busca un enlace de pestaña cuyo ID coincida con el hash (ej: #medicacion-tab)
+        const tabId = hash.substring(1); // Quita el '#' del hash
+        const tabTriggerEl = document.getElementById(tabId);
+
+        // Si se encuentra un enlace de pestaña válido, actívalo
+        if (tabTriggerEl && tabTriggerEl.getAttribute('data-bs-toggle') === 'tab') {
+          const tab = new bootstrap.Tab(tabTriggerEl);
+          tab.show();
+        }
+      }
     });
