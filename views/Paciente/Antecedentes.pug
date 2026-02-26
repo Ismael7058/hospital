@@ -123,22 +123,22 @@ block content
                               )
                                 i.bi.bi-pencil-square.me-1
                                 | Gestion
-
-                              button.btn.btn-sm(
-                                class=ant.validado ? 'btn-outline-secondary' : 'btn-outline-success'
-                                onclick=`cambiarValidacion(${ant.id}, ${!ant.validado})`
-                                title=ant.validado ? 'Invalidar' : 'Validar'
-                              )
-                                i.bi.me-1(class=ant.validado ? 'bi-x-circle' : 'bi-check2-all')
-                                | #{ant.validado ? 'Invalidar' : 'Validar'}
-
-                              button.btn.btn-sm(
-                                class=ant.activo ? 'btn-outline-danger' : 'btn-outline-info'
-                                onclick=`eliminarAntecedente(${ant.id}, ${!ant.activo})`
-                                title=ant.activo ? 'Desactivar' : 'Activar'
-                              )
-                                i.bi.me-1(class=ant.activo ? 'bi-trash' : 'bi-arrow-counterclockwise')
-                                | #{ant.activo ? 'Eliminar' : 'Activar'}
+                              if ["Administrador", "Medico"].includes(usuarioAutenticado.Rol.nombre)
+                                button.btn.btn-sm(
+                                  class=ant.validado ? 'btn-outline-secondary' : 'btn-outline-success'
+                                  onclick=`cambiarValidacion(${ant.id}, ${!ant.validado})`
+                                  title=ant.validado ? 'Invalidar' : 'Validar'
+                                )
+                                  i.bi.me-1(class=ant.validado ? 'bi-x-circle' : 'bi-check2-all')
+                                  | #{ant.validado ? 'Invalidar' : 'Validar'}
+                              if ["Administrador"].includes(usuarioAutenticado.Rol.nombre)
+                                button.btn.btn-sm(
+                                  class=ant.activo ? 'btn-outline-danger' : 'btn-outline-info'
+                                  onclick=`eliminarAntecedente(${ant.id}, ${!ant.activo})`
+                                  title=ant.activo ? 'Desactivar' : 'Activar'
+                                )
+                                  i.bi.me-1(class=ant.activo ? 'bi-trash' : 'bi-arrow-counterclockwise')
+                                  | #{ant.activo ? 'Eliminar' : 'Activar'}
                       - var n = antecedentes.length
                       while n < 13
                         tr
@@ -258,20 +258,22 @@ block content
 
           .modal-footer
             button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-            button.btn.btn-primary(type="submit") Actualizar
+            if ["Administrador", "Medico"].includes(usuarioAutenticado.Rol.nombre)
+              button.btn.btn-primary(type="submit") Actualizar
 
-  //- Modal Eliminar
-  .modal.fade#modalEliminarAntecedente(tabindex="-1" aria-hidden="true")
-    .modal-dialog.modal-dialog-centered
-      .modal-content
-        .modal-header
-          h5.modal-title Confirmar Eliminación
-          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-        .modal-body
-          p ¿Está seguro de eliminar este antecedente?
-        .modal-footer
-          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-          button.btn.btn-danger#btnConfirmarEliminar(type="button") Eliminar
+  if ["Administrador"].includes(usuarioAutenticado.Rol.nombre)
+    //- Modal Eliminar
+    .modal.fade#modalEliminarAntecedente(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header
+            h5.modal-title Confirmar Eliminación
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            p ¿Está seguro de eliminar este antecedente?
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+            button.btn.btn-danger#btnConfirmarEliminar(type="button") Eliminar
 
   //- Modal Validar
   .modal.fade#modalValidarAntecedente(tabindex="-1" aria-hidden="true")
@@ -284,13 +286,16 @@ block content
           p ¿Desea marcar este antecedente como validado médicamente?
         .modal-footer
           button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
-          button.btn.btn-success#btnConfirmarValidar(type="button") Validar
+          if ["Administrador", "Medico"].includes(usuarioAutenticado.Rol.nombre)
+            button.btn.btn-success#btnConfirmarValidar(type="button") Validar
 
 block scripts
   script(src="/js/Paciente/editarAntecedente.js")
-  script(src="/js/Paciente/registrarAntecedente.js")
-  script(src="/js/Paciente/estadoAntecedente.js")
-  script(src="/js/Paciente/validacionAntecedente.js")
+  if ["Administrador", "Medico"].includes(usuarioAutenticado.Rol.nombre)
+    script(src="/js/Paciente/registrarAntecedente.js")
+    script(src="/js/Paciente/validacionAntecedente.js")
+  if ["Administrador"].includes(usuarioAutenticado.Rol.nombre)
+    script(src="/js/Paciente/estadoAntecedente.js")
   script.
       document.addEventListener('DOMContentLoaded', function () {
         var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
