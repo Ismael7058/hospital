@@ -2,7 +2,7 @@ header.navbar.navbar-dark.sticky-top.bg-dark.shadow.p-2
   // Contenedor principal para alinear elementos a la izquierda y derecha
   .container-fluid.d-flex.align-items-center.justify-content-between
     // --- Elementos de la Izquierda ---
-    if usuarioAutenticado
+    if usuarioAutenticado && usuarioAutenticado.Rol.nombre != 'Limpieza'
       // Botón para mostrar/ocultar el menú lateral
       button#sidebarToggle.navbar-toggler.p-2.border-0(type="button" aria-label="Toggle navigation")
         i.bi.bi-list.fs-4

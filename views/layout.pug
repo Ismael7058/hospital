@@ -34,7 +34,7 @@ html(lang="es").h-100
 
     .app-container.d-flex.flex-grow-1
 
-      if usuarioAutenticado
+      if usuarioAutenticado && usuarioAutenticado.Rol.nombre != 'Limpieza'
         include Shared/Siderbar.pug
 
       if !usuarioAutenticado
