@@ -7,9 +7,8 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log('Conexión a la base de datos establecida correctamente.');
 
-    // force: tru` elimina y recrea las tablas
-    // await sequelize.sync({ force: false });
-    // console.log('🔄 Modelos sincronizados con la base de datos.');
+    await sequelize.sync();
+    console.log('Modelos sincronizados con la base de datos.');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
