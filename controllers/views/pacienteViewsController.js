@@ -22,11 +22,13 @@ const buildWhereClause = (filtros) => {
 
 exports.getListaPaciente = async (req, res, next) => {
     try {
-        // 1. OBTENER PARÁMETROS DE FILTRO Y PAGINACIÓN DE LA URL (req.query)
         const { pagina = 1, ...filtrosQuery } = req.query;
         const offset = (pagina - 1) * REGISTROS_POR_PAGINA;
 
-        // 2. CONSTRUIR LA CLÁUSULA 'WHERE' DINÁMICAMENTE
+        if (req.usuario.Rol.nombre != "Administrador"){
+          filtrosQuery.activo = "true";
+        }
+
         const whereClause = buildWhereClause(filtrosQuery);
 
         const includeClause = [
@@ -40,23 +42,19 @@ exports.getListaPaciente = async (req, res, next) => {
                 model: Identificacion,
                 as: 'identificaciones',
                 attributes: ['tipo_doc', 'nro_doc'],
-                // where clause para el include de identificaciones
                 where: {} 
             }
         ];
 
         if (filtrosQuery.nacionalidad_id) {
             includeClause[0].where = { id: filtrosQuery.nacionalidad_id };
-            includeClause[0].required = true; // INNER JOIN
+            includeClause[0].required = true;
         }
 
-        // Aplicar filtros de identificación
         if (filtrosQuery.tipo_doc) includeClause[1].where.tipo_doc = filtrosQuery.tipo_doc;
         if (filtrosQuery.nro_doc) includeClause[1].where.nro_doc = { [Op.like]: `%${filtrosQuery.nro_doc}%` };
-        // Si hay filtros de identificación, la relación es obligatoria (INNER JOIN)
         if (filtrosQuery.tipo_doc || filtrosQuery.nro_doc) includeClause[1].required = true;
 
-        // 3. REALIZAR LA CONSULTA CON FILTROS Y PAGINACIÓN
         const { count, rows: pacientes } = await Paciente.findAndCountAll({
             where: whereClause,
             include: includeClause,
@@ -66,13 +64,11 @@ exports.getListaPaciente = async (req, res, next) => {
             distinct: true
         });
 
-        // 4. OBTENER TODAS LAS NACIONALIDADES PARA EL DROPDOWN DE FILTROS
         const nacionalidades = await Nacionalidad.findAll({ 
             attributes: ['id', 'nombre'], 
             order: [['nombre', 'ASC']] 
         });
 
-        // 5. PREPARAR DATOS PARA LA VISTA
         const totalPaginas = Math.ceil(count / REGISTROS_POR_PAGINA);
         const filtrosActivos = Object.fromEntries(Object.entries(filtrosQuery).filter(([, value]) => value));
         const filtrosQueryString = new URLSearchParams(filtrosActivos).toString();
@@ -153,7 +149,6 @@ exports.getSeguros = async (req, res, next) => {
         const { estado, vencimiento, pagina = 1 } = req.query;
         const offset = (pagina - 1) * REGISTROS_POR_PAGINA;
 
-        // 1. Obtener Paciente con sus identificaciones
         const paciente = await Paciente.findByPk(pacienteId, {
             include: [{ model: Identificacion, as: 'identificaciones' }]
         });
@@ -162,13 +157,11 @@ exports.getSeguros = async (req, res, next) => {
             return res.redirect('/pacientes');
         }
 
-        // Preparar datos del paciente (extraer DNI para la vista si existe)
         const pacienteData = paciente.toJSON();
         if (pacienteData.identificaciones && pacienteData.identificaciones.length > 0) {
             pacienteData.dni = pacienteData.identificaciones[0].nro_doc;
         }
 
-        // 2. Construir filtros para los seguros del paciente
         const whereClause = { paciente_id: pacienteId };
 
         if (estado === 'true') whereClause.activo = true;
@@ -183,7 +176,6 @@ exports.getSeguros = async (req, res, next) => {
             whereClause.fecha_expiracion = { [Op.lt]: new Date() };
         }
 
-        // 3. Obtener los seguros asignados al paciente
         const { count, rows: pacienteSeguros } = await PacienteSeguro.findAndCountAll({
             where: whereClause,
             include: [{ model: SeguroMedico, attributes: ['id', 'nombre'] }],
@@ -192,7 +184,6 @@ exports.getSeguros = async (req, res, next) => {
             offset: offset
         });
 
-        // 4. Obtener lista de Seguros Médicos activos para el modal de registro
         const seguros = await SeguroMedico.findAll({
             where: { activo: true },
             order: [['nombre', 'ASC']]
@@ -267,7 +258,6 @@ exports.getAntecedentes = async (req, res, next) => {
 
         const totalPaginas = Math.ceil(count / REGISTROS_POR_PAGINA);
         
-        // Preparar filtros para la vista
         const filtros = { tipo_antecedente_id, fecha_inicio, fecha_fin, validado, activo };
         Object.keys(filtros).forEach(key => {
             if (filtros[key] === undefined || filtros[key] === '') delete filtros[key];

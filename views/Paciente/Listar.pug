@@ -42,12 +42,13 @@ block content
                 option(value="") Todos
                 each nacionalidad in nacionalidades
                   option(value=nacionalidad.id selected=(filtros.nacionalidad_id == nacionalidad.id)) #{nacionalidad.nombre}
-            .col-md-3
-              label.form-label(for="activo") Estado
-              select.form-select(id="activo" name="activo")
-                option(value="") Todos
-                option(value="true" selected=(filtros.activo === 'true')) Activo
-                option(value="false" selected=(filtros.activo === 'false')) Inactivo
+            if usuarioAutenticado.Rol.nombre == 'Administrador'
+              .col-md-3
+                label.form-label(for="activo") Estado
+                select.form-select(id="activo" name="activo")
+                  option(value="") Todos
+                  option(value="true" selected=(filtros.activo === 'true')) Activo
+                  option(value="false" selected=(filtros.activo === 'false')) Inactivo
             .col-12.text-end
               a.btn.btn-secondary(href="/pacientes") Limpiar
               button.btn.btn-primary.ms-2(type="submit") Filtrar
