@@ -1,4 +1,4 @@
-const { Paciente, Nacionalidad, Identificacion, PacienteSeguro, SeguroMedico, AntecedentePaciente, TiposAtencedentes, FuentesInformacion, Admision, EvolucionMedica, EstudioSolicitado, CuidadoPreliminar } = require('../../db/models');
+const { Paciente, Nacionalidad, Identificacion, PacienteSeguro, SeguroMedico, AntecedentePaciente, TiposAtencedentes, FuentesInformacion, Admision, EvolucionMedica, EstudioSolicitado, CuidadoPreliminar, Medicacion, ViaAdministracion } = require('../../db/models');
 const { Op } = require('sequelize');
 
 const REGISTROS_POR_PAGINA = 13;
@@ -472,6 +472,76 @@ exports.getCuidadosPreliminares = async (req, res, next) => {
       title: `Historial de Cuidados Preliminares: ${paciente.nombre} ${paciente.apellido}`,
       paciente,
       cuidados,
+      filtros,
+      filtrosQuery,
+      paginacion: {
+        totalRegistros: count,
+        totalPaginas: totalPaginas,
+        paginaActual: pagina,
+        registrosPorPagina: registrosPorPagina
+      },
+    });
+  } catch (error) {
+    console.error(error)
+    next(error);
+  }
+};
+
+exports.getMedicaciones = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const pagina = parseInt(req.query.pagina, 10) || 1;
+    let { activo } = req.query;
+    const registrosPorPagina = 13;
+    const offset = (pagina - 1) * registrosPorPagina;
+
+    if (req.usuario.Rol.nombre != 'Administrador'){
+      activo = true;
+    }
+
+    const paciente = await Paciente.findByPk(id, {
+      include: [{ model: Identificacion, as: 'identificaciones' }]
+    });
+
+    if (!paciente) {
+      return res.redirect('/pacientes');
+    }
+
+    const admisiones = await Admision.findAll({
+      where: { paciente_id: id },
+      attributes: ['id']
+    });
+    const admisionIds = admisiones.map(a => a.id);
+
+    const whereClause = {};
+    if (admisionIds.length > 0) {
+      whereClause.admision_id = { [Op.in]: admisionIds };
+    } else {
+      whereClause.id = null;
+    }
+    if (activo !== undefined && activo !== '') whereClause.activo = String(activo) === 'true';
+
+    const { count, rows: medicaciones } = await Medicacion.findAndCountAll({
+      where: whereClause,
+      order: [['fecha_hora', 'DESC']],
+      limit: registrosPorPagina,
+      offset: offset,
+      include: [
+        {
+          model: ViaAdministracion,
+          as: 'via_administracion',
+        }
+      ]
+    });
+
+    const totalPaginas = Math.ceil(count / registrosPorPagina);
+    const filtros = { activo };
+    const filtrosQuery = new URLSearchParams(Object.fromEntries(Object.entries(filtros).filter(([, value]) => value != null && value !== ''))).toString();
+
+    res.render('./Estadia/AllMedicacion.pug', {
+      title: `Historial de Medicaciones: ${paciente.nombre} ${paciente.apellido}`,
+      paciente,
+      medicaciones,
       filtros,
       filtrosQuery,
       paginacion: {

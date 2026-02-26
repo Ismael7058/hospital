@@ -1,0 +1,187 @@
+extends ../layout
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.overflow-hidden
+      //- Header Paciente
+      .bg-dark.text-white.p-4.flex-shrink-0
+        .d-flex.align-items-center.gap-4
+          .rounded-circle.bg-white.bg-opacity-10.d-flex.align-items-center.justify-content-center(style="width: 60px; height: 60px;")
+            i.bi.bi-person-fill.fs-2.text-white
+          .flex-grow-1.row.g-4
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Nombre Completo
+              p.h5.fw-bold.mb-0.text-light #{paciente.nombre} #{paciente.apellido}
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Edad
+              -
+                const fechaNac = new Date(paciente.fecha_nacimiento);
+                const hoy = new Date();
+                let edad = hoy.getFullYear() - fechaNac.getFullYear();
+                const m = hoy.getMonth() - fechaNac.getMonth();
+                if (m < 0 || (m === 0 && hoy.getDate() < fechaNac.getDate())) {
+                  edad--;
+                }
+              p.fw-semibold.text-white.mb-0 #{edad} años
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Sexo
+              p.fw-semibold.text-white.mb-0 #{paciente.sexo}
+            .col-md-3
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 Identificación
+              if paciente.identificaciones && paciente.identificaciones.length > 0
+                .d-flex.flex-wrap.gap-1
+                  each ident in paciente.identificaciones
+                    span.badge.bg-white.text-dark.bg-opacity-75 #{ident.tipo_doc}: #{ident.nro_doc}
+              else
+                p.fw-semibold.text-white.mb-0 --
+            .col-md-2
+              p.small.text-white-50.text-uppercase.fw-bold.mb-1 ID Paciente
+              p.font-monospace.fw-semibold.text-white.mb-0 ##{paciente.id}
+
+      //- Filtros
+      .bg-light.border-bottom.p-3.flex-shrink-0
+        form(method="GET")
+          .row.g-3.align-items-center
+            .col-md-3
+              label.form-label.small.fw-bold.text-uppercase.text-muted(for="activo") Estado
+              select#activo.form-select.form-select-sm(name="activo")
+                option(value="") Todos
+                option(value="true" selected=(filtros && filtros.activo === 'true')) Activo
+                option(value="false" selected=(filtros && filtros.activo === 'false')) Inactivo
+            
+            .col-md-9.d-flex.justify-content-end.align-items-cente
+              .d-flex.gap-2
+                a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${paciente.id}`)
+                  i.bi.bi-arrow-left.me-2
+                  | Volver
+                a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${paciente.id}/medicaciones` title="Limpiar Filtros") 
+                  i.bi.bi-eraser
+                  | Limpiar
+                button.btn.btn-sm.btn-primary(type="submit") 
+                  i.bi.bi-search.me-1
+                  | Filtrar
+
+      //- Tabla
+      .card-body.p-0.flex-grow-1.overflow-auto.position-relative
+        table.table.table-hover.table-striped.align-middle.mb-0
+          thead.table-light.sticky-top
+            tr
+              th.py-3.ps-4(style="width: 25%;") Fármaco
+              th.py-3(style="width: 15%;") Dosis
+              th.py-3(style="width: 15%;") Vía
+              th.py-3(style="width: 15%;") Frecuencia
+              th.py-3(style="width: 20%;") Próxima
+              th.py-3.text-center(style="width: 10%;") Acciones
+
+          tbody
+            if medicaciones && medicaciones.length > 0
+              each medicacion in medicaciones
+                tr
+                  td.ps-4.text-muted.fw-semibold #{medicacion.medicamento}
+                  td.text-muted #{medicacion.dosis}
+                  td.text-muted #{medicacion.via_administracion.nombre}
+                  td.text-muted #{medicacion.intervalo_horas} hs
+                  td.text-muted
+                    -
+                      const inicio = new Date(medicacion.fecha_inicio);
+                      const ahora = new Date();
+                      const [horas, minutos] = medicacion.intervalo_horas.split(':');
+                      const intervaloMs = (parseInt(horas) * 3600000) + (parseInt(minutos) * 60000);
+                      let proxima = inicio;
+                      if (ahora > inicio && intervaloMs > 0) {
+                        const diff = ahora - inicio;
+                        const pasados = Math.floor(diff / intervaloMs);
+                        proxima = new Date(inicio.getTime() + ((pasados + 1) * intervaloMs));
+                      }
+                    | #{proxima.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit', hour12: false})} hs
+                  td.text-center
+                    button.btn.btn-outline-primary.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalVerMedicacion" data-medicamento=medicacion.medicamento data-dosis=medicacion.dosis data-via=medicacion.via_administracion.nombre data-frecuencia=medicacion.intervalo_horas data-inicio=medicacion.fecha_inicio.toISOString() data-indicaciones=medicacion.indicaciones title="Ver Detalles")
+                      i.bi.bi-eye
+              
+              - const filasVacias = (paginacion.registrosPorPagina || 10) - medicaciones.length;
+              if filasVacias > 0
+                - for (let i = 0; i < filasVacias; i++)
+                  tr
+                    td(colspan="6") &nbsp;
+            
+        if !medicaciones || medicaciones.length === 0
+          .d-flex.flex-column.align-items-center.justify-content-center.h-100.text-muted
+             i.bi.bi-capsule.display-1.mb-3.opacity-25
+             h5.fw-light No hay medicaciones registradas
+
+      if paginacion && paginacion.totalPaginas > 1
+        .card-footer.bg-white.border-top.py-3.d-flex.justify-content-between.align-items-center
+          div.text-muted
+            small Página #{paginacion.paginaActual} de #{paginacion.totalPaginas} (#{paginacion.totalRegistros} registros)
+          include ../Shared/Paginacion.pug
+
+    #modalVerMedicacion.modal.fade(tabindex="-1" aria-hidden="true")
+      .modal-dialog.modal-dialog-centered
+        .modal-content.border-0.shadow-lg
+          .modal-header.bg-primary.text-white
+            h5.modal-title
+              i.bi.bi-capsule.me-2
+              | Detalle Medicación
+            button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body.p-4
+            .row.g-3.mb-3
+              .col-12
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Fármaco
+                p#modalMedicamento.text-dark.fw-semibold.fs-5
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Dosis
+                p#modalDosis.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Vía
+                p#modalVia.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Frecuencia
+                p#modalFrecuencia.text-secondary.mb-0
+              .col-6
+                label.fw-bold.text-primary.small.text-uppercase.mb-1 Inicio
+                p#modalInicio.text-secondary.mb-0
+            .mb-0
+              label.fw-bold.text-primary.small.text-uppercase.mb-1 Indicaciones
+              .bg-light.p-3.rounded.border
+                 p#modalIndicaciones.text-secondary.mb-0
+          .modal-footer.bg-light
+            button.btn.btn-secondary.px-4(type="button" data-bs-dismiss="modal") Cerrar
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', function () {
+      var modalVerMedicacion = document.getElementById('modalVerMedicacion');
+      if (modalVerMedicacion) {
+        modalVerMedicacion.addEventListener('show.bs.modal', function (event) {
+          var button = event.relatedTarget;
+          var medicamento = button.getAttribute('data-medicamento');
+          var dosis = button.getAttribute('data-dosis');
+          var via = button.getAttribute('data-via');
+          var frecuencia = button.getAttribute('data-frecuencia');
+          var inicio = button.getAttribute('data-inicio');
+          var indicaciones = button.getAttribute('data-indicaciones');
+
+          var modalMedicamento = modalVerMedicacion.querySelector('#modalMedicamento');
+          var modalDosis = modalVerMedicacion.querySelector('#modalDosis');
+          var modalVia = modalVerMedicacion.querySelector('#modalVia');
+          var modalFrecuencia = modalVerMedicacion.querySelector('#modalFrecuencia');
+          var modalInicio = modalVerMedicacion.querySelector('#modalInicio');
+          var modalIndicaciones = modalVerMedicacion.querySelector('#modalIndicaciones');
+
+          var dateInicio = new Date(inicio);
+
+          modalMedicamento.textContent = medicamento;
+          modalDosis.textContent = dosis;
+          modalVia.textContent = via;
+          modalFrecuencia.textContent = frecuencia + ' hs';
+          modalInicio.textContent = dateInicio.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' hs';
+          modalIndicaciones.textContent = indicaciones || 'Sin indicaciones adicionales.';
+        });
+      }
+      
+      // Re-initialize tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
