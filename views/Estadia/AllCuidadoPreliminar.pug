@@ -51,10 +51,10 @@ block content
             
             .col-md-9.d-flex.justify-content-end.align-items-cente
               .d-flex.gap-2
-                a.btn.btn-sm.btn-outline-secondary(href=`/paciente/${paciente.id}/`)
+                a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${paciente.id}`)
                   i.bi.bi-arrow-left.me-2
                   | Volver
-                a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${paciente.id}/cuidados` title="Limpiar Filtros") 
+                a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${paciente.id}/cuidados` title="Limpiar Filtros") 
                   i.bi.bi-eraser
                   | Limpiar
                 button.btn.btn-sm.btn-primary(type="submit") 
