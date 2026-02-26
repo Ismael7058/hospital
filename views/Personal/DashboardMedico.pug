@@ -1,0 +1,103 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.p-4.bg-body-tertiary
+      //- Encabezado
+      .d-flex.justify-content-between.align-items-center.mb-4
+        h1.h3.mb-0.text-gray-800 Panel del Médico
+        span.text-muted #{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+
+      //- KPIs
+      .row.mb-4
+        //- Turnos Pendientes Hoy
+        .col-xl-4.col-md-6.mb-4
+          .card.border-start.border-info.border-4.shadow-sm.h-100
+            .card-body
+              .row.g-0.align-items-center
+                .col
+                  .text-xs.fw-bold.text-info.text-uppercase.mb-1 Turnos Pendientes Hoy
+                  .h5.mb-0.fw-bold.text-secondary= kpis.turnosHoy
+                .col-auto
+                  i.bi.bi-calendar-check.fs-2.text-black-50
+        
+        //- Pacientes a Cargo
+        .col-xl-4.col-md-6.mb-4
+          .card.border-start.border-primary.border-4.shadow-sm.h-100
+            .card-body
+              .row.g-0.align-items-center
+                .col
+                  .text-xs.fw-bold.text-primary.text-uppercase.mb-1 Pacientes a Cargo
+                  .h5.mb-0.fw-bold.text-secondary= kpis.pacientesInternados
+                .col-auto
+                  i.bi.bi-person-check.fs-2.text-black-50
+
+      //- Listas principales
+      .row
+        //- Próximos Turnos del Día
+        .col-lg-6.mb-4
+          .card.shadow-sm.h-100
+            .card-header.bg-white.py-3
+              h6.m-0.fw-bold.text-primary Próximos Turnos del Día
+            .card-body.p-0
+              if turnosHoyList && turnosHoyList.length > 0
+                .table-responsive
+                  table.table.table-hover.align-middle.mb-0
+                    thead
+                      tr
+                        th Hora
+                        th Paciente
+                        th Estado
+                        th.text-end Acción
+                    tbody
+                      each turno in turnosHoyList
+                        tr
+                          td.fw-bold= turno.hora_inicio.slice(0,5)
+                          td= turno.paciente ? `${turno.paciente.nombre} ${turno.paciente.apellido}` : 'N/A'
+                          td
+                            case turno.estado
+                              when 'Pendiente'
+                                span.badge.bg-warning.text-dark Pendiente
+                              when 'Confirmado'
+                                span.badge.bg-primary Confirmado
+                              when 'Atendido'
+                                span.badge.bg-success Atendido
+                              when 'Cancelado'
+                                span.badge.bg-danger Cancelado
+                              default
+                                span.badge.bg-secondary= turno.estado
+                          td.text-end
+                            a.btn.btn-sm.btn-outline-primary(href=`/turnos/${turno.id}`, title="Ver Turno")
+                              i.bi.bi-eye
+              else
+                p.text-center.text-muted.my-4 No tiene turnos programados para hoy.
+
+        //- Pacientes Internados a Cargo
+        .col-lg-6.mb-4
+          .card.shadow-sm.h-100
+            .card-header.bg-white.py-3
+              h6.m-0.fw-bold.text-primary Pacientes Internados a Cargo
+            .card-body.p-0
+              if pacientesInternadosList && pacientesInternadosList.length > 0
+                .table-responsive
+                  table.table.table-hover.align-middle.mb-0
+                    thead
+                      tr
+                        th Paciente
+                        th Ubicación
+                        th.text-end Acción
+                    tbody
+                      each admision in pacientesInternadosList
+                        tr
+                          td= admision.paciente ? `${admision.paciente.nombre} ${admision.paciente.apellido}` : 'N/A'
+                          td
+                            if admision.ubicaciones && admision.ubicaciones.length > 0 && admision.ubicaciones[0].cama
+                              - const u = admision.ubicaciones[0]
+                              span.small.text-muted #{u.cama.habitacion.ala.nombre} / Hab. #{u.cama.habitacion.numero} / Cama #{u.cama.codigo}
+                            else
+                              span.small.text-muted Sin ubicación asignada
+                          td.text-end
+                            a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}`, title="Ver Ficha de Internación")
+                              i.bi.bi-file-earmark-text
+              else
+                p.text-center.text-muted.my-4 No tiene pacientes internados a su cargo.

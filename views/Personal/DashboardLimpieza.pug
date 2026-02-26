@@ -1,0 +1,83 @@
+extends ../layout
+
+block content
+  .container-fluid.p-4.d-flex.flex-column.h-100
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.p-4.bg-body-tertiary
+      //- Encabezado de la página
+      .d-flex.justify-content-between.align-items-center.mb-4
+        h1.h3.mb-0.text-gray-800= title
+        span.text-muted #{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+
+      //- KPIs
+      .row.mb-4
+        .col-xl-4.col-md-6.mb-4
+          .card.border-start.border-warning.border-4.shadow-sm.h-100
+            .card-body
+              .row.g-0.align-items-center
+                .col
+                  .text-xs.fw-bold.text-warning.text-uppercase.mb-1 Camas para Higienizar
+                  .h5.mb-0.fw-bold.text-secondary= stats.camasParaHigienizar
+                .col-auto
+                  i.bi.bi-droplet-half.fs-2.text-black-50
+
+      //- Lista de Camas a Higienizar
+      .card.shadow-sm.flex-grow-1
+        .card-header.bg-white.py-3
+          h6.m-0.fw-bold.text-primary Tareas Pendientes
+        .card-body
+          if camasHigienizarList && camasHigienizarList.length > 0
+            .table-responsive
+              table.table.table-hover.align-middle
+                thead
+                  tr
+                    th Ala
+                    th Habitación
+                    th Cama
+                    th Estado
+                    th.text-end Acción
+                tbody
+                  each cama in camasHigienizarList
+                    tr
+                      td= cama.habitacion.ala.nombre
+                      td= cama.habitacion.numero
+                      td= cama.codigo
+                      td
+                        span.badge.bg-warning.text-dark Higienizando
+                      td.text-end
+                        button.btn.btn-sm.btn-success(type="button", data-bs-toggle="modal", data-bs-target="#confirmarCambioEstadoCamaModal", data-cama-id=cama.id, data-nuevo-estado="Libre", data-accion-texto="finalizar la higienización de la cama", data-titulo="Finalizar Higienización", title="Marcar como Libre")
+                          i.bi.bi-check-lg.me-1
+                          | Finalizar
+          else
+            p.text-center.text-muted.my-4 No hay camas pendientes de higienización. ¡Buen trabajo!
+
+  include ../Infraestructura/modalCambioEstadoCama.pug
+
+block scripts
+  script(src="/js/infraestructura/setEstadoCama.js")
+  script.
+    function actualizarUITabla(button, nuevoEstado, camaId) {
+      if (nuevoEstado === 'Libre') {
+        const fila = button.closest('tr');
+        if (!fila) return;
+
+        fila.remove();
+
+        const kpiElement = document.querySelector('.h5.mb-0.fw-bold.text-secondary');
+        if (kpiElement) {
+          let currentValue = parseInt(kpiElement.textContent, 10);
+          if (!isNaN(currentValue) && currentValue > 0) {
+            kpiElement.textContent = currentValue - 1;
+          }
+        }
+        const tbody = document.querySelector('.table tbody');
+        if (tbody && tbody.children.length === 0) {
+          const tableContainer = document.querySelector('.table-responsive');
+          const cardBody = tableContainer.parentElement;
+          tableContainer.remove();
+          const p = document.createElement('p');
+          p.className = 'text-center text-muted my-4';
+          p.textContent = 'No hay camas pendientes de higienización. ¡Buen trabajo!';
+          cardBody.appendChild(p);
+        }
+      }
+    }

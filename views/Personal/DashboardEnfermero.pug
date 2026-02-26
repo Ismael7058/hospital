@@ -1,0 +1,66 @@
+extends ../layout.pug
+
+
+block content
+  .container-fluid.d-flex.flex-column.h-100.p-4
+    .card.shadow-lg.border-0.d-flex.flex-column.flex-grow-1.p-4.bg-body-tertiary.h-100
+      //- Encabezado
+      .d-flex.justify-content-between.align-items-center.mb-4
+        h1.h3.mb-0.text-gray-800 Panel de Enfermería
+        span.text-muted #{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+
+      //- KPIs
+      .row.mb-4
+        //- Pacientes Asignados
+        .col-xl-4.col-md-6.mb-4
+          .card.border-start.border-primary.border-4.shadow-sm.h-100
+            .card-body
+              .row.g-0.align-items-center
+                .col
+                  .text-xs.fw-bold.text-primary.text-uppercase.mb-1 Pacientes Asignados
+                  .h5.mb-0.fw-bold.text-secondary= kpis.pacientesAsignados
+                .col-auto
+                  i.bi.bi-people.fs-2.text-black-50
+        
+        //- Camas Libres
+        .col-xl-4.col-md-6.mb-4
+          .card.border-start.border-success.border-4.shadow-sm.h-100
+            .card-body
+              .row.g-0.align-items-center
+                .col
+                  .text-xs.fw-bold.text-success.text-uppercase.mb-1 Camas Libres
+                  .h5.mb-0.fw-bold.text-secondary= kpis.camasLibres
+                .col-auto
+                  i.bi.bi-check-circle.fs-2.text-black-50
+
+      //- Listas principales
+      .row.h-100
+        //- Pacientes Asignados
+        .col-lg-12.mb-4
+          .card.shadow-sm.h-100
+            .card-header.bg-white.py-3
+              h6.m-0.fw-bold.text-primary Pacientes Asignados
+            .card-body.p-0
+              if pacientesAsignadosList && pacientesAsignadosList.length > 0
+                .table-responsive
+                  table.table.table-hover.align-middle.mb-0
+                    thead
+                      tr
+                        th Paciente
+                        th Ubicación
+                        th.text-end Acción
+                    tbody
+                      each admision in pacientesAsignadosList
+                        tr
+                          td= admision.paciente ? `${admision.paciente.nombre} ${admision.paciente.apellido}` : 'N/A'
+                          td
+                            if admision.ubicaciones && admision.ubicaciones.length > 0 && admision.ubicaciones[0].cama
+                              - const u = admision.ubicaciones[0]
+                              span.small.text-muted #{u.cama.habitacion.ala.nombre} / Hab. #{u.cama.habitacion.numero} / Cama #{u.cama.codigo}
+                            else
+                              span.small.text-muted Sin ubicación asignada
+                          td.text-end
+                            a.btn.btn-sm.btn-outline-primary(href=`/admisiones/${admision.id}`, title="Ver Ficha de Internación")
+                              i.bi.bi-file-earmark-person
+              else
+                p.text-center.text-muted.my-4 No tiene pacientes asignados.
