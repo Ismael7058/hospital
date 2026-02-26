@@ -3,13 +3,42 @@ const authService = require('../../services/authServices');
 exports.getHome = async (req, res, next) => {
     try {
         if (req.usuario) {
-            // La lógica de consulta ahora está encapsulada en el servicio
-            const estadisticas = await authService.getEstadisticasDashboard();
-
-            res.render('./shared/dashboard', {
-                title: 'Horizon - Dashboard',
-                estadisticas: estadisticas // Pasamos las estadísticas a la vista
-            });
+          switch (req.usuario.Rol.nombre) {
+            case "Administrador":
+              const estadisticas = await authService.getDashboardAdministrador();
+              return  res.render('./Personal/DashboardAdministrador.pug', {
+                    title: 'Horizon - Dashboard',
+                    estadisticas: estadisticas
+                });
+            case "Recepcion":
+              const estadistica = await authService.getDashboardRecepcion();
+              return  res.render('./Personal/DashboardRecepcion.pug', {
+                    title: 'Horizon - Dashboard',
+                    estadisticas: estadistica
+                });
+            case "Medico":
+              const estadisticasMedico = await authService.getDashboardMedico(req.usuario);
+              return  res.render('./Personal/DashboardMedico.pug', {
+                    title: 'Horizon - Dashboard',
+                    kpis: estadisticasMedico.kpis,
+                    turnosHoyList: estadisticasMedico.turnosHoyList,
+                    pacientesInternadosList: estadisticasMedico.pacientesInternadosList,
+                });
+            case "Enfermero":
+              const estadisticasEnfermero = await authService.getDashboardEnfermero(req.usuario);
+              return  res.render('./Personal/DashboardEnfermero.pug', {
+                    title: 'Horizon - Dashboard',
+                    kpis: estadisticasEnfermero.kpis,
+                    pacientesAsignadosList: estadisticasEnfermero.pacientesAsignadosList
+                });
+            case "Limpieza":
+              const estadisticasLimpieza = await authService.getDashboardLimpieza();
+              return  res.render('./Personal/DashboardLimpieza.pug', {
+                    title: 'Dashboard de Limpieza',
+                    stats: estadisticasLimpieza.stats,
+                    camasHigienizarList: estadisticasLimpieza.camasHigienizarList
+                });
+          }
         } else {
             res.render('./Shared/Login', { title: 'Bienvenido a Horizon' });
         }
