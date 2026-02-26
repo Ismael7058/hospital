@@ -69,10 +69,15 @@ block content
                   a(class=['nav-link', (activeTab === 'ubicaciones' ? 'active' : '')], id="ubicaciones-tab", data-bs-toggle="tab", href="#ubicaciones-container", role="tab", aria-controls="ubicaciones-container", aria-selected=(activeTab === 'ubicaciones'))
                     i.bi.bi-geo-alt.me-2
                     | Ubicaciones
-              a.btn.btn-outline-secondary(href=`/admisiones/${admision.id}`)
-                i.bi.bi-arrow-left.me-2
-                | Volver
-            
+
+              div      
+                a.btn.btn-outline-secondary.me-2(href=`/admisiones/${admision.id}`)
+                  i.bi.bi-arrow-left.me-2
+                  | Volver
+                
+                a.btn.btn-outline-primary(href=`/pacientes/${admision.paciente_id}/antecedentes`)
+                  | Antecedentes
+
             .flex-grow-1.overflow-auto.bg-white
               .tab-content#estadiaTabContent
                 //- Evolucion Medica
@@ -293,10 +298,7 @@ block content
                             | Nueva Nota
                         a.btn.btn-sm.btn-outline-secondary(href=`/admisiones/${admision.id}/signos-vitales`)
                           i.bi.bi-clock-history.me-1
-                          | Admision
-                        a.btn.btn-sm.btn-outline-secondary(href=`/pacientes/${admision.paciente_id}/signos-vitales`)
-                          i.bi.bi-clock-history.me-1
-                          | Historial Completo
+                          | Historial
 
                     if admision.signos_vitales && admision.signos_vitales.length > 0
                       .position-relative.mx-auto.py-2
@@ -322,11 +324,6 @@ block content
                         i.bi.bi-activity.display-4.mb-3.opacity-50
                         h5.mb-1 No hay signos vitales registrados
                         p.small.text-secondary Registre los signos vitales del paciente.
-                    
-                    if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
-                      include modalSignosVitales
-                      block scripts
-                        script(src="/js/admision/registrarSignosVitales.js") 
 
                 //- Historial de Ubicaciones
                 div(id="ubicaciones-container", class=['tab-pane', 'fade', (activeTab === 'ubicaciones' ? 'show active' : '')], role="tabpanel", aria-labelledby="ubicaciones-tab")
@@ -424,21 +421,26 @@ block content
                           div.fs-4.fw-bold.text-dark #{sv.temperatura} <span class="fs-6 text-muted fw-normal">°C</span>
 
                   .col-12.mt-4
-                    button.btn.btn-outline-primary.w-100(type="button") 
+                    a.btn.btn-outline-primary.w-100(href=`/admisiones/${admision.id}/signos-vitales`)
                       i.bi.bi-clock-history.me-2
                       | Ver Historial Completo
               else 
                 .text-center.text-muted.py-5
                   i.bi.bi-activity.display-4.mb-3.opacity-50
                   p.mb-0 No hay registros de signos vitales.
-                  button.btn.btn-sm.btn-primary.mt-3
-                    i.bi.bi-plus-lg.me-1
-                    | Registrar Ahora
+                  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+                    button.btn.btn-sm.btn-primary.mt-3(type="button" data-bs-toggle="modal" data-bs-target="#modalSignosVitales")
+                      i.bi.bi-plus-lg.me-1
+                      | Registrar Ahora
+
+  if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
+    include modalSignosVitales
 
 block scripts
   if admision.estado_atencion == 'En Atencion' && admision.estado == 'Activa' && admision.activo
     script(src="/js/admision/trasladar.js")
     script(src="/js/admision/registrarEvolucionMedica.js")
+    script(src="/js/admision/registrarSignosVitales.js")
   script.
     // Inicializar todos los popovers en la página
     document.addEventListener('DOMContentLoaded', function () {
