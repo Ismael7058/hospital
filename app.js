@@ -66,11 +66,11 @@ app.use('/api/fuentes', protegerRuta, restringirRol('Administrador'), fuentesInf
 app.use('/api/tipo-antecedente', protegerRuta, restringirRol('Administrador'), tipoAntecedentesApiRouter);
 app.use('/api/antecentes-paciente', protegerRuta, antecedentePacienteApiRouter);
 app.use('/api/admisiones', protegerRuta, admisionApiRouter);
-app.use('/api/evoluciones-medicas', protegerRuta, restringirRol('Medico'), evolucionMedicaApiRouter);
-app.use('/api/cuidados-preeliminares', protegerRuta, restringirRol('Medico'), cuidadoApiRouter);
-app.use('/api/estudios-solicitados', protegerRuta, restringirRol('Medico'), estudioApiRouter);
-app.use('/api/medicaciones', protegerRuta, restringirRol('Medico'), medicacionApiRouter);
-app.use('/api/signos-vitales', protegerRuta, restringirRol('Administrador'), signosVitalesApiRouter);
+app.use('/api/evoluciones-medicas', protegerRuta, restringirRol('Medico', 'Administrador'), evolucionMedicaApiRouter);
+app.use('/api/cuidados-preeliminares', protegerRuta, restringirRol('Medico', 'Enfermero', 'Administrador'), cuidadoApiRouter);
+app.use('/api/estudios-solicitados', protegerRuta, restringirRol('Medico', 'Administrador'), estudioApiRouter);
+app.use('/api/medicaciones', protegerRuta, restringirRol('Medico', 'Administrador'), medicacionApiRouter);
+app.use('/api/signos-vitales', protegerRuta, restringirRol('Medico', 'Enfermero', 'Administrador'), signosVitalesApiRouter);
 
 // Rutas de views
 app.use('/', authViewsRouter);
