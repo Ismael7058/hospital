@@ -2,41 +2,33 @@ document.addEventListener('DOMContentLoaded', function () {
   // --- LÓGICA PARA TAGIFY (NACIONALIDADES) ---
   const nacionalidadesInput = document.querySelector('#nacionalidades-input');
   if (nacionalidadesInput) {
-    // Parsear la whitelist desde el atributo data
-
-    // Inicializar Tagify
     const tagify = new Tagify(nacionalidadesInput, {
       whitelist: typeof nacionalidadesWhitelist !== 'undefined' ? nacionalidadesWhitelist : [],
       tagTextProp: 'name',
       searchKeys: ['name'],
       dropdown: {
         maxItems: 20,
-        classname: 'tags-look', // Clase para estilizar el dropdown
-        enabled: 0, // Mostrar el dropdown al empezar a escribir
-        closeOnSelect: false, // No cerrar el dropdown al seleccionar
+        classname: 'tags-look',
+        enabled: 0,
+        closeOnSelect: false,
       },
-      // Plantilla para controlar cómo se muestra cada item en el desplegable
       templates: {
         dropdownItem(item) {
-          // Usamos el `name` del item para el texto visible
           return `<div ${this.getAttributes(item)} class='tagify__dropdown__item ${item.class ? item.class : ""}' tabindex="0" role="option">${item.name}</div>`;
         }
       },
     });
   }
 
-  // --- LÓGICA PARA IDENTIFICACIONES DINÁMICAS ---
   const container = document.getElementById('identificaciones-container');
   const addButton = document.getElementById('btn-add-identificacion');
   let identificacionIndex = 1;
 
-  // Determinar el límite de identificaciones basado en las opciones del <select>
   const firstSelect = container.querySelector('select');
-  const maxIdentificaciones = firstSelect ? firstSelect.querySelectorAll('option:not([value=""])').length : 3; // Fallback a 3
+  const maxIdentificaciones = firstSelect ? firstSelect.querySelectorAll('option:not([value=""])').length : 3;
 
   const updateAddButtonState = () => {
     const currentItemsCount = container.querySelectorAll('.identificacion-item').length;
-    // Deshabilitar el botón si se alcanza el límite
     addButton.disabled = currentItemsCount >= maxIdentificaciones;
   };
 
@@ -48,10 +40,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const tipo_doc = tipoDocSelect.value;
     const nro_doc = nroDocInput.value;
 
-    // Limpiar validación custom previa
     nroDocInput.setCustomValidity('');
 
-    if (!nro_doc) return; // El atributo 'required' se encargará si está vacío
+    if (!nro_doc) return;
 
     let errorMessage = '';
     switch (tipo_doc) {
@@ -78,25 +69,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const selects = container.querySelectorAll('select[name^="identificaciones"]');
     const selectedValues = new Set();
 
-    // 1. Encontrar todos los tipos de documento ya seleccionados
     selects.forEach(select => {
       if (select.value) {
         selectedValues.add(select.value);
       }
     });
 
-    // 2. Actualizar las opciones en cada <select>
     selects.forEach(select => {
       const currentSelectValue = select.value;
       const options = select.querySelectorAll('option');
 
       options.forEach(option => {
-        // Si la opción tiene un valor y no es la que está seleccionada en ESTE select
         if (option.value && option.value !== currentSelectValue) {
-          // Deshabilitarla si ya está en el set de valores seleccionados
           option.disabled = selectedValues.has(option.value);
         } else {
-          // Asegurarse de que el placeholder y la opción actual estén siempre habilitados
           option.disabled = false;
         }
       });
@@ -107,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const items = container.querySelectorAll('.identificacion-item');
     items.forEach((item, index) => {
       const removeBtn = item.querySelector('.btn-remove-identificacion');
-      // Mostrar el botón de quitar solo si hay más de un item
       removeBtn.style.display = items.length > 1 ? '' : 'none';
     });
   };
@@ -115,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
   addButton.addEventListener('click', () => {
     const newItem = container.querySelector('.identificacion-item').cloneNode(true);
 
-    // Limpiar valores y actualizar nombres de los inputs
     newItem.querySelector('select').name = `identificaciones[${identificacionIndex}][tipo_doc]`;
     newItem.querySelector('select').value = '';
     newItem.querySelector('input').name = `identificaciones[${identificacionIndex}][nro_doc]`;
@@ -124,25 +108,24 @@ document.addEventListener('DOMContentLoaded', function () {
     container.appendChild(newItem);
     identificacionIndex++;
     updateRemoveButtons();
-    updateAddButtonState(); // Actualizar estado del botón de añadir
-    updateIdentificacionOptions(); // Actualizar opciones después de añadir
+    updateAddButtonState();
+    updateIdentificacionOptions();
   });
 
   container.addEventListener('click', function (e) {
     if (e.target && e.target.closest('.btn-remove-identificacion')) {
       e.target.closest('.identificacion-item').remove();
       updateRemoveButtons();
-      updateAddButtonState(); // Actualizar estado del botón de añadir
-      updateIdentificacionOptions(); // Actualizar opciones después de quitar
+      updateAddButtonState();
+      updateIdentificacionOptions();
     }
   });
 
-  // Añadir un listener para cuando se cambia un tipo de documento
   container.addEventListener('change', function(e) {
     if (e.target && e.target.tagName === 'SELECT') {
       const nroDocInput = e.target.closest('.identificacion-item').querySelector('input[type="text"]');
       updateIdentificacionOptions();
-      validateIdentificacionInput(nroDocInput); // Re-validar al cambiar el tipo
+      validateIdentificacionInput(nroDocInput);
     }
   });
 
@@ -152,20 +135,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Actualizar botones al cargar la página por si hay errores de validación y se renderizan varios items
-  updateRemoveButtons();
-  updateAddButtonState(); // Llamada inicial para el botón de añadir
-  updateIdentificacionOptions(); // Llamada inicial al cargar la página
 
-  // --- LÓGICA PARA ENVÍO DEL FORMULARIO VÍA API ---
+  updateRemoveButtons();
+  updateAddButtonState();
+  updateIdentificacionOptions();
+
+
   const form = document.getElementById('registroPacienteForm');
   form.addEventListener('submit', async function (event) {
-    event.preventDefault(); // Prevenir el envío tradicional
+    event.preventDefault();
 
-    // Limpiar errores previos
     document.querySelectorAll('.api-error').forEach(el => el.remove());
 
-    // Recolectar datos del formulario
     const data = {
       nombre: form.nombre.value,
       apellido: form.apellido.value,
@@ -177,12 +158,11 @@ document.addEventListener('DOMContentLoaded', function () {
       nacionalidades: form.nacionalidades.value,
     };
 
-    // Recolectar identificaciones como un array de objetos
     data.identificaciones = [];
     document.querySelectorAll('.identificacion-item').forEach(item => {
       const tipo_doc = item.querySelector('select').value;
       const nro_doc = item.querySelector('input[type="text"]').value;
-      if (tipo_doc || nro_doc) { // Añadir solo si hay algún dato
+      if (tipo_doc || nro_doc) {
         data.identificaciones.push({ tipo_doc, nro_doc });
       }
     });
@@ -199,11 +179,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const result = await response.json();
 
       if (!response.ok) {
-        // Si la respuesta no es 2xx, es un error (ej. 400 por validación)
         if (result.errors) {
-          // Mostrar errores de validación junto a cada campo
           result.errors.forEach(error => {
-            // Manejo especial para errores de identificaciones
             if (error.path.startsWith('identificaciones[')) {
               const fieldName = 'identificaciones';
               const inputElement = document.getElementById('identificaciones-container');
@@ -218,6 +195,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 errorElement.className = 'text-danger mt-1 small api-error';
                 errorElement.textContent = error.msg;
                 inputElement.parentElement.appendChild(errorElement);
+              }else{
+                mostrarAlerta(error.msg, 'danger');
               }
             }
           });
@@ -225,15 +204,13 @@ document.addEventListener('DOMContentLoaded', function () {
           mostrarAlerta(result.message || 'Ocurrió un error.', 'danger');
         }
       } else {
-        // Registro exitoso
         mostrarAlerta(result.message, 'success');
-        // Redirigir después de un breve momento para que el usuario vea la alerta
         setTimeout(() => {
           window.location.href = '/pacientes';
         }, 1500);
       }
     } catch (error) {
-      mostrarAlerta('No se pudo conectar con el servidor. Por favor, intente más tarde.', 'danger');
+      mostrarAlerta( error.message || 'No se pudo conectar con el servidor. Por favor, intente más tarde.', 'danger');
     }
   });
 });
