@@ -219,6 +219,17 @@ const registrarPorTurno = async (data) => {
       throw new Error('El turno ya fue utilizado');
     }
 
+      const admision = await Admision.findOne({ 
+        where: { 
+          paciente_id: turno.paciente_id, 
+          activo: true,
+          estado: 'Activa'
+        } 
+      });
+      if (admision) {
+        throw new Error('El paciente ya se encuentra admitido');
+      }
+
     let fechaTurno = new Date(turno.fecha);
     if (typeof turno.fecha === 'string' && !turno.fecha.includes('T')) {
       fechaTurno = new Date(turno.fecha + 'T00:00:00');
