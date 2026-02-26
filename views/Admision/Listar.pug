@@ -128,8 +128,11 @@ block content
                       td.text-center #{admision.fecha_hora_ingreso.toLocaleDateString('es-AR', {day: '2-digit', month: '2-digit', year: 'numeric'})} - #{new Date(admision.fecha_hora_ingreso).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
                       td.text-start.ps-4
                         div
-                          a.text-decoration-none.fw-bold(href=`/pacientes/${admision.paciente.id}`) 
+                          if usuarioAutenticado.Rol.nombre == "Enfermero"
                             | #{admision.paciente.nombre} #{admision.paciente.apellido}
+                          else  
+                            a.text-decoration-none.fw-bold(href=`/pacientes/${admision.paciente.id}`) 
+                              | #{admision.paciente.nombre} #{admision.paciente.apellido}
                         if admision.paciente.identificaciones && admision.paciente.identificaciones.length > 0
                           div.small.text-muted.d-flex.align-items-center
                             span #{admision.paciente.identificaciones[0].tipo_doc} #{admision.paciente.identificaciones[0].nro_doc}
